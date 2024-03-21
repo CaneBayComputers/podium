@@ -192,8 +192,7 @@ sudo apt-get -y -q install \
 	xclip \
 	pv \
 	meld \
-	imagemagick \
-  inkscape
+	imagemagick
 
 sudo apt-get -y -q install \
   php \
