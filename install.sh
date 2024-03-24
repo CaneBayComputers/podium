@@ -249,6 +249,25 @@ echo
 
 
 ###############################
+# Hosts
+###############################
+echo-cyan 'Writing domain names to hosts file ...'
+
+echo-white
+
+while read HOST; do
+
+	if ! cat /etc/hosts | grep "$HOST"; then
+
+		echo "$HOST" | sudo tee -a /etc/hosts
+
+	fi
+
+done < hosts.txt
+
+
+
+###############################
 # Fonts
 ###############################
 
