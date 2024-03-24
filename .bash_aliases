@@ -3,10 +3,11 @@ alias ~='cd ~'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias repos='~; cd repos'
-alias cbc-development='repos; cd cbc-development-setup'
-alias docker-php7-laravel='repos; cd docker-php7-laravel'
-alias docker-php8-laravel='repos; cd docker-php8-laravel'
+alias development='repos; cd cbc-development-setup'
+alias dockerphp7='repos; cd cbc-docker-php7-laravel'
+alias dockerphp8='repos; cd cbc-docker-php8-laravel'
 alias cbcstack='repos; cd cbc-docker-stack'
+alias laravel='repos; cd cbc-laravel'
 
 # Docker
 alias dockerup="docker-compose up -d"
