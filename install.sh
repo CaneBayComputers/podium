@@ -307,20 +307,27 @@ do
 
 done
 
+echo
+
 
 
 ###############################
 # Set up Laravel repo
 ###############################
+
+echo-cyan 'Setting up CBC Laravel ...'
+
+echo-white
+
 cd cbc-laravel
 
-cp .env.example .env
-
-php artisan key:generate
-
-cp docker-compose.example.yaml docker-compose.yaml
+cp -f .env.example .env
 
 composer install
+
+cp -f docker-compose.example.yaml docker-compose.yaml
+
+php artisan key:generate
 
 
 
