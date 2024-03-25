@@ -297,7 +297,7 @@ for REPO in "${REPOS[@]}"
 
 do
 
-	printf "\n\n------- $REPO\n"
+	printf "\n------- $REPO\n"
 
 	if [ ! -d $REPO ]; then
 
