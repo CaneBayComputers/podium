@@ -310,6 +310,21 @@ done
 
 
 ###############################
+# Set up Laravel repo
+###############################
+cd cbc-laravel
+
+cp .env.example .env
+
+php artisan key:generate
+
+cp docker-compose.example.yaml docker-compose.yaml
+
+composer install
+
+
+
+###############################
 # Yay all done
 ###############################
 
