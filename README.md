@@ -1,30 +1,15 @@
-After installing Linux Ubuntu, Mint or PopOS install Git:
+This project was designed for the absolute beginner in mind. If you plan on installing Linux yourself you can run this after doing so. Otherwise, if you are on a Windows machine head over to [cbc-windows-setup](https://github.com/CaneBayComputers/cbc-windows-setup) where you can easily install a Linux Mint virtual box that is ready to go! No prior dev op experience required! You don't even need to know anything about Linux whatsoever.
+
+After installing Linux Ubuntu, Mint or PopOS:
 
 Run the following commands in a terminal (press Alt + Ctrl + t)
 
-Install git and xclip:
+Install git:
 ```bash
-sudo apt-get install git xclip
+sudo apt-get update
+
+sudo apt-get install git
 ```
-
-Create an SSH key:
-```bash
-mkdir ~/.ssh
-
-cd ~/.ssh
-
-# Create SSH key, just keep pressing enter for everything
-ssh-keygen -t rsa -N ''
-
-# Put SSH key into clipboard
-cat ~/.ssh/id_rsa.pub | xclip -sel clip
-```
-
-In Github:
-- Click your avatar > Settings > SSH and GPG keys
-- Click 'New SSH key' button
-- Enter a Title and paste (Ctrl + v) the key into the Key field
-- Click 'Add SSH key' button
 
 Clone this repo:
 ```bash
