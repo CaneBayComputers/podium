@@ -269,6 +269,8 @@ while read HOST; do
 
 done < hosts.txt
 
+echo
+
 
 
 ###############################
@@ -284,6 +286,8 @@ sudo cp -f ANSI\ Regular.flf /usr/share/figlet
 ###############################
 
 echo-cyan 'Installing repos ...'
+
+echo-white
 
 cd ~
 
@@ -301,7 +305,7 @@ do
 
 	if [ ! -d $REPO ]; then
 
-		git clone git@github.com:CaneBayComputers/$REPO.git
+		git clone https://github.com/CaneBayComputers/$REPO.git
 
 	fi
 
