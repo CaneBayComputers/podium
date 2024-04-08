@@ -2,6 +2,8 @@
 
 set -e
 
+sleep 5
+
 if ! git config user.name; then
 
 	echo-yellow -ne 'Enter your full name for Git commits: '
@@ -29,3 +31,7 @@ if ! git config user.email; then
 	sudo git config --global user.email $GIT_EMAIL
 
 fi
+
+sleep 5
+
+read -n 1 -r -s -p $'Press enter to continue...\n'
