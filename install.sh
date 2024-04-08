@@ -332,6 +332,14 @@ php artisan key:generate
 
 
 ###############################
+# Create Docker volume
+###############################
+
+docker volume create vol-cbc-docker-stack
+
+
+
+###############################
 # Yay all done
 ###############################
 
