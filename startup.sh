@@ -4,6 +4,8 @@ set -e
 
 shopt -s expand_aliases
 
+source ~/.bash_aliases
+
 sleep 5
 
 echo
@@ -69,5 +71,7 @@ gpull
 cd ..
 
 echo
+
+if [ "$( docker container inspect -f '{{.State.Running}}' cbc-mariadb )" = "true" ]; then upcbcstack; fi
 
 read -n 1 -r -s -p $'Press enter to continue...\n'
