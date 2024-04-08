@@ -76,7 +76,7 @@ cd ..
 
 echo
 
-if [ "$( docker container inspect -f '{{.State.Running}}' cbc-mariadb )" = "false" ]; then upcbcstack; fi
+if ! docker container inspect -f '{{.State.Running}}' cbc-mariadb > /dev/null 2>&1; then upcbcstack; fi
 
 repos
 
@@ -84,7 +84,7 @@ cd cbc-laravel
 
 gpull
 
-if [ "$( docker container inspect -f '{{.State.Running}}' cbc-laravel )" = "false" ]; then dockerup; fi
+if ! docker container inspect -f '{{.State.Running}}' cbc-laravel > /dev/null 2>&1; then dockerup; fi
 
 cd ..
 
