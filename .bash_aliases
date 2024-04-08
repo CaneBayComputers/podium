@@ -10,8 +10,8 @@ alias cbcstack='repos; cd cbc-docker-stack'
 alias laravel='repos; cd cbc-laravel'
 
 # Docker
-alias dockerup="docker-compose up -d"
-alias dockerdown="docker-compose down"
+alias dockerup="docker compose up -d"
+alias dockerdown="docker compose down"
 alias dockerexec="docker container exec -it"
 alias dockerrm="docker container rm"
 alias dockerls="docker container ls"
@@ -61,7 +61,6 @@ alias lspci='sudo lspci'
 alias lsblk='sudo lsblk'
 alias visudo='sudo visudo'
 alias docker="sudo docker"
-alias docker-compose="sudo docker-compose"
 
 # Misc
 alias la='ls -la'

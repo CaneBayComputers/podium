@@ -14,11 +14,13 @@ echo -n "Current Git user name: "
 
 if ! git config user.name; then
 
+	echo
+
 	echo-yellow -ne 'Enter your full name for Git commits: '
 
 	read GIT_NAME
 
-	echo
+	echo-white
 
 	git config --global user.name "$GIT_NAME"
 
@@ -32,11 +34,13 @@ echo -n "Current Git user email: "
 
 if ! git config user.email; then
 
+	echo
+
 	echo-yellow -ne 'Enter your email address for Git commits: '
 
 	read GIT_EMAIL
 
-	echo
+	echo-white
 
 	git config --global user.email $GIT_EMAIL
 
