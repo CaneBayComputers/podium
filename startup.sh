@@ -76,6 +76,18 @@ cd ..
 
 echo
 
-if [ "$( docker container inspect -f '{{.State.Running}}' cbc-mariadb )" = "true" ]; then upcbcstack; fi
+if [ "$( docker container inspect -f '{{.State.Running}}' cbc-mariadb )" = "false" ]; then upcbcstack; fi
+
+repos
+
+cd cbc-laravel
+
+gpull
+
+if [ "$( docker container inspect -f '{{.State.Running}}' cbc-laravel )" = "false" ]; then dockerup; fi
+
+cd ..
+
+echo
 
 read -n 1 -r -s -p $'Press enter to continue...\n'
