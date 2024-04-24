@@ -7,7 +7,7 @@ alias development='repos; cd cbc-development-setup'
 alias dockerphp7='repos; cd cbc-docker-php7-laravel'
 alias dockerphp8='repos; cd cbc-docker-php8-laravel'
 alias cbcstack='repos; cd cbc-docker-stack'
-alias laravel='repos; cd cbc-laravel'
+alias laravelphp7='repos; cd cbc-laravel'
 
 # Docker
 alias dockerup="docker compose up -d"

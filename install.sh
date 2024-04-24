@@ -291,7 +291,7 @@ mkdir -p repos
 
 cd repos
 
-REPOS=( cbc-docker-stack cbc-docker-php7-nginx cbc-laravel )
+REPOS=( cbc-docker-stack cbc-docker-php7-nginx cbc-laravel-php7 )
 
 for REPO in "${REPOS[@]}"
 

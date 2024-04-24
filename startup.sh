@@ -80,13 +80,9 @@ if ! docker container inspect -f '{{.State.Running}}' cbc-mariadb > /dev/null 2>
 
 repos
 
-cd cbc-laravel
+cd cbc-laravel-php7
 
-gpull
-
-if ! docker container inspect -f '{{.State.Running}}' cbc-laravel > /dev/null 2>&1; then dockerup; fi
-
-cd ..
+if ! docker container inspect -f '{{.State.Running}}' cbc-laravel-php7 > /dev/null 2>&1; then dockerup; fi
 
 echo
 
