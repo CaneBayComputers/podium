@@ -121,25 +121,6 @@ echo
 
 
 ###############################
-# Remove crappy software
-###############################
-
-echo
-
-echo-cyan 'Uninstalling some software ...'
-
-echo-white
-
-PKGS=( firefox firefox-locale-en gufw celluloid hexchat hypnotix redshift-gtk rhythmbox timeshift thunderbird warpinator webapp-manager mintbackup bulky mintwelcome onboard )
-
-for PKG in "${PKGS[@]}"
-do
-	if sudo apt-get -y -q purge "$PKG"; then true; fi
-done
-
-
-
-###############################
 # Docker
 ###############################
 
@@ -291,7 +272,7 @@ mkdir -p repos
 
 cd repos
 
-REPOS=( cbc-docker-stack cbc-docker-php7-nginx cbc-laravel-php7 )
+REPOS=( cbc-docker-stack cbc-docker-php7-nginx cbc-docker-php8-nginx cbc-laravel-php7 cbc-laravel-php8 )
 
 for REPO in "${REPOS[@]}"
 
@@ -319,7 +300,7 @@ echo-cyan 'Setting up CBC Laravel ...'
 
 echo-white
 
-cd cbc-laravel
+cd cbc-laravel-php7
 
 cp -f .env.example .env
 
