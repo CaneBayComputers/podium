@@ -76,9 +76,3 @@ alias off='poweroff'
 alias untar='tar -xvf'
 alias hosts='sudo nano /etc/hosts'
 alias composer-ignore='composer --ignore-platform-reqs'
-
-
-# NPM
-alias buildcss='printf "Theme: "; if [ -z "$THEME" ]; then read THEME; else echo $THEME; fi; THEME=$THEME npm run buildcss'
-alias buildjs='npm run js'
-alias buildcssall='for FILE in resources/sass/themes/*.scss; do THEME=${FILE%.scss}; buildcss; done'
