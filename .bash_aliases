@@ -41,7 +41,7 @@ alias gpush='git push -v'
 alias gpull='git pull -v'
 alias gquick='echo "Commit message: " && read MESSAGE && gstatus && gadd && gcommit "$MESSAGE" && gpush'
 alias gfetch='git fetch ; gstatus'
-alias gstatusall='repos; for DIR in */; do cd $DIR; gstatus; cd ..; done'
+alias gstatusall='repos; for DIR in */; do cd $DIR; if ! git diff-index --quiet HEAD --; then gstatus; fi; cd ..; done'
 
 # Sudo
 alias ifconfig='sudo ifconfig'
