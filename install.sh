@@ -73,14 +73,30 @@ echo
 
 
 ###############################
+# Initial update and package installations
+###############################
+
+echo-cyan 'Updating and installing initial packages ...'
+
+echo-white
+
+sudo apt-get update -y
+
+sudo apt-get -y install ca-certificates curl python3-pip python3-venv
+
+echo
+
+echo
+
+
+
+###############################
 # AWS
 ###############################
 
 echo-cyan 'Installing AWS ...'
 
 echo-white
-
-sudo apt-get -y -q install python3-pip python3-venv > /dev/null 2>&1
 
 if ! aws --version > /dev/null 2>&1; then
 
@@ -95,6 +111,12 @@ if ! aws --version > /dev/null 2>&1; then
 	rm -fR awscli-bundle
 
 fi
+
+echo
+
+echo-green "AWS installed!"
+
+echo-white
 
 echo
 
@@ -130,20 +152,27 @@ echo-cyan 'Installing Docker ...'
 
 echo-white
 
-sudo apt-get update -y -q
+if ! [ -f /etc/apt/sources.list.d/docker.list ]; then
 
-sudo apt-get install ca-certificates curl
+  sudo install -m 0755 -d /etc/apt/keyrings
 
-sudo install -m 0755 -d /etc/apt/keyrings
+  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+  echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$UBUNTU_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$UBUNTU_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt-get update -y -q
+
+fi
+
+echo
+
+echo-green "Docker installed!"
+
+echo-white
 
 
 
@@ -157,9 +186,7 @@ echo-cyan 'Installing packages ...'
 
 echo-white
 
-sudo apt-get update -y -q
-
-sudo apt-get -y -q install \
+sudo apt-get -y install \
 	figlet \
 	lolcat \
 	bash-completion \
@@ -181,9 +208,7 @@ sudo apt-get -y -q install \
 	xclip \
 	pv \
 	meld \
-	imagemagick
-
-sudo apt-get -y -q install \
+	imagemagick \
   php \
   php-bcmath \
   php-cli \
@@ -215,6 +240,12 @@ echo
 # Composer
 ###############################
 
+echo
+
+echo-cyan 'Installing Composer ...'
+
+echo-white
+
 if ! composer --version > /dev/null 2>&1; then
 
 	php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -224,6 +255,12 @@ if ! composer --version > /dev/null 2>&1; then
 	rm -f composer-setup.php
 
 fi
+
+echo
+
+echo-green "Composer installed!"
+
+echo-white
 
 echo
 
@@ -272,7 +309,7 @@ mkdir -p repos
 
 cd repos
 
-REPOS=( cbc-docker-stack cbc-docker-php7-nginx cbc-docker-php8-nginx cbc-laravel-php7 cbc-laravel-php8 )
+REPOS=( certbot-bash-wrapper cbc-docker-stack cbc-docker-php7-nginx cbc-docker-php8-nginx cbc-laravel-php7 cbc-laravel-php8 )
 
 for REPO in "${REPOS[@]}"
 
@@ -293,22 +330,104 @@ echo
 
 
 ###############################
-# Set up Laravel repo
+# Create self signed keys
 ###############################
 
-echo-cyan 'Setting up CBC Laravel ...'
+echo-cyan 'Setting up CBC Nginx SSL PHP7...'
+
+echo-white
+
+cd cbc-docker-php7-nginx/ssl
+
+if ! [ -f openssl.cnf ]; then
+
+  cp -f openssl.example.cnf openssl.cnf
+
+  source create_self_signed.sh
+
+fi
+
+cd ../..
+
+echo
+
+
+echo-cyan 'Setting up CBC Nginx SSL PHP8...'
+
+echo-white
+
+cd cbc-docker-php8-nginx/ssl
+
+if ! [ -f openssl.cnf ]; then
+
+  cp -f openssl.example.cnf openssl.cnf
+
+  source create_self_signed.sh
+
+fi
+
+cd ../..
+
+echo
+
+
+
+###############################
+# Set up Laravel repos
+###############################
+
+echo-cyan 'Setting up CBC Laravel PHP7...'
 
 echo-white
 
 cd cbc-laravel-php7
 
-cp -f .env.example .env
+composer --ignore-platform-reqs install
 
-composer install
+if ! [ -f .env ]; then
 
-cp -f docker-compose.example.yaml docker-compose.yaml
+  cp -f .env.example .env
 
-php artisan key:generate
+fi
+
+if ! [ -f docker-compose.yaml ]; then
+
+  cp -f docker-compose.example.yaml docker-compose.yaml
+
+  php artisan key:generate
+
+fi
+
+cd ..
+
+echo
+
+
+echo-cyan 'Setting up CBC Laravel PHP8...'
+
+echo-white
+
+cd cbc-laravel-php8
+
+composer --ignore-platform-reqs install
+
+if ! [ -f .env ]; then
+
+  cp -f .env.example .env
+
+fi
+
+if ! [ -f docker-compose.yaml ]; then
+
+  cp -f docker-compose.example.yaml docker-compose.yaml
+
+  php artisan key:generate
+
+fi
+
+cd ..
+
+echo
 
 
 
@@ -316,7 +435,11 @@ php artisan key:generate
 # Create Docker volume
 ###############################
 
-docker volume create vol-cbc-docker-stack
+if ! sudo docker volume ls | grep vol-cbc-docker-stack; then
+
+  sudo docker volume create vol-cbc-docker-stack
+
+fi
 
 
 

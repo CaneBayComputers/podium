@@ -6,75 +6,29 @@ shopt -s expand_aliases
 
 source ~/.bash_aliases
 
-sleep 5
 
-echo
-
-echo -n "Current Git user name: "
-
-if ! git config user.name; then
-
-	echo
-
-	echo-yellow -ne 'Enter your full name for Git commits: '
-
-	read GIT_NAME
-
-	echo-white
-
-	git config --global user.name "$GIT_NAME"
-
-	sudo git config --global user.name "$GIT_NAME"
-
-fi
-
-echo
-
-echo -n "Current Git user email: "
-
-if ! git config user.email; then
-
-	echo
-
-	echo-yellow -ne 'Enter your email address for Git commits: '
-
-	read GIT_EMAIL
-
-	echo-white
-
-	git config --global user.email $GIT_EMAIL
-
-	sudo git config --global user.email $GIT_EMAIL
-
-fi
 
 repos
 
-echo
+REPOS=( certbot-bash-wrapper cbc-docker-stack cbc-docker-php7-nginx cbc-docker-php8-nginx )
 
-cd cbc-docker-php7-nginx
+for REPO in "${REPOS[@]}"
 
-gpull
+do
 
-cd ..
+	printf "\n------- $REPO\n"
 
-echo
+	cd $REPO
 
-cd cbc-development-setup
+	gpull
 
-gpull
+	cd ..
 
-cd ..
-
-echo
-
-cd cbc-docker-stack
-
-gpull
-
-cd ..
+done
 
 echo
+
+
 
 if ! docker container inspect -f '{{.State.Running}}' cbc-mariadb > /dev/null 2>&1; then upcbcstack; fi
 
@@ -84,6 +38,18 @@ cd cbc-laravel-php7
 
 if ! docker container inspect -f '{{.State.Running}}' cbc-laravel-php7 > /dev/null 2>&1; then dockerup; fi
 
+cd ..
+
 echo
+
+cd cbc-laravel-php8
+
+if ! docker container inspect -f '{{.State.Running}}' cbc-laravel-php8 > /dev/null 2>&1; then dockerup; fi
+
+cd ..
+
+echo
+
+
 
 read -n 1 -r -s -p $'Press enter to continue...\n'

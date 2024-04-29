@@ -7,7 +7,7 @@ alias development='repos; cd cbc-development-setup'
 alias dockerphp7='repos; cd cbc-docker-php7-laravel'
 alias dockerphp8='repos; cd cbc-docker-php8-laravel'
 alias cbcstack='repos; cd cbc-docker-stack'
-alias laravelphp7='repos; cd cbc-laravel'
+alias laravelphp7='repos; cd cbc-laravel-php7'
 
 # Docker
 alias dockerup="docker compose up -d"
@@ -17,7 +17,7 @@ alias dockerrm="docker container rm"
 alias dockerls="docker container ls"
 alias upcbcstack='cbcstack; dockerup'
 alias downcbcstack='cbcstack; dockerdown'
-alias dockerexec-laravel='dockerexec --user developer cbc-laravel'
+alias dockerexec-laravel-php7='dockerexec --user developer cbc-laravel-php7'
 
 # Color
 alias echo-red='tput setaf 1 ; echo'
@@ -30,7 +30,7 @@ alias echo-white='tput setaf 7; echo'
 
 # Artisan
 alias art='php artisan'
-alias art-laravel='dockerexec-laravel php /usr/share/nginx/html/artisan'
+alias art-laravel-php7='dockerexec-laravel-php7 php /usr/share/nginx/html/artisan'
 
 # Git
 alias gstatus='echo; pwd ; echo ; git status ; echo ; echo -------------------------------------------------- ; echo'
