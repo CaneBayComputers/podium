@@ -2,15 +2,9 @@
 
 set -e
 
-shopt -s expand_aliases
+source .bash_aliases
 
-alias echo-red='tput setaf 1 ; echo'
-alias echo-green='tput setaf 2 ; echo'
-alias echo-yellow='tput setaf 3 ; echo'
-alias echo-blue='tput setaf 4 ; echo'
-alias echo-magenta='tput setaf 5 ; echo'
-alias echo-cyan='tput setaf 6 ; echo'
-alias echo-white='tput setaf 7; echo'
+shopt -s expand_aliases
 
 if ! sudo -v; then echo "No sudo privileges. Root access required!"; exit 1; fi
 
@@ -412,7 +406,7 @@ if ! [ -f .env ]; then
 
   cp -f .env.example .env
 
-  php artisan key:generate
+  art-laravel-php7 key:generate
 
 fi
 
@@ -439,7 +433,7 @@ if ! [ -f .env ]; then
 
   cp -f .env.example .env
 
-  php artisan key:generate
+  art-laravel-php8 key:generate
 
 fi
 
