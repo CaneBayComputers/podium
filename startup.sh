@@ -30,13 +30,13 @@ echo
 
 
 
-if ! docker container inspect -f '{{.State.Running}}' cbc-mariadb > /dev/null 2>&1; then upcbcstack; fi
+if [ "$(docker container inspect -f '{{.State.Running}}' cbc-mariadb)" != "true" ]; then upcbcstack; fi
 
 repos
 
 cd cbc-laravel-php7
 
-if ! docker container inspect -f '{{.State.Running}}' cbc-laravel-php7 > /dev/null 2>&1; then dockerup; fi
+if [ "$(docker container inspect -f '{{.State.Running}}' cbc-laravel-php7)" != "true" ]; then dockerup; fi
 
 cd ..
 
@@ -44,7 +44,7 @@ echo
 
 cd cbc-laravel-php8
 
-if ! docker container inspect -f '{{.State.Running}}' cbc-laravel-php8 > /dev/null 2>&1; then dockerup; fi
+if [ "$(docker container inspect -f '{{.State.Running}}' cbc-laravel-php8)" != "true" ]; then dockerup; fi
 
 cd ..
 
