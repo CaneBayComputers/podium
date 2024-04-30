@@ -177,6 +177,30 @@ echo-white
 
 
 ###############################
+# Create Docker volume
+###############################
+
+echo
+
+echo-cyan 'Creating Docker volume ...'
+
+echo-white
+
+if ! sudo docker volume ls | grep vol-cbc-docker-stack; then
+
+  sudo docker volume create vol-cbc-docker-stack
+
+fi
+
+echo
+
+echo-green "Docker volume created!"
+
+echo-white
+
+
+
+###############################
 # Init apt package installs
 ###############################
 
@@ -382,7 +406,7 @@ echo-white
 
 cd cbc-laravel-php7
 
-composer --ignore-platform-reqs install
+source ./install.sh
 
 if ! [ -f .env ]; then
 
@@ -409,7 +433,7 @@ echo-white
 
 cd cbc-laravel-php8
 
-composer --ignore-platform-reqs install
+source ./install.sh
 
 if ! [ -f .env ]; then
 
@@ -428,18 +452,6 @@ fi
 cd ..
 
 echo
-
-
-
-###############################
-# Create Docker volume
-###############################
-
-if ! sudo docker volume ls | grep vol-cbc-docker-stack; then
-
-  sudo docker volume create vol-cbc-docker-stack
-
-fi
 
 
 
