@@ -412,13 +412,13 @@ if ! [ -f .env ]; then
 
   cp -f .env.example .env
 
+  php artisan key:generate
+
 fi
 
 if ! [ -f docker-compose.yaml ]; then
 
   cp -f docker-compose.example.yaml docker-compose.yaml
-
-  php artisan key:generate
 
 fi
 
@@ -439,13 +439,13 @@ if ! [ -f .env ]; then
 
   cp -f .env.example .env
 
+  php artisan key:generate
+
 fi
 
 if ! [ -f docker-compose.yaml ]; then
 
   cp -f docker-compose.example.yaml docker-compose.yaml
-
-  php artisan key:generate
 
 fi
 
