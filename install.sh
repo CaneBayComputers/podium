@@ -22,6 +22,8 @@ fi
 # Set up git committer info
 ###############################
 
+echo
+
 echo-cyan 'Git config settings ...'
 
 echo-white
@@ -32,33 +34,83 @@ git config --global mergetool.keepBackup false
 
 if ! git config user.name; then
 
-	echo-yellow -ne 'Enter your full name for Git commits: '
+	echo-yellow -ne 'Enter your full name for Git commits. Leave blank if unknown. You can re-run installer after you have this info: '
 
 	read GIT_NAME
 
-	echo
+	if ! [ -z "${GIT_NAME}" ]; then
 
-	git config --global user.name "$GIT_NAME"
+		git config --global user.name "$GIT_NAME"
 
-	sudo git config --global user.name "$GIT_NAME"
+		sudo git config --global user.name "$GIT_NAME"
+
+	fi
 
 fi
 
 if ! git config user.email; then
 
-	echo-yellow -ne 'Enter your email address for Git commits: '
+	echo-yellow -ne 'Enter your email address for Git commits. Leave blank if unknown. You can re-run installer after you have this info: '
 
 	read GIT_EMAIL
 
-	echo
+	if ! [ -z "${GIT_EMAIL}" ]; then
 
-	git config --global user.email $GIT_EMAIL
+		git config --global user.email $GIT_EMAIL
 
-	sudo git config --global user.email $GIT_EMAIL
+		sudo git config --global user.email $GIT_EMAIL
+
+	fi
+
+fi
+
+if ! [ -f ~/.ssh/id_rsa ]; then
+
+  if ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa; then true; fi
+
+  echo
+
+  echo-blue 'Copy and paste the following into your Github account under SSH Keys:'
+
+  echo-white
+
+  cat ~/.ssh/id_rsa.pub
+
+  echo ; echo
+
+  read -n 1 -r -s -p $'Press enter to continue...\n'
+
+  echo ; echo
 
 fi
 
 echo-green "Git configured!"
+
+echo-white
+
+echo
+
+
+
+###############################
+# Set S3FS credentials
+###############################
+
+if ! [ -f ~/.passwd-s3fs ]; then
+
+  echo-yellow -ne 'Enter your S3 credentials. If you do not have this info just leave blank. You can re-run the installer again later after you have this information. Example: ACCESS_ID:SECRET_KEY : '
+
+	read S3_CREDS
+
+	if ! [ -z "${S3_CREDS}" ]; then
+
+		echo $S3_CREDS > ~/.passwd-s3fs
+
+		chmod 600 ~/.passwd-s3fs
+
+	fi
+
+fi
 
 echo-white
 
@@ -227,6 +279,7 @@ sudo apt-get -y install \
 	pv \
 	meld \
 	imagemagick \
+	s3fs \
   php \
   php-bcmath \
   php-cli \
@@ -452,6 +505,8 @@ echo
 ###############################
 # Yay all done
 ###############################
+
+touch ~/repos/cbc-development-setup/is_installed
 
 echo
 
