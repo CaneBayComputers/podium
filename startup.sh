@@ -10,7 +10,7 @@ source ~/.bash_aliases
 
 repos
 
-REPOS=( certbot-bash-wrapper cbc-docker-stack cbc-docker-php7-nginx cbc-docker-php8-nginx )
+REPOS=( cbc-developer-setup certbot-bash-wrapper cbc-docker-stack cbc-docker-php7-nginx cbc-docker-php8-nginx )
 
 for REPO in "${REPOS[@]}"
 
