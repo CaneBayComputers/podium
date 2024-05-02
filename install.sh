@@ -278,7 +278,6 @@ sudo apt-get -y install \
 	default-mysql-client \
 	apt-transport-https \
 	dnsutils \
-	ca-certificates \
 	gnupg \
 	lsb-release \
 	docker-ce \
@@ -465,21 +464,7 @@ echo-white
 
 cd cbc-laravel-php7
 
-source ./install.sh
-
-if ! [ -f .env ]; then
-
-  cp -f .env.example .env
-
-  art-laravel-php7 key:generate
-
-fi
-
-if ! [ -f docker-compose.yaml ]; then
-
-  cp -f docker-compose.example.yaml docker-compose.yaml
-
-fi
+source ./install.sh --dev
 
 cd ..
 
@@ -492,21 +477,7 @@ echo-white
 
 cd cbc-laravel-php8
 
-source ./install.sh
-
-if ! [ -f .env ]; then
-
-  cp -f .env.example .env
-
-  art-laravel-php8 key:generate
-
-fi
-
-if ! [ -f docker-compose.yaml ]; then
-
-  cp -f docker-compose.example.yaml docker-compose.yaml
-
-fi
+source ./install.sh --dev
 
 cd ..
 

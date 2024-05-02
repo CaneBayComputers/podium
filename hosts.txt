@@ -3,5 +3,3 @@
 10.2.0.4        cbc-mongo
 10.2.0.5        cbc-redis
 10.2.0.6        cbc-exim4
-10.2.0.30       cbc-laravel-php7
-10.2.0.31       cbc-laravel-php8
