@@ -18,8 +18,7 @@ alias dockerrm="docker container rm"
 alias dockerls="docker container ls"
 alias upcbcstack='cbcstack; dockerup'
 alias downcbcstack='cbcstack; dockerdown'
-alias dockerexec-laravel-php7='dockerexec --user developer cbc-laravel-php7'
-alias dockerexec-laravel-php8='dockerexec --user developer cbc-laravel-php8'
+alias dockerexec-developer='dockerexec --user developer $(basename $(pwd))'
 
 # Color
 alias echo-red='tput setaf 1 ; echo'
@@ -32,8 +31,7 @@ alias echo-white='tput setaf 7; echo'
 
 # Artisan
 alias art='php artisan'
-alias art-laravel-php7='dockerexec-laravel-php7 php /usr/share/nginx/html/artisan'
-alias art-laravel-php8='dockerexec-laravel-php8 php /usr/share/nginx/html/artisan'
+alias art-docker='dockerexec-developer php /usr/share/nginx/html/artisan'
 
 # Git
 alias gstatus='echo; pwd ; echo ; git status ; echo ; echo -------------------------------------------------- ; echo'
