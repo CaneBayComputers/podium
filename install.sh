@@ -10,7 +10,7 @@ if ! sudo -v; then echo "No sudo privileges. Root access required!"; exit 1; fi
 
 if ! uname -a | grep Ubuntu > /dev/null; then
 
-	echo "This script is for an Ubuntu/Mint/PopOS install!"
+	echo "This script is for an Ubuntu based distribution!"
 
 	exit 1
 
@@ -462,11 +462,11 @@ echo-cyan 'Setting up CBC Laravel PHP7...'
 
 echo-white
 
+repos
+
 cd cbc-laravel-php7
 
 source ./install.sh --dev
-
-cd ..
 
 echo
 
@@ -474,6 +474,8 @@ echo
 echo-cyan 'Setting up CBC Laravel PHP8...'
 
 echo-white
+
+repos
 
 cd cbc-laravel-php8
 

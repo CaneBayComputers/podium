@@ -36,13 +36,13 @@ if ! [ -f is_installed ]; then
 
 fi
 
-if [ "$(docker container inspect -f '{{.State.Running}}' cbc-mariadb)" != "true" ]; then upcbcstack; fi
+upcbcstack
 
 repos
 
 cd cbc-laravel-php7
 
-if [ "$(docker container inspect -f '{{.State.Running}}' cbc-laravel-php7)" != "true" ]; then dockerup; fi
+dockerup
 
 cd ..
 
@@ -50,7 +50,7 @@ echo
 
 cd cbc-laravel-php8
 
-if [ "$(docker container inspect -f '{{.State.Running}}' cbc-laravel-php8)" != "true" ]; then dockerup; fi
+dockerup
 
 cd ..
 
