@@ -22,9 +22,15 @@ if ! [ -f ~/.bash_aliases ]; then
 
 fi
 
-echo 'If you do NOT have any of the following information just leave blank and press enter.'
+clear
 
-echo '-------------------------------------------------------------------------------------'
+echo; echo
+
+echo '================='
+
+echo 'IF YOU DO NOT HAVE ANY OF THE FOLLOWING INFORMATION JUST LEAVE BLANK AND PRESS ENTER.'
+
+echo '================='
 
 echo; echo
 
