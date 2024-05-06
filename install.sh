@@ -235,30 +235,6 @@ echo-white
 
 
 ###############################
-# Create Docker volume
-###############################
-
-echo
-
-echo-cyan 'Creating Docker volume ...'
-
-echo-white
-
-if ! sudo docker volume ls | grep vol-cbc-docker-stack; then
-
-  sudo docker volume create vol-cbc-docker-stack
-
-fi
-
-echo
-
-echo-green "Docker volume created!"
-
-echo-white
-
-
-
-###############################
 # Init apt package installs
 ###############################
 
@@ -315,6 +291,30 @@ echo-white
 sudo apt-get -y -q autoremove
 
 echo
+
+
+
+###############################
+# Create Docker volume
+###############################
+
+echo
+
+echo-cyan 'Creating Docker volume ...'
+
+echo-white
+
+if ! sudo docker volume ls | grep vol-cbc-docker-stack; then
+
+  sudo docker volume create vol-cbc-docker-stack
+
+fi
+
+echo
+
+echo-green "Docker volume created!"
+
+echo-white
 
 
 
