@@ -16,6 +16,12 @@ if ! uname -a | grep Ubuntu > /dev/null; then
 
 fi
 
+if ! [ -f ~/.bash_aliases ]; then
+
+	echo "source ~/repos/cbc-development-setup/.bash_aliases" > ~/.bash_aliases
+
+fi
+
 
 
 ###############################
@@ -188,9 +194,9 @@ if [ ! -d ~/.aws ]; then
 
 	aws configure set default.output json
 
-	aws configure
-
 fi
+
+aws configure
 
 echo-green "AWS configured!"
 
@@ -245,6 +251,7 @@ echo-cyan 'Installing packages ...'
 echo-white
 
 sudo apt-get -y install \
+	net-tools \
 	figlet \
 	lolcat \
 	bash-completion \
