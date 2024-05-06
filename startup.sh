@@ -32,23 +32,27 @@ else
 
 	done
 
+	echo; echo
+
 	cd cbc-docker-stack
 
-	docker compose up -d
+	sudo docker compose up -d
 
 	cd ..
+
+	echo; echo
 
 	cd cbc-laravel-php7
 
-	docker compose up -d
+	sudo docker compose up -d
 
 	cd ..
 
-	echo
+	echo; echo
 
 	cd cbc-laravel-php8
 
-	docker compose up -d
+	sudo docker compose up -d
 
 	cd ..
 
