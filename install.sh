@@ -10,9 +10,13 @@ if ! sudo -v; then echo "No sudo privileges. Root access required!"; exit 1; fi
 
 if ! uname -a | grep Ubuntu > /dev/null; then
 
-	echo "This script is for an Ubuntu based distribution!"
+	if ! uname -a | grep pop-os > /dev/null; then
 
-	exit 1
+		echo "This script is for an Ubuntu based distribution!"
+
+		exit 1
+
+	fi
 
 fi
 
