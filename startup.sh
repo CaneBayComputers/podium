@@ -2,7 +2,7 @@
 
 set -e
 
-shopt -s expand_aliases
+printf "\n------- cbc-development-setup\n"
 
 cd ~/repos/cbc-development-setup
 
@@ -14,9 +14,7 @@ if ! [ -f is_installed ]; then
 
 else
 
-	source ~/.bash_aliases
-
-	repos
+	cd ~/repos
 
 	REPOS=( certbot-bash-wrapper cbc-docker-stack cbc-docker-php7-nginx cbc-docker-php8-nginx cbc-laravel-php7 cbc-laravel-php8 )
 
@@ -28,19 +26,21 @@ else
 
 		cd $REPO
 
-		gpull
+		git pull
 
 		cd ..
 
 	done
 
-	upcbcstack
+	cd cbc-docker-stack
 
-	repos
+	docker compose up -d
+
+	cd ..
 
 	cd cbc-laravel-php7
 
-	dockerup
+	docker compose up -d
 
 	cd ..
 
@@ -48,7 +48,7 @@ else
 
 	cd cbc-laravel-php8
 
-	dockerup
+	docker compose up -d
 
 	cd ..
 
