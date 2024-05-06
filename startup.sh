@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# gnome-terminal -- bash -c "/home/dev/repos/cbc-development-setup/startup.sh; exec bash"
+
 set -e
 
 printf "\n------- cbc-development-setup\n"

@@ -22,6 +22,12 @@ if ! [ -f ~/.bash_aliases ]; then
 
 fi
 
+echo 'If you do NOT have any of the following information just leave blank and press enter.'
+
+echo '-------------------------------------------------------------------------------------'
+
+echo; echo
+
 
 
 ###############################
@@ -40,7 +46,7 @@ git config --global mergetool.keepBackup false
 
 if ! git config user.name; then
 
-	echo-yellow -ne 'Enter your full name for Git commits. Leave blank if unknown. You can re-run installer after you have this info: '
+	echo-yellow -ne 'Enter your full name for Git commits: '
 
 	echo-white -ne
 
@@ -60,7 +66,7 @@ fi
 
 if ! git config user.email; then
 
-	echo-yellow -ne 'Enter your email address for Git commits. Leave blank if unknown. You can re-run installer after you have this info: '
+	echo-yellow -ne 'Enter your email address for Git commits: '
 
 	echo-white -ne
 
@@ -84,7 +90,7 @@ if ! [ -f ~/.ssh/id_rsa ]; then
 
   echo
 
-  echo-blue 'Copy and paste the following into your Github account under SSH Keys:'
+  echo-blue 'Copy and paste the following into your Github account under Settings > SSH and GPG keys:'
 
   echo-white
 
@@ -112,15 +118,21 @@ echo
 
 if ! [ -f ~/.passwd-s3fs ]; then
 
-  echo-yellow -ne 'Enter your S3 credentials. If you do not have this info just leave blank. You can re-run the installer again later after you have this information. Example: ACCESS_ID:SECRET_KEY : '
+  echo-yellow 'Enter your S3 credentials.'
+
+  echo-yellow -ne 'Access ID: '
+
+  read S3_ACCESS_ID
+
+  echo-yellow -ne 'Secret Key: '
+
+  read S3_SECRET_KEY
 
   echo-white -ne
 
-	read S3_CREDS
+	if ! [ -z "${S3_ACCESS_ID}" ]; then
 
-	if ! [ -z "${S3_CREDS}" ]; then
-
-		echo $S3_CREDS > ~/.passwd-s3fs
+		echo $S3_ACCESS_ID:$S3_SECRET_KEY > ~/.passwd-s3fs
 
 		chmod 600 ~/.passwd-s3fs
 
