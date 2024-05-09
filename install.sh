@@ -198,7 +198,7 @@ if ! aws --version > /dev/null 2>&1; then
 
 	rm -f awscli-bundle.zip
 
-	sudo python3 awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+	sudo python3 aws/install -i /usr/local/aws -b /usr/local/bin/aws
 
 	rm -fR awscli-bundle
 
