@@ -31,33 +31,22 @@ clear
 echo; echo
 
 echo "
-         ========================
+              WELCOME TO THE CBC DEV INSTALLER !
 
-     WELCOME TO THE CBC DEV INSTALLER !
+Leave answers blank if you do not know the info. You can re-run the
+installer to enter in new info when have it.
 
-Leave answers blank if you do not know the info.
-You can re-run the installer to enter in new info
-when have it.
+After the installer is finished open the pre-installed web browser,
+look at the bookmarks bar and select the cbc-laravel-php 7 or 8
+bookmark. You can also view the database with cbc-phpmyadmin bookmark.
 
-After the installer is finished open the pre-
-installed web browser, look at the bookmarks bar
-and select the cbc-laravel-php 7 or 8 bookmark.
-You can also view the database with cbc-phpmyadmin
-bookmark.
-
-The pages can be edited in Sublime Text which is
-pre-installed as well. In ST you should see the
-two Laravel folders. Open the corresponding folder
-and go to app > resources > views > content. Here
-you will see the examples pages. Pages are created
-like page-name.blade.php. Creating a sub-folder
-will also correspond to a link folder such as:
-
-http://cbc-laravel-php8/sub-folder/page.blade.php
-
-         ========================
-
-"
+The pages can be edited in Sublime Text which is pre-installed as
+well. In ST you should see the two Laravel folders. Open the
+corresponding folder and go to app > resources > views > content. Here
+you will see the examples pages. Pages are created by naming them:
+page-name.blade.php
+Creating a sub-folder will also correspond to a link folder such as:
+http://cbc-laravel-php8/sub-folder/page-name"
 
 
 
