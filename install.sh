@@ -136,27 +136,23 @@ echo
 # Set S3FS credentials
 ###############################
 
-if ! [ -f ~/.passwd-s3fs ]; then
+echo-yellow 'Enter your AWS credentials.'
 
-  echo-yellow 'Enter your S3 credentials.'
+echo-yellow -ne 'Access ID: '
 
-  echo-yellow -ne 'Access ID: '
+read S3_ACCESS_ID
 
-  read S3_ACCESS_ID
+echo-yellow -ne 'Secret Key: '
 
-  echo-yellow -ne 'Secret Key: '
+read S3_SECRET_KEY
 
-  read S3_SECRET_KEY
+echo-white -ne
 
-  echo-white -ne
+if ! [ -z "${S3_ACCESS_ID}" ]; then
 
-	if ! [ -z "${S3_ACCESS_ID}" ]; then
+	echo $S3_ACCESS_ID:$S3_SECRET_KEY > ~/.passwd-s3fs
 
-		echo $S3_ACCESS_ID:$S3_SECRET_KEY > ~/.passwd-s3fs
-
-		chmod 600 ~/.passwd-s3fs
-
-	fi
+	chmod 600 ~/.passwd-s3fs
 
 fi
 
@@ -220,15 +216,25 @@ echo-cyan 'Configuring AWS ...'
 
 echo-white
 
-if [ ! -d ~/.aws ]; then
+if aws configure get default.region; then
 
 	aws configure set default.region us-east-1
+
+fi
+
+if aws configure get default.output; then
 
 	aws configure set default.output json
 
 fi
 
-aws configure
+if ! [ -z "${S3_ACCESS_ID}" ]; then
+
+	aws configure set aws_access_key_id $S3_ACCESS_ID
+
+	aws configure set aws_secret_access_key $S3_SECRET_KEY
+
+fi
 
 echo-green "AWS configured!"
 
