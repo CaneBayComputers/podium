@@ -192,7 +192,7 @@ echo-white
 
 if ! aws --version > /dev/null 2>&1; then
 
-	curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" > awscli-bundle.zip
+	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" > awscli-bundle.zip
 
 	unzip -o awscli-bundle.zip
 
