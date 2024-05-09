@@ -12,7 +12,7 @@ After the installer is finished there will be two important folders.
 
 `cbc-laravel-php7` and `cbc-laravel-php8`
 
-They are located in the `repos` directory that will be created in the user home directory.
+They are located in the `repos` directory that will be created in the [Linux user home directory](https://www.computerhope.com/jargon/h/homedir.htm).
 
 The first is Laravel 7 running on PHP 7 and the other is Laravel 11 (newest as of this writing) running on PHP 8.
 
@@ -161,7 +161,7 @@ If you have installed one of the virtual machines you can open Sublime Text.
 
 Open the `cbc-laravel-php7` folder and go to app > resources > views > content.
 
-The location of these folders is mentioned at the [top of this readme](#).
+The location of this folders is mentioned at the [top of this readme](#).
 
 Page index.blade.php refers the to the home page.
 
