@@ -1,12 +1,33 @@
-# A Simple, Turn-Key, Bootstrap Laravel PHP Dev Environment for Windows, Linux and Mac for Beginners to Advanced Users!
+# A Simple, Turn-Key, Bootstrap Laravel PHP Development Environment for Windows, Linux and Mac for Beginners to Advanced Users!
 
-If you just want to get to coding, using, practicing or checking out Laravel right away then my friend you are at the right place. If you want things to go smoothly please carefully read and **follow the instructions**. This project was designed for the absolute beginner in mind but advanced users can find this useful.
+If you just want to get to coding, using, practicing or checking out Laravel right away then my friend you are at the right place. If you want things to go smoothly please carefully read and **follow the instructions**. This project was designed for the absolute beginner in mind but advanced users can find this useful. This bootstrapped Laravel project tries to take all of the time consuming and difficult development environment setup down to a few simple steps.
 
-More details about this bootstrap Laravel project and what is all entailed 
+First you will choose an installation option:  
 
----
+- [Install on Windows](#windows-development-option)
+- [Install on Linux](#linux-development-option)
+- [Install on Mac](#mac-development-option)
 
-### Windows Development Option:
+After the installer is finished there will be two important folders.
+
+`cbc-laravel-php7` and `cbc-laravel-php8`
+
+They are located in the `repos` directory that will be created in the user home directory.
+
+The first is Laravel 7 running on PHP 7 and the other is Laravel 11 (newest as of this writing) running on PHP 8.
+
+Currently, the Laravel 7 folder has a pre-built, bootstrapped, web site framework.
+
+But you can develop and code Laravel PHP in either one.
+
+To get to using this bootstrap environment after installing visit the [How To and Features](#how-to-and-features) section below.
+
+
+
+## Development Environment Options
+
+
+### Windows Development Option
 
 You will be installing VirtualBox which is software that enables you to run other operating systems on your current Windows system.
 
@@ -18,7 +39,7 @@ There are some requirements your system must meet for the virtual machine to run
 > 2. 40GB of available storage space
 > 3. Quad-core CPU with virtualization (VT-x / AMD-V enabled)
 
-If you already have VirtualBox installed just skip to downloading an OVA Linux file where you can just import.
+If you already have VirtualBox installed just [download a Linux distribution OVA file](#choose-one-linux-distribution-ova-file) you can import.
 
 DOWNLOAD ALL FILES IN THE SAME DIRECTORY!!!
 
@@ -26,7 +47,7 @@ Do NOT manually run any of the .exe files after downloading!
 
 All files are safe and come from original source website.
 
-Download each required file:
+##### Download each required file:
 
 - [Click to download Microsoft C++ Redistributable 2019](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 
@@ -34,7 +55,9 @@ Download each required file:
 
 - [Click to download VirtualBox extensions](https://download.virtualbox.org/virtualbox/7.0.14/Oracle_VM_VirtualBox_Extension_Pack-7.0.14.vbox-extpack)
 
-- Choose ONE Linux distribution OVA file:
+- Right click [INSTALL.BAT](https://raw.githubusercontent.com/CaneBayComputers/cbc-windows-setup/main/INSTALL.BAT) and select *Save link as ...*
+
+##### Choose ONE Linux distribution OVA file:
 
   - [Click to download Linux Mint 21 (recommended)](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-mint-21.ova)
 
@@ -42,12 +65,11 @@ Download each required file:
 
   - [Click to download Linux ZorinOS 17](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-zorinos-17.ova)
 
-  - [Click to download Linux PopOS 22:](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-popos-22.ova)
-
-- Right click link and select "Save link as ...":
-[INSTALL.BAT](https://raw.githubusercontent.com/CaneBayComputers/cbc-windows-setup/main/INSTALL.BAT)
+  - [Click to download Linux PopOS 22](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-popos-22.ova)
 
 Open your Downloads folders and just double-click the INSTALL.BAT file.
+
+__BEFORE YOU RUN THE INSTALLER KEEP READING...__
 
 A blue warning box will pop up. Just select *More Info* and select *Run anyway*.
 
@@ -61,9 +83,16 @@ You will have to enter the default password to get into the VM:
 
 Pass: `1234`
 
----
+After the installer is finished open the pre-installed web browser, look at the bookmarks bar and select the cbc-laravel-php7 or 8 bookmark.
 
-### Linux Development Option:
+You can also view the database with the cbc-phpmyadmin bookmark.
+
+The two Laravel installations can be edited in Sublime Text which is pre-installed as well.
+
+In Sublime Text you should see the two Laravel PHP folders talked about at the [top of this readme file](#).
+
+
+### Linux Development Option
 
 You can install this Laravel PHP bootstrap development environment directly on to Linux natively or in an existing Linux virtual machine.
 
@@ -78,7 +107,7 @@ sudo apt-get update
 sudo apt-get install git
 ```
 
-A `repos` directly MUST exist in your user home directory
+A `repos` directory MUST exist in your user home directory
 
 Create the directory:
 
@@ -86,26 +115,60 @@ Create the directory:
 cd ~
 
 mkdir repos
-
-cd repos
 ```
 
 Clone this repo:
 ```bash
+cd ~/repos
+
 git clone git@github.com:CaneBayComputers/cbc-development-setup.git
 ```
 
 Run installer:
 ```bash
-cd cbc-development-setup
+cd ~/repos/cbc-development-setup
 
 ./install.sh
 ```
----
 
-### Mac Development Option:
+### Mac Development Option
 
-Well, to be honest there isn't exactly one however you should be able to cobble it together by installing VirtualBox on Mac and importing one of the Linux bootstrap OVA files which will have Laravel PHP on it ready to go.
+Well, to be honest there isn't exactly one however you should be able to cobble it together by installing VirtualBox on Mac and importing one of the [Linux bootstrap OVA files](#choose-one-linux-distribution-ova-file) which will have Laravel PHP on it ready to go.
 
 
-## 
+
+## HOW-TO AND FEATURES
+
+### Viewing Web Pages
+
+To view either of the bootstrap Laravel PHP 7 or PHP 8 projects in a web browser simply open the web browser and navigate to the corresponding version:
+
+`http://cbc-laravel-php7` or `http://cbc-laravel-php8`
+
+If you are using one of the virtual Linux machines you MUST use the browser IN the virtual machine. NOT the browser on your host machine, ie. NOT your main computer's browser.
+
+You also MUST include the `http://` part or it will not resolve the domain correctly.
+
+If you are using a virtual machine, by default, there should be bookmarks of these links at the top of the pre-installed browser.
+
+### Creating Web Pages
+
+Currently, the Laravel PHP 7 folder has a pre-built, bootstrapped, web site framework.
+
+At the moment, to output content for the Laravel PHP 8 project you must refer to its [routing section](https://laravel.com/docs/11.x/routing).
+
+If you have installed one of the virtual machines you can open Sublime Text.
+
+Open the `cbc-laravel-php7` folder and go to app > resources > views > content.
+
+The location of these folders is mentioned at the [top of this readme](#).
+
+Page index.blade.php refers the to the home page.
+
+Page services.blade.php refers to the 
+
+Pages are created by naming them:  
+page-name.blade.php
+
+Creating a sub-folder will also correspond to a link folder such as:  
+cbc-laravel-php8/sub-folder/page-name
