@@ -61,7 +61,7 @@ All files are safe and come from original source website.
 
   - [Click to download Linux Mint 21 (recommended)](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-mint-21.ova)
 
-  - [Click to download Linux Ubuntu 24](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-ubuntu-24.ova.ova)
+  - [Click to download Linux Ubuntu 24](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-ubuntu-24.ova)
 
   - [Click to download Linux ZorinOS 17](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-zorinos-17.ova)
 
@@ -139,6 +139,7 @@ Well, to be honest there isn't exactly one however you should be able to cobble 
 
 ## HOW-TO AND FEATURES
 
+
 ### Viewing Web Pages
 
 To view either of the bootstrap Laravel PHP 7 or PHP 8 projects in a web browser simply open the web browser and navigate to the corresponding version:
@@ -150,6 +151,7 @@ If you are using one of the virtual Linux machines you MUST use the browser IN t
 You also MUST include the `http://` part or it will not resolve the domain correctly.
 
 If you are using a virtual machine, by default, there should be bookmarks of these links at the top of the pre-installed browser.
+
 
 ### Creating Web Pages
 
@@ -172,6 +174,30 @@ page-name.blade.php
 
 Creating a sub-folder will also correspond to a link folder such as:  
 cbc-laravel-php8/sub-folder/page-name
+
+
+### Viewing and Accessing the MySQL Database
+
+This project uses [phpMyAdmin](https://www.phpmyadmin.net/) to manage the database server however feel free to install a different client of choice.
+
+If you are running a virtual machine you will have to install a different client within the virtual machine and not on the host machine.
+
+To access phpMyAdmin simply open the browser and go to `http://cbc-phpmyadmin`.
+
+If you are running a virtual machine there is a bookmark already saved in the pre-installed browser.
+
+
+### Accessing Other Pre-Installed Services
+
+There are other services running in the background due thanks to Docker.
+
+To access these services you can refer to them by their Docker internal IP addresses:
+
+>10.2.0.2 - [MariaDB (MySQL)](https://mariadb.org/)  
+>10.2.0.4 - [MongoDB](https://www.mongodb.com/)  
+>10.2.0.5 - [Redis](https://redis.io/)  
+>10.2.0.6 - [Exim4 (Email server)](https://www.exim.org/)  
+>10.2.0.7 - [Memcached](https://memcached.org/)  
 
 
 ### MORE INFO COMING SOON ...
