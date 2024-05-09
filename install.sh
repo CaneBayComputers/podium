@@ -24,6 +24,14 @@ if ! [ -f ~/.bash_aliases ]; then
 
 	echo "source ~/repos/cbc-development-setup/.bash_aliases" > ~/.bash_aliases
 
+else
+
+	if ! cat ~/.bash_aliases | grep cbc-development-setup; then
+
+		echo "source ~/repos/cbc-development-setup/.bash_aliases" >> ~/.bash_aliases
+
+	fi
+
 fi
 
 clear
