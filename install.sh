@@ -180,7 +180,20 @@ echo-white
 
 sudo apt-get update -y
 
-sudo apt-get -y install ca-certificates curl python3-pip python3-venv
+sudo apt-get -y install \
+	ca-certificates \
+	curl \
+	python3-pip \
+	python3-venv \
+	figlet \
+	lolcat \
+	mariadb-client \
+	apt-transport-https \
+	gnupg \
+	lsb-release \
+	xclip \
+	meld \
+	s3fs
 
 echo
 
@@ -262,6 +275,8 @@ echo-cyan 'Installing Docker ...'
 
 echo-white
 
+# if sudo apt-get purge docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; then true; fi
+
 if ! [ -f /etc/apt/sources.list.d/docker.list ]; then
 
   sudo install -m 0755 -d /etc/apt/keyrings
@@ -278,6 +293,8 @@ if ! [ -f /etc/apt/sources.list.d/docker.list ]; then
 
 fi
 
+sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
 echo
 
 echo-green "Docker installed!"
@@ -287,47 +304,28 @@ echo-white
 
 
 ###############################
-# Init apt package installs
+# PHP / NPM
 ###############################
 
 echo
 
-echo-cyan 'Installing packages ...'
+echo-cyan 'Installing PHP / NPM packages ...'
 
 echo-white
 
-sudo apt-get -y install \
-	net-tools \
-	figlet \
-	lolcat \
-	bash-completion \
-	openssh-server \
-	nodejs \
-	npm \
-	default-mysql-client \
-	apt-transport-https \
-	dnsutils \
-	gnupg \
-	lsb-release \
-	docker-ce \
-	docker-ce-cli \
-	containerd.io \
-	docker-buildx-plugin \
-	docker-compose-plugin \
-	containerd.io \
-	xclip \
-	pv \
-	meld \
-	imagemagick \
-	s3fs \
-  php \
-  php-bcmath \
-  php-cli \
-  php-common \
-  php-curl \
-  php-mbstring \
-  php-zip \
-  php-xml
+sudo apt-get -y install php php-bcmath php-cli php-common php-curl php-mbstring php-zip php-xml
+
+if ! nodejs --version > /dev/null 2>&1; then
+
+	sudo apt-get -y install nodejs
+
+fi
+
+if ! npm --version > /dev/null 2>&1; then
+
+	sudo apt-get -y install npm
+
+fi
 
 echo
 
