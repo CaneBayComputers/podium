@@ -324,14 +324,8 @@ sudo apt-get -y install \
   php-bcmath \
   php-cli \
   php-common \
-  php-gd \
-  php-mongodb \
-  php-opcache \
   php-curl \
   php-mbstring \
-  php-mysql \
-  php-redis \
-  php-soap \
   php-zip \
   php-xml
 
