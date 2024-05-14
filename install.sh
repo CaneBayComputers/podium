@@ -275,7 +275,11 @@ echo-cyan 'Installing Docker ...'
 
 echo-white
 
-# if sudo apt-get purge docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; then true; fi
+for PKG in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
+
+	if sudo apt-get purge $PKG > /dev/null 2>&1; then true; fi
+
+done
 
 if ! [ -f /etc/apt/sources.list.d/docker.list ]; then
 
@@ -309,11 +313,17 @@ echo-white
 
 echo
 
-echo-cyan 'Installing PHP / NPM packages ...'
+echo-cyan 'Installing PHP ...'
 
 echo-white
 
 sudo apt-get -y install php php-bcmath php-cli php-common php-curl php-mbstring php-zip php-xml
+
+echo
+
+echo-cyan 'Installing NPM ...'
+
+echo-white
 
 if ! nodejs --version > /dev/null 2>&1; then
 
