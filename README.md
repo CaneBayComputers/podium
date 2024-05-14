@@ -2,12 +2,6 @@
 
 If you just want to get to coding, using, practicing or checking out Laravel right away then my friend you are at the right place. If you want things to go smoothly please carefully read and **follow the instructions**. This project was designed for the absolute beginner in mind but advanced users can find this useful. This bootstrapped Laravel project tries to take all of the time consuming and difficult development environment setup down to a few simple steps.
 
-First you will choose an installation option:  
-
-- [Install on Windows](#windows-development-option)
-- [Install on Linux](#linux-development-option)
-- [Install on Mac](#mac-development-option)
-
 After the installer is finished there will be two important folders.
 
 `cbc-laravel-php7` and `cbc-laravel-php8`
@@ -19,6 +13,12 @@ The first is Laravel 7 running on PHP 7 and the other is Laravel 11 (newest as o
 Currently, the Laravel 7 folder has a pre-built, bootstrapped, web site framework.
 
 But you can develop and code Laravel PHP in either one.
+
+Choose an installation option:  
+
+- [Install on Windows](#windows-development-option)
+- [Install on Linux](#linux-development-option)
+- [Install on Mac](#mac-development-option)
 
 To get to using this bootstrap environment after installing visit the [How To and Features](#how-to-and-features) section below.
 

@@ -180,20 +180,7 @@ echo-white
 
 sudo apt-get update -y
 
-sudo apt-get -y install \
-	ca-certificates \
-	curl \
-	python3-pip \
-	python3-venv \
-	figlet \
-	lolcat \
-	mariadb-client \
-	apt-transport-https \
-	gnupg \
-	lsb-release \
-	xclip \
-	meld \
-	s3fs
+sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs
 
 echo
 
@@ -547,21 +534,6 @@ echo
 ###############################
 
 touch ~/repos/cbc-development-setup/is_installed
-
-echo
-
-echo
-
-echo "                                   .''.       
-       .''.      .        *''*    :_\/_:     . 
-      :_\/_:   _\(/_  .:.*_\/_*   : /\ :  .'.:.'.
-  .''.: /\ :   ./)\   ':'* /\ * :  '..'.  -=:o:=-
- :_\/_:'.:::.    ' *''*    * '.\'/.' _\(/_'.':'.'
- : /\ : :::::     *_\/_*     -= o =-  /)\    '  *
-  '..'  ':::'     * /\ *     .'/.\'.   '
-      *            *..*         :
-        *
-        *" | lolcat -p 1 -F 0.2
 
 echo
 
