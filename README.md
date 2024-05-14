@@ -121,7 +121,7 @@ Clone this repo:
 ```bash
 cd ~/repos
 
-git clone git@github.com:CaneBayComputers/cbc-development-setup.git
+git clone https://github.com/CaneBayComputers/cbc-development-setup.git
 ```
 
 Run installer:
