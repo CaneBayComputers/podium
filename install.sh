@@ -445,6 +445,14 @@ do
 
 		git clone https://github.com/CaneBayComputers/$REPO.git
 
+	else
+
+		cd $REPO
+
+		git pull
+
+		cd ..
+
 	fi
 
 done
