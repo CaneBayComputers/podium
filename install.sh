@@ -6,6 +6,8 @@ source .bash_aliases
 
 shopt -s expand_aliases
 
+if [[ "$(whoami)" == "root" ]]; then echo "Do NOT run with sudo!"; exit 1; fi
+
 if ! sudo -v; then echo "No sudo privileges. Root access required!"; exit 1; fi
 
 if ! uname -a | grep Ubuntu > /dev/null; then
@@ -180,7 +182,7 @@ echo-white
 
 sudo apt-get update -y
 
-sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs
+sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl
 
 echo
 
