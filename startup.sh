@@ -42,19 +42,41 @@ else
 
 	cd ..
 
-	echo; echo
+	# Iterate through the items in the current directory
+	for DIR in *; do
 
-	cd cbc-laravel-php7
+		# Check if DIR is a directory
+		if [ -d "$DIR" ] && [ "$DIR" != "cbc-docker-stack" ]; then
 
-	sudo docker compose up -d
+			# Change into the directory
+			cd "$DIR"
 
-	cd ..
+			# Check if the file exists in this directory
+			if [ -f "docker-compose.yaml" ]; then
 
-	echo; echo
+				echo; echo
 
-	cd cbc-laravel-php8
+				sudo docker compose up -d
 
-	sudo docker compose up -d
+				# Find D class from hosts file and use as external port access
+				EXT_PORT=$(cat /etc/hosts | grep $DIR | cut -d'.' -f 4 | cut -d' ' -f 1)
+
+				echo $EXT_PORT
+
+				# Route inbound port traffic
+				sudo iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
+
+				# Allow forwarding of the traffic to the Docker container
+				sudo iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
+
+			fi
+
+			# Return to the original directory
+			cd ..
+
+		fi
+
+	done
 
 	cd ..
 
