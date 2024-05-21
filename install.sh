@@ -6,19 +6,39 @@ source .bash_aliases
 
 shopt -s expand_aliases
 
-if [[ "$(whoami)" == "root" ]]; then echo "Do NOT run with sudo!"; exit 1; fi
+if [[ "$(whoami)" == "root" ]]; then echo-red "Do NOT run with sudo!"; exit 1; fi
 
-if ! sudo -v; then echo "No sudo privileges. Root access required!"; exit 1; fi
+if ! sudo -v; then echo-red "No sudo privileges. Root access required!"; exit 1; fi
 
 if ! uname -a | grep Ubuntu > /dev/null; then
 
 	if ! uname -a | grep pop-os > /dev/null; then
 
-		echo "This script is for an Ubuntu based distribution!"
+		echo-red "This script is for an Ubuntu based distribution!"
 
 		exit 1
 
 	fi
+
+fi
+
+if ! pwd | grep '/repos/cbc-development-setup'; then
+
+	echo-red "This repo's location is incorrect!"
+
+	echo-white "
+
+Run the following commands:
+
+    cd ~
+    mkdir repos
+    git clone https://github.com/CaneBayComputers/cbc-development-setup.git
+    cd cbc-development-setup
+    ./install.sh
+
+"
+
+	exit 1
 
 fi
 
@@ -422,131 +442,9 @@ sudo cp -f ANSI\ Regular.flf /usr/share/figlet
 
 
 ###############################
-# Repos
-###############################
-
-echo-cyan 'Installing repos ...'
-
-echo-white
-
-cd ~
-
-mkdir -p repos
-
-cd repos
-
-REPOS=( certbot-bash-wrapper cbc-docker-stack cbc-docker-php7-nginx cbc-docker-php8-nginx cbc-laravel-php7 cbc-laravel-php8 )
-
-for REPO in "${REPOS[@]}"
-
-do
-
-	printf "\n------- $REPO\n"
-
-	if [ ! -d $REPO ]; then
-
-		git clone https://github.com/CaneBayComputers/$REPO.git
-
-	else
-
-		cd $REPO
-
-		git pull
-
-		cd ..
-
-	fi
-
-done
-
-echo
-
-
-
-###############################
-# Create self signed keys
-###############################
-
-echo-cyan 'Setting up CBC Nginx SSL PHP7...'
-
-echo-white
-
-cd cbc-docker-php7-nginx/ssl
-
-if ! [ -f openssl.cnf ]; then
-
-  cp -f openssl.example.cnf openssl.cnf
-
-  source create_self_signed.sh
-
-fi
-
-cd ../..
-
-echo
-
-
-echo-cyan 'Setting up CBC Nginx SSL PHP8...'
-
-echo-white
-
-cd cbc-docker-php8-nginx/ssl
-
-if ! [ -f openssl.cnf ]; then
-
-  cp -f openssl.example.cnf openssl.cnf
-
-  source create_self_signed.sh
-
-fi
-
-cd ../..
-
-echo
-
-
-
-###############################
-# Set up Laravel repos
-###############################
-
-echo-cyan 'Setting up CBC Laravel PHP7...'
-
-echo-white
-
-repos
-
-cd cbc-laravel-php7
-
-source ./install.sh --dev
-
-echo
-
-
-echo-cyan 'Setting up CBC Laravel PHP8...'
-
-echo-white
-
-repos
-
-cd cbc-laravel-php8
-
-source ./install.sh --dev
-
-cd ..
-
-echo
-
-
-
-###############################
 # Yay all done
 ###############################
 
 touch ~/repos/cbc-development-setup/is_installed
 
-echo
-
-echo-green 'Yay! All done!!!'
-
-echo-white
+source ~/repos/cbc-development-setup/startup.sh

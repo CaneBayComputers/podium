@@ -2,6 +2,14 @@
 
 If you just want to get to coding, using, practicing or checking out Laravel right away then my friend you are at the right place. If you want things to go smoothly please carefully read and **follow the instructions**. This project was designed for the absolute beginner in mind but advanced users can find this useful. This bootstrapped Laravel project tries to take all of the time consuming and difficult development environment setup down to a few simple steps.
 
+## TLDR
+
+Git clone this repo on an Ubuntu based Linux distribution in a `repos` folder created in the home directory then run the `./install.sh` script.
+
+See more [Linux installation instructions below](#linux-development-option).
+
+## Post Installation Information: PLEASE READ
+
 After the installer is finished there will be two important folders.
 
 `cbc-laravel-php7` and `cbc-laravel-php8`
@@ -14,6 +22,9 @@ Currently, the Laravel 7 folder has a pre-built, bootstrapped, web site framewor
 
 But you can develop and code Laravel PHP in either one.
 
+
+## Development Environment Options
+
 Choose an installation option:  
 
 - [Install on Windows](#windows-development-option)
@@ -21,10 +32,6 @@ Choose an installation option:
 - [Install on Mac](#mac-development-option)
 
 To get to using this bootstrap environment after installing visit the [How To and Features](#how-to-and-features) section below.
-
-
-
-## Development Environment Options
 
 
 ### Windows Development Option
@@ -96,7 +103,7 @@ In Sublime Text you should see the two Laravel PHP folders talked about at the [
 
 You can install this Laravel PHP bootstrap development environment directly on to Linux natively or in an existing Linux virtual machine.
 
-> It must be installed on Ubuntu or an Ubuntu variant such as but not limited to: Mint, ZorinOS or PopOS.
+> It must be installed on Ubuntu or an Ubuntu variant such as but not limited to: Mint, Xubuntu, ZorinOS or PopOS.
 
 Run the following commands in a terminal to install git version control if not installed already:
 
