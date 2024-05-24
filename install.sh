@@ -10,7 +10,7 @@ if [[ "$(whoami)" == "root" ]]; then
 
 	ORIG_USER=$SUDO_USER
 
-	if ! cat /etc/sudoers | grep -q "$ORIG_USER" | grep -q NOPASSWD; then
+	if ! cat /etc/sudoers | grep "$ORIG_USER" | grep NOPASSWD > /dev/null; then
 
 		echo "$ORIG_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
@@ -40,9 +40,9 @@ if ! sudo -v; then
 
 fi
 
-if ! uname -a | grep -q Ubuntu; then
+if ! uname -a | grep Ubuntu > /dev/null; then
 
-	if ! uname -a | grep -q pop-os; then
+	if ! uname -a | grep pop-os > /dev/null; then
 
 		echo-red "This script is for an Ubuntu based distribution!"
 
@@ -52,7 +52,7 @@ if ! uname -a | grep -q Ubuntu; then
 
 fi
 
-if ! pwd | grep -q '/repos/cbc-development-setup'; then
+if ! pwd | grep '/repos/cbc-development-setup' > /dev/null; then
 
 	echo-red "This repo's location is incorrect!"
 
@@ -79,7 +79,7 @@ if ! [ -f ~/.bash_aliases ]; then
 
 else
 
-	if ! cat ~/.bash_aliases | grep cbc-development-setup; then
+	if ! cat ~/.bash_aliases | grep cbc-development-setup > /dev/null; then
 
 		echo "source ~/repos/cbc-development-setup/.bash_aliases" >> ~/.bash_aliases
 
