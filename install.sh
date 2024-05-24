@@ -12,7 +12,7 @@ if [[ "$(whoami)" == "root" ]]; then
 
 	if ! cat /etc/sudoers | grep -q "$ORIG_USER" | grep -q NOPASSWD; then
 
-		echo "$ORIG_USER ALL=(ALL) NOPASSWD:ALL" | EDITOR='tee -a' visudo
+		echo "$ORIG_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 		echo-green "Password now not needed for sudo."
 
