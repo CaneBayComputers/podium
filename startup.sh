@@ -8,6 +8,8 @@ source .bash_aliases
 
 shopt -s expand_aliases
 
+if [[ "$(whoami)" == "root" ]]; then echo-red "Do NOT run with sudo!"; exit 1; fi
+
 if ! [ -f is_installed ]; then
 
   echo-red "Setup is not installed!"
@@ -18,37 +20,11 @@ if ! [ -f is_installed ]; then
 
 fi
 
-cd ~/repos
+upcbcstack
 
-REPOS=( cbc-development-setup certbot-bash-wrapper cbc-docker-stack cbc-laravel-php7 cbc-laravel-php8 )
+sleep 5
 
-for REPO in "${REPOS[@]}"
-
-do
-
-	printf "\n------- $REPO\n"
-
-	if ! cd $REPO; then
-
-		git clone https://github.com/CaneBayComputers/$REPO.git
-
-	else
-
-		if git pull; then true; fi
-
-		cd ..
-
-	fi
-
-done
-
-echo; echo
-
-cd cbc-docker-stack
-
-sudo docker compose up -d
-
-cd ..
+repos
 
 RUNNING_PORTS=""
 
@@ -62,13 +38,17 @@ for DIR in *; do
 
 			echo; echo
 
-			if [[ -f "install.sh" && ! -f "is_installed" ]]; then
+			if [ -f "is_installed" ]; then
 
 				source ./install.sh --dev
 
+			else
+
+				dockerup
+
 			fi
 
-			sudo docker compose up -d
+			echo; echo
 
 			# Find D class from hosts file and use as external port access
 			EXT_PORT=$(cat /etc/hosts | grep $DIR | cut -d'.' -f 4 | cut -d' ' -f 1)
@@ -81,27 +61,13 @@ for DIR in *; do
 			# Allow forwarding of the traffic to the Docker container
 			sudo iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
 
-			# Create database and run any migrations
-			REPO_NAME_SNAKE=$(echo "$DIR" | tr '[:upper:]' '[:lower:]' | tr '-' '_')
-
-			if ! mysql -h"cbc-mariadb" -u"root" -e "USE $REPO_NAME_SNAKE;" 2>/dev/null; then
-
-        mysql -h"cbc-mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $REPO_NAME_SNAKE;"
-
-    	fi
-
-    	art-docker migrate
-
 		fi
 
-		# Return to the original directory
 		cd ..
 
 	fi
 
 done
-
-cd ..
 
 echo; echo
 
@@ -109,10 +75,12 @@ echo-green "The following sites are now running!"
 
 echo-white $RUNNING_PORTS
 
-echo "
+echo; echo-green "
 IMPORTANT:
 If you are trying to access these sites from outside a server or VM
 make sure you replace the site name with the external IP address and
 ensure the corresponding port is open."
+
+echo-white; echo
 
 read -n 1 -r -s -p $'Press enter to continue...\n'

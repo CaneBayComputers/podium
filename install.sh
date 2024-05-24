@@ -32,6 +32,7 @@ Run the following commands:
 
     cd ~
     mkdir repos
+    cd repos
     git clone https://github.com/CaneBayComputers/cbc-development-setup.git
     cd cbc-development-setup
     ./install.sh
@@ -442,9 +443,86 @@ sudo cp -f ANSI\ Regular.flf /usr/share/figlet
 
 
 ###############################
+# Repos
+###############################
+
+echo-cyan 'Installing repos ...'
+
+echo-white
+
+cd ~
+
+mkdir -p repos
+
+cd repos
+
+REPOS=( certbot-bash-wrapper cbc-docker-stack cbc-laravel-php7 cbc-laravel-php8 )
+
+for REPO in "${REPOS[@]}"
+
+do
+
+	printf "\n------- $REPO\n"
+
+	if [ ! -d $REPO ]; then
+
+		git clone https://github.com/CaneBayComputers/$REPO.git
+
+	else
+
+		cd $REPO
+
+		git pull
+
+		cd ..
+
+	fi
+
+done
+
+echo
+
+upcbcstack
+
+sleep 5
+
+
+
+###############################
+# Set up Laravel repos
+###############################
+
+echo-cyan 'Setting up CBC Laravel PHP7...'
+
+echo-white
+
+repos
+
+cd cbc-laravel-php7
+
+source ./install.sh --dev
+
+echo
+
+
+echo-cyan 'Setting up CBC Laravel PHP8...'
+
+echo-white
+
+repos
+
+cd cbc-laravel-php8
+
+source ./install.sh --dev
+
+cd ..
+
+echo
+
+
+
+###############################
 # Yay all done
 ###############################
 
 touch ~/repos/cbc-development-setup/is_installed
-
-source ~/repos/cbc-development-setup/startup.sh
