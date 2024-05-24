@@ -6,13 +6,51 @@ source .bash_aliases
 
 shopt -s expand_aliases
 
-if [[ "$(whoami)" == "root" ]]; then echo-red "Do NOT run with sudo!"; exit 1; fi
+if [[ "$(whoami)" == "root" ]]; then
 
-if ! sudo -v; then echo-red "No sudo privileges. Root access required!"; exit 1; fi
+	ORIG_USER=$SUDO_USER
 
-if ! uname -a | grep Ubuntu > /dev/null; then
+	if ! sudo -l -U $ORIG_USER | grep -q NOPASSWD; then
 
-	if ! uname -a | grep pop-os > /dev/null; then
+		echo "$ORIG_USER ALL=(ALL) NOPASSWD:ALL" | EDITOR='tee -a' visudo
+
+		echo "Password now not needed for sudo."
+
+		echo "Please exit the terminal session."
+
+		exit 0
+
+	else
+
+		echo-red "Do NOT run with sudo or as root!";
+
+		echo-white "Remove sudo or log in as regular user."
+
+		exit 1;
+
+	fi
+
+fi
+
+if ! sudo -l | grep -q NOPASSWD; then
+
+	echo "Please first run script with sudo so you will NOT be prompted with a password"
+
+	exit 1
+
+fi
+
+if ! sudo -v; then
+
+	echo-red "No sudo privileges. Root access required!";
+
+	exit 1;
+
+fi
+
+if ! uname -a | grep -q Ubuntu; then
+
+	if ! uname -a | grep -q pop-os; then
 
 		echo-red "This script is for an Ubuntu based distribution!"
 
@@ -22,7 +60,7 @@ if ! uname -a | grep Ubuntu > /dev/null; then
 
 fi
 
-if ! pwd | grep '/repos/cbc-development-setup'; then
+if ! pwd | grep -q '/repos/cbc-development-setup'; then
 
 	echo-red "This repo's location is incorrect!"
 
