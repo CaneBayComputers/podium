@@ -6,14 +6,6 @@ source .bash_aliases
 
 shopt -s expand_aliases
 
-if ! sudo -l | grep -q NOPASSWD; then
-
-	echo "Please first run script with sudo so you will NOT be prompted with a password"
-
-	exit 1
-
-fi
-
 if [[ "$(whoami)" == "root" ]]; then
 
 	ORIG_USER=$SUDO_USER
