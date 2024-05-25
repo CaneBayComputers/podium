@@ -21,13 +21,13 @@ alias downcbcstack='cbcstack; dockerdown'
 alias dockerexec-developer='dockerexec --user developer $(basename $(pwd))'
 
 # Color
-alias echo-red='tput setaf 1 ; tput setab 7; echo'
-alias echo-green='tput sgr0; tput setaf 2 ; echo'
-alias echo-yellow='tput sgr0; tput setaf 3 ; echo'
-alias echo-blue='tput sgr0; tput setaf 4 ; echo'
-alias echo-magenta='tput sgr0; tput setaf 5 ; echo'
-alias echo-cyan='tput sgr0; tput setaf 6 ; echo'
-alias echo-white='tput sgr0; tput setaf 7; echo'
+alias echo-red='tput setaf 1 ; echo'
+alias echo-green='tput setaf 2 ; echo'
+alias echo-yellow='tput setaf 3 ; echo'
+alias echo-blue='tput setaf 4 ; echo'
+alias echo-magenta='tput setaf 5 ; echo'
+alias echo-cyan='tput setaf 6 ; echo'
+alias echo-white='tput setaf 7; echo'
 
 # Artisan
 alias art='php artisan'
