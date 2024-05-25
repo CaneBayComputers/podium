@@ -21,7 +21,7 @@ if [[ "$(whoami)" == "root" ]]; then
 
 		SUDO_GROUP_LINE=$(echo $SUDO_GROUP | cut -d : -f 1)
 
-		sed -i "$SUDO_GROUP_LINEs/.*/%sudo   ALL=(ALL:ALL) NOPASSWD: ALL/" /etc/sudoers
+		sed -i "$SUDO_GROUP_LINEs/.*/\%sudo   ALL=(ALL:ALL) NOPASSWD: ALL/" /etc/sudoers
 
 		echo-green "Password now not needed for sudo."
 
