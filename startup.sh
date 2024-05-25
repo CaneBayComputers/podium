@@ -87,9 +87,8 @@ for REPO_NAME in *; do
 			# Find D class from hosts file and use as external port access
 			EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
 
-			RUNNING_PORTS+="$REPO_NAME:$EXT_PORT"
-
-			RUNNING_PORTS+=$'\n'
+			RUNNING_PORTS+="
+				$REPO_NAME:$EXT_PORT"
 
 			# Route inbound port traffic
 			iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
