@@ -10,13 +10,20 @@ if [[ "$(whoami)" == "root" ]]; then
 
 	ORIG_USER=$SUDO_USER
 
-	if ! cat /etc/sudoers | grep "$ORIG_USER" | grep NOPASSWD > /dev/null; then
+	# On first sudo or root run we are going to look to see if sudo group is set
+	# up as NOPASSWD. If not we are going to alter the sudoers file so that it
+	# is. On subsequent root runs, if sudo is already set as NOPASSWD, we are
+	# going to remind user to now run as the regular user.
 
-		echo "$ORIG_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+	SUDO_GROUP=$(cat /etc/sudoers | grep -n '%sudo' | grep 'ALL:ALL')
+
+	if ! echo $SUDO_GROUP | grep NOPASSWD > /dev/null; then
+
+		SUDO_GROUP_LINE=$(echo $SUDO_GROUP | cut -d : -f 1)
+
+		sed -i "$SUDO_GROUP_LINEs/.*/%sudo   ALL=(ALL:ALL) NOPASSWD: ALL/" /etc/sudoers
 
 		echo-green "Password now not needed for sudo."
-
-		echo-white "Please exit the terminal session, reopen new session and retry without sudo."
 
 		exit 0
 
