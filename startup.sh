@@ -50,7 +50,7 @@ echo; echo-cyan "All iptables rules have been flushed, and default policies set 
 
 echo-white; echo
 
-if ! dockerls | grep cbc-mariadb; then
+if ! dockerls | grep cbc-mariadb > /dev/null; then
 
 	upcbcstack
 
@@ -80,14 +80,16 @@ for REPO_NAME in *; do
 
 			else
 
-				if ! dockerls | grep $REPO_NAME; then dockerup; fi
+				if ! dockerls | grep $REPO_NAME > /dev/null; then dockerup; fi
 
 			fi
 
 			# Find D class from hosts file and use as external port access
 			EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
 
-			RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
+			RUNNING_PORTS+="$REPO_NAME:$EXT_PORT"
+
+			RUNNING_PORTS+=$'\n'
 
 			# Route inbound port traffic
 			iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
