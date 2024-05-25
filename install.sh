@@ -39,6 +39,14 @@ if [[ "$(whoami)" == "root" ]]; then
 
 fi
 
+echo; echo
+
+echo-cyan 'Sudo password is not set.'
+
+echo; echo-white 'If you want to remove the password requirement for sudo run this script with sudo.'
+
+echo; echo
+
 if ! sudo -v; then
 
 	echo-red "No sudo privileges. Root access required!";
@@ -46,6 +54,8 @@ if ! sudo -v; then
 	exit 1;
 
 fi
+
+clear
 
 if ! uname -a | grep Ubuntu > /dev/null; then
 
