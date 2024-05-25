@@ -380,7 +380,7 @@ echo-white
 
 sudo apt-get -y install php php-bcmath php-cli php-common php-curl php-mbstring php-zip php-xml
 
-echo
+echo; echo-green 'PHP installed!'; echo; echo
 
 echo-cyan 'Installing NPM ...'
 
@@ -398,7 +398,7 @@ if ! npm --version > /dev/null 2>&1; then
 
 fi
 
-echo
+echo; echo-green 'NPM installed!'; echo; echo
 
 echo-cyan 'Cleaning up ...'
 
