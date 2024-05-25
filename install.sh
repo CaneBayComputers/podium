@@ -566,8 +566,6 @@ cd cbc-laravel-php8
 
 source ./install.sh --dev
 
-cd ..
-
 echo
 
 
@@ -576,4 +574,10 @@ echo
 # Yay all done
 ###############################
 
-touch ~/repos/cbc-development-setup/is_installed
+repos
+
+cd cbc-development-setup
+
+touch is_installed
+
+source ./startup.sh

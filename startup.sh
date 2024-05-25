@@ -8,58 +8,92 @@ source .bash_aliases
 
 shopt -s expand_aliases
 
-if [[ "$(whoami)" == "root" ]]; then echo-red "Do NOT run with sudo!"; exit 1; fi
+if [[ "$(whoami)" == "root" ]]; then
+
+	echo; echo-red "Do NOT run with sudo!"; echo
+
+	exit 1
+
+fi
 
 if ! [ -f is_installed ]; then
 
   echo-red "Setup is not installed!"
 
-  echo-white "Please run: ./install.sh"
+  echo; echo-white "Please run: ./install.sh"; echo
 
   exit 1
 
 fi
 
-upcbcstack
+# Flush all rules in all chains
+iptables -F    # Flush all the rules in the filter table
+iptables -X    # Delete all user-defined chains in the filter table
+iptables -Z    # Zero all packet and byte counters in all chains
 
-sleep 5
+# If you are using the nat or mangle tables, you should also flush and delete their rules and chains
+iptables -t nat -F
+iptables -t nat -X
+iptables -t nat -Z
+
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -t mangle -Z
+
+# Set default policies to ACCEPT (this step is crucial to avoid locking yourself out)
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+
+# Print confirmation message
+echo; echo-cyan "All iptables rules have been flushed, and default policies set to ACCEPT."
+
+echo-white; echo
+
+if ! dockerls | grep cbc-mariadb; then
+
+	upcbcstack
+
+	sleep 5
+
+fi
 
 repos
 
 RUNNING_PORTS=""
 
-for DIR in *; do
+for REPO_NAME in *; do
 
-	if [ -d "$DIR" ] && [ "$DIR" != "cbc-docker-stack" ]; then
+	if [ -d "$REPO_NAME" ] && [ "$REPO_NAME" != "cbc-docker-stack" ]; then
 
-		cd "$DIR"
+		cd "$REPO_NAME"
 
 		if [ -f "docker-compose.yaml" ]; then
 
 			echo; echo
 
-			if [ -f "is_installed" ]; then
+			if ! [ -f "is_installed" ]; then
 
 				source ./install.sh --dev
 
+				echo; echo
+
 			else
 
-				dockerup
+				if ! dockerls | grep $REPO_NAME; then dockerup; fi
 
 			fi
 
-			echo; echo
-
 			# Find D class from hosts file and use as external port access
-			EXT_PORT=$(cat /etc/hosts | grep $DIR | cut -d'.' -f 4 | cut -d' ' -f 1)
+			EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
 
-			RUNNING_PORTS+="$DIR:$EXT_PORT\n"
+			RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
 
 			# Route inbound port traffic
-			sudo iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
+			iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
 
 			# Allow forwarding of the traffic to the Docker container
-			sudo iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
+			iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
 
 		fi
 
@@ -76,6 +110,7 @@ echo-green "The following sites are now running!"
 echo-white $RUNNING_PORTS
 
 echo; echo-green "
+
 IMPORTANT:
 If you are trying to access these sites from outside a server or VM
 make sure you replace the site name with the external IP address and
