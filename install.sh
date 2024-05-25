@@ -338,7 +338,7 @@ echo-white
 
 for PKG in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
 
-	if sudo apt-get purge $PKG > /dev/null 2>&1; then true; fi
+	if sudo apt-get -y purge $PKG; then true; fi
 
 done
 

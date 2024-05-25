@@ -68,34 +68,34 @@ for REPO_NAME in *; do
 
 		cd "$REPO_NAME"
 
-		if [ -f "docker-compose.yaml" ]; then
+		if [[ -f "install.sh" && ! -f "is_installed" ]]; then
+
+			source ./install.sh --dev
 
 			echo; echo
 
-			if ! [ -f "is_installed" ]; then
+		fi
 
-				source ./install.sh --dev
+		if [ -f "docker-compose.yaml" ]; then
 
-				echo; echo
+			if ! dockerls | grep $REPO_NAME > /dev/null; then
 
-			else
-
-				if ! dockerls | grep $REPO_NAME > /dev/null; then dockerup; fi
+				dockerup
 
 			fi
 
-			# Find D class from hosts file and use as external port access
-			EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
-
-			RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
-
-			# Route inbound port traffic
-			iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
-
-			# Allow forwarding of the traffic to the Docker container
-			iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
-
 		fi
+
+		# Find D class from hosts file and use as external port access
+		EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
+
+		RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
+
+		# Route inbound port traffic
+		iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
+
+		# Allow forwarding of the traffic to the Docker container
+		iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
 
 		cd ..
 
