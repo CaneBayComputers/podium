@@ -89,13 +89,17 @@ for REPO_NAME in *; do
 		# Find D class from hosts file and use as external port access
 		EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
 
-		RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
+		if ! [ -z "$EXT_PORT" ]; then
 
-		# Route inbound port traffic
-		iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
+			RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
 
-		# Allow forwarding of the traffic to the Docker container
-		iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
+			# Route inbound port traffic
+			iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
+
+			# Allow forwarding of the traffic to the Docker container
+			iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
+
+		fi
 
 		cd ..
 
