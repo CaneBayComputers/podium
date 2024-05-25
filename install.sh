@@ -45,11 +45,13 @@ echo-cyan 'Sudo password is not set.'
 
 echo; echo-white 'If you want to remove the password requirement for sudo run this script with sudo.'
 
+echo; echo 'Press Ctrl + C to exit script and run: sudo ./install.sh'
+
 echo; echo
 
 if ! sudo -v; then
 
-	echo-red "No sudo privileges. Root access required!";
+	echo; echo-red "No sudo privileges. Root access required!"; echo
 
 	exit 1;
 
