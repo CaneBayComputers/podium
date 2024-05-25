@@ -25,15 +25,15 @@ if [[ "$(whoami)" == "root" ]]; then
 
 		echo; echo-green 'Password now not needed for sudo.'
 
-		echo; echo-white 'Please run as regular user.'
+		echo; echo-white 'Please run as regular user.'; echo
 
 		exit 0
 
 	else
 
-		echo-red "Do NOT run with sudo or as root!";
+		echo; echo-red "Do NOT run with sudo or as root!";
 
-		echo-white "Remove sudo or log in as regular user."
+		echo; echo-white "Remove sudo or log in as regular user."; echo
 
 		exit 1;
 
@@ -254,7 +254,7 @@ echo-white
 
 sudo apt-get update -y
 
-sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl
+sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip
 
 echo
 
