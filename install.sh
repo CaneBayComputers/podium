@@ -533,40 +533,21 @@ done
 
 echo
 
+
+
+###############################
+# Start CBC stack
+###############################
+
+echo-cyan 'Starting up CBC micro services stack ...'
+
+echo-white
+
 upcbcstack
 
 sleep 5
 
-
-
-###############################
-# Set up Laravel repos
-###############################
-
-echo-cyan 'Setting up CBC Laravel PHP7...'
-
-echo-white
-
-repos
-
-cd cbc-laravel-php7
-
-source ./install.sh --dev
-
-echo
-
-
-echo-cyan 'Setting up CBC Laravel PHP8...'
-
-echo-white
-
-repos
-
-cd cbc-laravel-php8
-
-source ./install.sh --dev
-
-echo
+echo; echo
 
 
 

@@ -18,11 +18,9 @@ fi
 
 if ! [ -f is_installed ]; then
 
-  echo-red "Setup is not installed!"
+  source ./install.sh
 
-  echo; echo-white "Please run: ./install.sh"; echo
-
-  exit 1
+  exit 0
 
 fi
 
@@ -64,46 +62,52 @@ RUNNING_PORTS=""
 
 for REPO_NAME in *; do
 
-	if [ -d "$REPO_NAME" ] && [ "$REPO_NAME" != "cbc-docker-stack" ]; then
+if [ ! -d "$REPO_NAME" ]; then continue; fi
 
-		cd "$REPO_NAME"
+if [ "$REPO_NAME" = "cbc-docker-stack" ]; then continue; fi
 
-		if [[ -f "install.sh" && ! -f "is_installed" ]]; then
+if [ "$REPO_NAME" = "certbot-bash_wrapper" ]; then continue; fi
 
-			source ./install.sh --dev
+if [ "$REPO_NAME" = "cbc-development-setup" ]; then continue; fi
 
-			echo; echo
+cd "$REPO_NAME"
 
-		fi
+if [[ -f "install.sh" && ! -f "is_installed" ]]; then
 
-		if [ -f "docker-compose.yaml" ]; then
+	source ./install.sh --dev
 
-			if ! dockerls | grep $REPO_NAME > /dev/null; then
+	echo; echo
 
-				dockerup
+fi
 
-			fi
+echo; echo-cyan "Starting up $REPO_NAME ..."; echo-white
 
-		fi
+if [ -f "docker-compose.yaml" ]; then
 
-		# Find D class from hosts file and use as external port access
-		EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
+	if ! dockerls | grep $REPO_NAME > /dev/null; then
 
-		if ! [ -z "$EXT_PORT" ]; then
-
-			RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
-
-			# Route inbound port traffic
-			iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
-
-			# Allow forwarding of the traffic to the Docker container
-			iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
-
-		fi
-
-		cd ..
+		dockerup
 
 	fi
+
+fi
+
+# Find D class from hosts file and use as external port access
+EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
+
+if ! [ -z "$EXT_PORT" ]; then
+
+	RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
+
+	# Route inbound port traffic
+	iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
+
+	# Allow forwarding of the traffic to the Docker container
+	iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
+
+fi
+
+cd ..
 
 done
 
@@ -123,3 +127,5 @@ ensure the corresponding port is open."
 echo-white; echo
 
 read -n 1 -r -s -p $'Press enter to continue...\n'
+
+echo; echo
