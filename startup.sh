@@ -4,7 +4,7 @@
 
 set -e
 
-source .bash_aliases
+source ~/repos/cbc-development-setup/.bash_aliases
 
 shopt -s expand_aliases
 
@@ -66,7 +66,7 @@ if [ ! -d "$REPO_NAME" ]; then continue; fi
 
 if [ "$REPO_NAME" = "cbc-docker-stack" ]; then continue; fi
 
-if [ "$REPO_NAME" = "certbot-bash_wrapper" ]; then continue; fi
+if [ "$REPO_NAME" = "certbot-bash-wrapper" ]; then continue; fi
 
 if [ "$REPO_NAME" = "cbc-development-setup" ]; then continue; fi
 

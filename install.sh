@@ -2,7 +2,7 @@
 
 set -e
 
-source .bash_aliases
+source ~/repos/cbc-development-setup/.bash_aliases
 
 shopt -s expand_aliases
 
