@@ -5,17 +5,18 @@ alias ...='cd ../..'
 alias repos='~; cd repos'
 alias cbcdevelopment='repos; cd cbc-development-setup'
 alias cbcstack='repos; cd cbc-docker-stack'
-alias laravelphp7='repos; cd cbc-laravel-php7'
-alias laravelphp8='repos; cd cbc-laravel-php8'
+alias cbclaravelphp7='repos; cd cbc-laravel-php7'
+alias cbclaravelphp8='repos; cd cbc-laravel-php8'
 
 # Docker
 alias dockerup="docker compose up -d"
 alias dockerdown="docker compose down"
 alias dockerexec="docker container exec -it"
 alias dockerls="docker container ls"
-alias upcbcstack='cbcstack; dockerup'
-alias downcbcstack='cbcstack; dockerdown'
 alias dockerexec-developer='dockerexec --user developer $(basename $(pwd))'
+alias upcbcstack='CUR_PWD=$(pwd); cbcstack; dockerup; cd $CUR_PWD'
+alias downcbcstack='CUR_PWD=$(pwd); cbcstack; dockerdown; cd $CUR_PWD'
+alias startcbc='CUR_PWD=$(pwd); cbcdevelopment; ./startup.sh; cd $CUR_PWD'
 
 # Color
 alias echo-red='tput setaf 1 ; echo'

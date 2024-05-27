@@ -175,7 +175,7 @@ echo-cyan "
 --- LAN access:
 
 Accessible from another device within the same network. If using
-a virtual machine it needs to be set up as a Host-only adapter
+a virtual machine it needs to be set up as a Bridged adapter
 so your local network sees it as a stand-alone device which will
 give it its own IP address. If installed directly onto your Linux
 desktop these should just work as-is."
