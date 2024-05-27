@@ -4,6 +4,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias repos='~; cd repos'
 alias cbcdevelopment='repos; cd cbc-development-setup'
+alias development='cbcdevelopment'
 alias cbcstack='repos; cd cbc-docker-stack'
 alias cbclaravelphp7='repos; cd cbc-laravel-php7'
 alias cbclaravelphp8='repos; cd cbc-laravel-php8'
@@ -14,9 +15,13 @@ alias dockerdown="docker compose down"
 alias dockerexec="docker container exec -it"
 alias dockerls="docker container ls"
 alias dockerexec-developer='dockerexec --user developer $(basename $(pwd))'
+
+# CBC
 alias upcbcstack='CUR_PWD=$(pwd); cbcstack; dockerup; cd $CUR_PWD'
 alias downcbcstack='CUR_PWD=$(pwd); cbcstack; dockerdown; cd $CUR_PWD'
 alias startcbc='CUR_PWD=$(pwd); cbcdevelopment; ./startup.sh; cd $CUR_PWD'
+alias installcbcrepo='CUR_PWD=$(pwd); echo "Enter Git repo: " && read $REPO && repos && git clone $REPO && startcbc; cd $CUR_PWD'
+alias newcbcrepo='echo -n "Enter new repo name: " && read REPO && echo -n "Which PHP version (7/8): " && read VER && VER=cbc-laravel-php$VER && echo $REPO && echo $VER && repos && mkdir $REPO && cd $REPO && git init && git remote add $VER https://github.com/CaneBayComputers/$VER.git && git fetch $VER && git pull $VER master && startcbc'
 
 # Color
 alias echo-red='tput setaf 1 ; echo'
