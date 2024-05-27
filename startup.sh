@@ -11,17 +11,29 @@ cd ~/repos/cbc-development-setup
 
 source .bash_aliases
 
+echo; echo
+
 if [[ "$(whoami)" == "root" ]]; then
 
-	echo; echo-red "Do NOT run with sudo!"; echo-white; echo
+	echo-red "Do NOT run with sudo!"; echo-white; echo
 
 	exit 1
 
 fi
 
-echo; echo-green 'Pulling cbc-development-setup ...'; echo-white; echo
+echo-green 'Pulling cbc-development-setup ...'; echo-white; echo
 
-gpull
+git pull
+
+if ! [ -f is_installed ]; then
+
+	echo
+
+  source ./install.sh
+
+  exit 0
+
+fi
 
 divider
 
@@ -45,17 +57,7 @@ do
 
 done
 
-repos
 
-cd cbc-development-setup
-
-if ! [ -f is_installed ]; then
-
-  source ./install.sh
-
-  exit 0
-
-fi
 
 # Flush all rules in all chains
 iptables -F    # Flush all the rules in the filter table
@@ -150,9 +152,15 @@ if ! [ -z "$EXT_PORT" ]; then
 	iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
 
 	# Allow forwarding of the traffic to the Docker container
-	iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -j ACCEPT
+	iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+
+	# Masquerade outgoing packets from the Docker container
+	iptables -t nat -A POSTROUTING -s 10.2.0.$EXT_PORT -j MASQUERADE
 
 fi
+
+# Allow established connections to reply
+iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 cd ..
 
