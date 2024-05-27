@@ -21,7 +21,7 @@ if [[ "$(whoami)" == "root" ]]; then
 
 fi
 
-echo-green 'Pulling cbc-development-setup ...'; echo-white; echo
+echo-cyan 'Pulling cbc-development-setup ...'; echo-white; echo
 
 git pull
 
@@ -45,7 +45,7 @@ for REPO in "${REPOS[@]}"
 
 do
 
-	echo; echo-green "Pulling $REPO ..."; echo-white; echo
+	echo; echo-cyan "Pulling $REPO ..."; echo-white; echo
 
 	cd $REPO
 
@@ -58,32 +58,16 @@ do
 done
 
 
+# Remove CBC iptables rules and shutdown Docker containers
+cd cbc-development-setup
 
-# Flush all rules in all chains
-iptables -F    # Flush all the rules in the filter table
-iptables -X    # Delete all user-defined chains in the filter table
-iptables -Z    # Zero all packet and byte counters in all chains
+source ./shutdown.sh
 
-# If you are using the nat or mangle tables, you should also flush and delete their rules and chains
-iptables -t nat -F
-iptables -t nat -X
-iptables -t nat -Z
 
-iptables -t mangle -F
-iptables -t mangle -X
-iptables -t mangle -Z
-
-# Set default policies to ACCEPT (this step is crucial to avoid locking yourself out)
-iptables -P INPUT ACCEPT
-iptables -P FORWARD ACCEPT
-iptables -P OUTPUT ACCEPT
-
-# Print confirmation message
-echo; echo-cyan "All iptables rules have been flushed, and default policies set to ACCEPT."; echo-white
-
+# Start CBC stack
 if ! dockerls | grep cbc-mariadb > /dev/null; then
 
-	echo
+	echo; echo-cyan "Starting cbc-development-setup ..."; echo-white; echo
 
 	upcbcstack
 
@@ -149,22 +133,25 @@ if ! [ -z "$EXT_PORT" ]; then
 	RUNNING_EXTERNAL+="http://$WAN_IP:$EXT_PORT ($REPO_NAME) \n"
 
 	# Route inbound port traffic
-	iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
+	iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80 -m comment --comment "cbc-rule"
 
 	# Allow forwarding of the traffic to the Docker container
-	iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+	iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule"
 
 	# Masquerade outgoing packets from the Docker container
-	iptables -t nat -A POSTROUTING -s 10.2.0.$EXT_PORT -j MASQUERADE
+	iptables -t nat -A POSTROUTING -s 10.2.0.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule"
 
 fi
 
 # Allow established connections to reply
-iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule"
 
 cd ..
 
 done
+
+# Redirect stdout (file descriptor 1) and stderr (file descriptor 2) to tee
+exec > >(tee ~/repos/cbc-development-setup/startup.log) 2>&1
 
 echo; echo
 
@@ -199,7 +186,7 @@ accessible through a firewall, ie. the ports are open."
 
 echo-white; echo -e $RUNNING_EXTERNAL; divider
 
-echo-green "
+echo-yellow "
 IMPORTANT:
 If you are trying to access these sites from outside a server or VM
 make sure you replace the site name with the external IP address and
