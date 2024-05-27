@@ -21,7 +21,7 @@ fi
 
 echo; echo-green 'Pulling cbc-development-setup ...'; echo-white; echo
 
-#gpull
+gpull
 
 divider
 
@@ -37,7 +37,7 @@ do
 
 	cd $REPO
 
-	#gpull
+	gpull
 
 	divider
 
