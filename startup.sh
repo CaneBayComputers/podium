@@ -1,20 +1,53 @@
 #!/bin/bash
 
+# In the Startup Applications manager enter this command to run this script to start up repos:
 # gnome-terminal -- bash -c "/home/dev/repos/cbc-development-setup/startup.sh; exec bash"
 
 set -e
 
-source ~/repos/cbc-development-setup/.bash_aliases
-
 shopt -s expand_aliases
+
+cd ~/repos/cbc-development-setup
+
+source .bash_aliases
 
 if [[ "$(whoami)" == "root" ]]; then
 
-	echo; echo-red "Do NOT run with sudo!"; echo
+	echo; echo-red "Do NOT run with sudo!"; echo-white; echo
 
 	exit 1
 
 fi
+
+echo; echo-green 'Pulling cbc-development-setup ...'; echo-white; echo
+
+#gpull
+
+divider
+
+repos
+
+REPOS=( certbot-bash-wrapper cbc-docker-stack cbc-laravel-php7 cbc-laravel-php8 )
+
+for REPO in "${REPOS[@]}"
+
+do
+
+	echo; echo-green "Pulling $REPO ..."; echo-white; echo
+
+	cd $REPO
+
+	#gpull
+
+	divider
+
+	cd ..
+
+done
+
+repos
+
+cd cbc-development-setup
 
 if ! [ -f is_installed ]; then
 
@@ -44,11 +77,11 @@ iptables -P FORWARD ACCEPT
 iptables -P OUTPUT ACCEPT
 
 # Print confirmation message
-echo; echo-cyan "All iptables rules have been flushed, and default policies set to ACCEPT."
-
-echo-white; echo
+echo; echo-cyan "All iptables rules have been flushed, and default policies set to ACCEPT."; echo-white
 
 if ! dockerls | grep cbc-mariadb > /dev/null; then
+
+	echo
 
 	upcbcstack
 
@@ -58,7 +91,15 @@ fi
 
 repos
 
-RUNNING_PORTS=""
+RUNNING_SITES=""
+
+RUNNING_INTERNAL=""
+
+RUNNING_EXTERNAL=""
+
+LAN_IP=$(hostname -I | awk '{print $1}')
+
+WAN_IP=$(whatismyip)
 
 for REPO_NAME in *; do
 
@@ -73,6 +114,8 @@ if [ "$REPO_NAME" = "cbc-development-setup" ]; then continue; fi
 cd "$REPO_NAME"
 
 if [[ -f "install.sh" && ! -f "is_installed" ]]; then
+
+	echo
 
 	source ./install.sh --dev
 
@@ -97,7 +140,11 @@ EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
 
 if ! [ -z "$EXT_PORT" ]; then
 
-	RUNNING_PORTS+="$REPO_NAME:$EXT_PORT\n"
+	RUNNING_SITES+="http://$REPO_NAME\n"
+
+	RUNNING_INTERNAL+="http://$LAN_IP:$EXT_PORT ($REPO_NAME) \n"
+
+	RUNNING_EXTERNAL+="http://$WAN_IP:$EXT_PORT ($REPO_NAME) \n"
 
 	# Route inbound port traffic
 	iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80
@@ -113,12 +160,38 @@ done
 
 echo; echo
 
-echo-green "The following sites are now running!"
+echo-green "The following sites are now running!"; echo-white; divider
 
-echo-white; printf $RUNNING_PORTS
+echo-cyan "
+--- Local access:
 
-echo; echo-green "
+Use these addresses if accessing from within the machine itself.
+Use the virtual machine's browser if using a VM. This will also
+work if you installed directly onto your Linux computer desktop."
 
+echo-white; echo -e  $RUNNING_SITES; divider
+
+echo-cyan "
+--- LAN access:
+
+Accessible from another device within the same network. If using
+a virtual machine it needs to be set up as a Host Only network
+so your local network sees it as a stand-alone device which will
+give it it's own IP address. If installed directly onto your Linux
+desktop these should just work."
+
+echo-white; echo -e $RUNNING_INTERNAL; divider
+
+echo-cyan "
+--- WAN access:
+
+If installed on a cloud server the address should work IF the
+server has a public IP address AND these ports are publicly
+accessible through a firewall, ie. the ports are open."
+
+echo-white; echo -e $RUNNING_EXTERNAL; divider
+
+echo-green "
 IMPORTANT:
 If you are trying to access these sites from outside a server or VM
 make sure you replace the site name with the external IP address and
