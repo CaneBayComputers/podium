@@ -175,10 +175,10 @@ echo-cyan "
 --- LAN access:
 
 Accessible from another device within the same network. If using
-a virtual machine it needs to be set up as a Host Only network
+a virtual machine it needs to be set up as a Host-only adapter
 so your local network sees it as a stand-alone device which will
-give it it's own IP address. If installed directly onto your Linux
-desktop these should just work."
+give it its own IP address. If installed directly onto your Linux
+desktop these should just work as-is."
 
 echo-white; echo -e $RUNNING_INTERNAL; divider
 

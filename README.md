@@ -46,8 +46,6 @@ There are some requirements your system must meet for the virtual machine to run
 > 2. 40GB of available storage space
 > 3. Quad-core CPU with virtualization (VT-x / AMD-V enabled)
 
-If you already have VirtualBox installed just [download a Linux distribution OVA file](#choose-one-linux-distribution-ova-file) you can import.
-
 DOWNLOAD ALL FILES IN THE SAME DIRECTORY!!!
 
 Do NOT manually run any of the .exe files after downloading!
@@ -64,17 +62,9 @@ All files are safe and come from original source website.
 
 - Right click [INSTALL.BAT](https://raw.githubusercontent.com/CaneBayComputers/cbc-windows-setup/main/INSTALL.BAT) and select *Save link as ...*
 
-##### Choose ONE Linux distribution OVA file:
+- [Click to download Linux Ubuntu 24](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-ubuntu-24.ova)
 
-  - [Click to download Linux Mint 21 (recommended)](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-mint-21.ova)
-
-  - [Click to download Linux Ubuntu 24](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-ubuntu-24.ova)
-
-  - [Click to download Linux ZorinOS 17](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-zorinos-17.ova)
-
-  - [Click to download Linux PopOS 22](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-popos-22.ova)
-
-Open your Downloads folders and just double-click the INSTALL.BAT file.
+Open your Downloads folder and just double-click the INSTALL.BAT file.
 
 __BEFORE YOU RUN THE INSTALLER KEEP READING...__
 
@@ -140,7 +130,7 @@ cd ~/repos/cbc-development-setup
 
 ### Mac Development Option
 
-Well, to be honest there isn't exactly one however you should be able to cobble it together by installing VirtualBox on Mac and importing one of the [Linux bootstrap OVA files](#choose-one-linux-distribution-ova-file) which will have Laravel PHP on it ready to go.
+Well, to be honest there isn't exactly one however you should be able to cobble it together by installing VirtualBox on Mac and importing one of the [Linux Ubuntu 24 OVA file](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-ubuntu-24.ova) which will have Laravel PHP on it ready to go.
 
 
 
