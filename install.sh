@@ -220,11 +220,28 @@ echo
 
 echo-yellow 'Enter your AWS credentials.'
 
-echo-yellow -ne 'Access ID: '
+AWS_ACCESS_KEY_ID="not set"
+
+AWS_SECRET_ACCESS_KEY="not set"
+
+# Set the path to the AWS credentials file
+CREDENTIALS_FILE="$HOME/.aws/credentials"
+
+if [ -f "$CREDENTIALS_FILE" ]; then
+
+	# Extract the AWS access key ID
+	AWS_ACCESS_KEY_ID=$(grep -A 2 "\[default\]" $CREDENTIALS_FILE | grep "aws_access_key_id" | awk -F ' = ' '{print $2}')
+
+	# Extract the AWS secret access key
+	AWS_SECRET_ACCESS_KEY=$(grep -A 2 "\[default\]" $CREDENTIALS_FILE | grep "aws_secret_access_key" | awk -F ' = ' '{print $2}')
+
+fi
+
+echo-yellow -ne "Access ID [$AWS_ACCESS_KEY_ID]: "
 
 read S3_ACCESS_ID
 
-echo-yellow -ne 'Secret Key: '
+echo-yellow -ne "Secret Key [$AWS_SECRET_ACCESS_KEY]: "
 
 read S3_SECRET_KEY
 
@@ -532,22 +549,6 @@ do
 done
 
 echo
-
-
-
-###############################
-# Start CBC stack
-###############################
-
-echo-cyan 'Starting up CBC micro services stack ...'
-
-echo-white
-
-upcbcstack
-
-sleep 5
-
-echo; echo
 
 
 

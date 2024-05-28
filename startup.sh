@@ -65,16 +65,14 @@ source ./shutdown.sh
 
 
 # Start CBC stack
-if ! dockerls | grep cbc-mariadb > /dev/null; then
+echo; echo-cyan "Starting cbc-development-setup ..."; echo-white; echo
 
-	echo; echo-cyan "Starting cbc-development-setup ..."; echo-white; echo
+upcbcstack
 
-	upcbcstack
+sleep 5
 
-	sleep 5
 
-fi
-
+# Iterate through each CBC repo and startup
 repos
 
 RUNNING_SITES=""
@@ -89,64 +87,64 @@ WAN_IP=$(whatismyip)
 
 for REPO_NAME in *; do
 
-if [ ! -d "$REPO_NAME" ]; then continue; fi
+	if [ ! -d "$REPO_NAME" ]; then continue; fi
 
-if [ "$REPO_NAME" = "cbc-docker-stack" ]; then continue; fi
+	if [ "$REPO_NAME" = "cbc-docker-stack" ]; then continue; fi
 
-if [ "$REPO_NAME" = "certbot-bash-wrapper" ]; then continue; fi
+	if [ "$REPO_NAME" = "certbot-bash-wrapper" ]; then continue; fi
 
-if [ "$REPO_NAME" = "cbc-development-setup" ]; then continue; fi
+	if [ "$REPO_NAME" = "cbc-development-setup" ]; then continue; fi
 
-cd "$REPO_NAME"
+	cd "$REPO_NAME"
 
-if [[ -f "install.sh" && ! -f "is_installed" ]]; then
+	if [[ -f "install.sh" && ! -f "is_installed" ]]; then
 
-	echo
+		echo
 
-	source ./install.sh --dev
+		source ./install.sh --dev
 
-	echo; echo
-
-fi
-
-echo; echo-cyan "Starting up $REPO_NAME ..."; echo-white
-
-if [ -f "docker-compose.yaml" ]; then
-
-	if ! dockerls | grep $REPO_NAME > /dev/null; then
-
-		dockerup
+		echo; echo
 
 	fi
 
-fi
+	echo; echo-cyan "Starting up $REPO_NAME ..."; echo-white
 
-# Find D class from hosts file and use as external port access
-EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
+	if [ -f "docker-compose.yaml" ]; then
 
-if ! [ -z "$EXT_PORT" ]; then
+		if ! dockerls | grep $REPO_NAME > /dev/null; then
 
-	RUNNING_SITES+="http://$REPO_NAME\n"
+			dockerup
 
-	RUNNING_INTERNAL+="http://$LAN_IP:$EXT_PORT ($REPO_NAME) \n"
+		fi
 
-	RUNNING_EXTERNAL+="http://$WAN_IP:$EXT_PORT ($REPO_NAME) \n"
+	fi
 
-	# Route inbound port traffic
-	iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80 -m comment --comment "cbc-rule"
+	# Find D class from hosts file and use as external port access
+	EXT_PORT=$(cat /etc/hosts | grep $REPO_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
 
-	# Allow forwarding of the traffic to the Docker container
-	iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule"
+	if ! [ -z "$EXT_PORT" ]; then
 
-	# Masquerade outgoing packets from the Docker container
-	iptables -t nat -A POSTROUTING -s 10.2.0.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule"
+		RUNNING_SITES+="http://$REPO_NAME\n"
 
-fi
+		RUNNING_INTERNAL+="http://$LAN_IP:$EXT_PORT ($REPO_NAME) \n"
 
-# Allow established connections to reply
-iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule"
+		RUNNING_EXTERNAL+="http://$WAN_IP:$EXT_PORT ($REPO_NAME) \n"
 
-cd ..
+		# Route inbound port traffic
+		iptables -t nat -A PREROUTING -p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80 -m comment --comment "cbc-rule"
+
+		# Allow forwarding of the traffic to the Docker container
+		iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule"
+
+		# Masquerade outgoing packets from the Docker container
+		iptables -t nat -A POSTROUTING -s 10.2.0.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule"
+
+	fi
+
+	# Allow established connections to reply
+	iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule"
+
+	cd ..
 
 done
 
