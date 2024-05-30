@@ -68,9 +68,10 @@ alias shutdown='sudo shutdown -h now'
 alias poweroff='sudo poweroff'
 alias lsusb='sudo lsusb'
 alias lspci='sudo lspci'
-alias lsblk='sudo lsblk'
+alias lsblk='sudo lsblk -o NAME,SIZE,TYPE,MOUNTPOINT,MODEL'
 alias visudo='sudo visudo'
 alias docker="sudo docker"
+alias dd='sudo dd'
 
 # Misc
 alias la='ls -la'
