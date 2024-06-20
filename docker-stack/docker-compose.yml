@@ -1,0 +1,86 @@
+services:
+
+  db:
+    image: mariadb
+    container_name: cbc-mariadb
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+    volumes:
+      - vol-cbc-docker-stack:/var/lib/mysql
+    restart: always
+    expose:
+      - "3306"
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.2
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: cbc-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: 10.2.0.2
+      PMA_USER: root
+      UPLOAD_LIMIT: 256M
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.3
+
+  mongo:
+    image: mongo
+    container_name: cbc-mongo
+    restart: always
+    expose:
+      - "27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.4
+
+  redis:
+    image: redis
+    container_name: cbc-redis
+    restart: always
+    expose:
+      - "6379"
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.5
+
+  exim4:
+    image: imixs/exim4
+    container_name: cbc-exim4
+    restart: always
+    expose:
+      - "25"
+    environment:
+      EXIM_SMARTHOST: "${EXIM_SMARTHOST}"
+      EXIM_PASSWORD: "${EXIM_PASSWORD}"
+      EXIM_ALLOWED_SENDERS: "0.0.0.0/0"
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.6
+
+  memcached:
+    image: memcached
+    container_name: cbc-memcached
+    restart: always
+    expose:
+      - "11211"
+    networks:
+      vpcbr:
+        ipv4_address: 10.2.0.7
+
+volumes:
+  vol-cbc-docker-stack:
+    external: true
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.2.0.0/16
+         gateway: 10.2.0.1

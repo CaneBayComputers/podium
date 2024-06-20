@@ -1,31 +1,15 @@
 # CD
 alias ~='cd ~'
 alias ..='cd ..'
-alias ...='cd ../..'
-alias repos='~; cd repos'
-alias cbcdevelopment='repos; cd cbc-development-setup'
-alias development='cbcdevelopment'
-alias cbcstack='repos; cd cbc-docker-stack'
-alias cbclaravelphp7='repos; cd cbc-laravel-php7'
-alias cbclaravelphp8='repos; cd cbc-laravel-php8'
+alias ....='cd ../..'
+alias ......='cd ../../..'
 
 # Docker
 alias dockerup="docker compose up -d"
 alias dockerdown="docker compose down"
 alias dockerexec="docker container exec -it"
-alias dockerls="docker container ls"
+alias dockerls="docker container ls -a"
 alias dockerexec-developer='dockerexec --user developer $(basename $(pwd))'
-
-# CBC
-alias upcbcstack='CUR_PWD=$(pwd); cbcstack; dockerup; cd $CUR_PWD'
-alias downcbcstack='CUR_PWD=$(pwd); cbcstack; dockerdown; cd $CUR_PWD'
-alias startcbc='CUR_PWD=$(pwd); cbcdevelopment; ./startup.sh; cd $CUR_PWD'
-alias restartcbc='startcbc'
-alias stopcbc='CUR_PWD=$(pwd); cbcdevelopment; ./shutdown.sh; cd $CUR_PWD'
-alias shutdowncbc='stopcbc'
-alias listcbc='CUR_PWD=$(pwd); cbcdevelopment; if [ -f startup.log ]; then cat startup.log; else echo-red "CBC not started!"; echo-white "Run ./startup.sh"; fi; cd $CUR_PWD'
-alias installcbcrepo='CUR_PWD=$(pwd); echo "Enter Git repo: " && read $REPO && repos && git clone $REPO && startcbc; cd $CUR_PWD'
-alias newcbcrepo='echo -n "Enter new repo name: " && read REPO && echo -n "Which PHP version (7/8): " && read VER && VER=cbc-laravel-php$VER && echo $REPO && echo $VER && repos && mkdir $REPO && cd $REPO && git init && git remote add $VER https://github.com/CaneBayComputers/$VER.git && git fetch $VER && git pull $VER master && startcbc'
 
 # Color
 alias echo-red='tput setaf 1 ; echo'
@@ -46,12 +30,12 @@ alias gbranch='git branch -a -v'
 alias gadd='git add -A'
 alias gcommit='git commit -a -m'
 alias gpush='git push -v'
-alias gpushall='CUR_PWD=$(pwd); repos; for DIR in */; do cd $DIR; echo; echo-green $DIR; echo-white; gpull; divider; cd ..; done; cd $CUR_PWD'
+alias gpushall='for DIR in */; do cd $DIR; echo; echo-green $DIR; echo-white; gpull; divider; cd ..; done'
 alias gpull='git pull -v'
-alias gpullall='CUR_PWD=$(pwd); repos; for DIR in */; do cd $DIR; echo; echo-green $DIR; echo-white; gpull; divider; cd ..; done; cd $CUR_PWD'
-alias gpullall-laravel='CUR_PWD=$(pwd); repos; for DIR in */; do cd $DIR; REMOTE=$(git remote | grep laravel-php); if [ ! -z "$REMOTE" ]; then echo; echo-green $DIR; echo-white; gpull $REMOTE master; divider; fi; cd ..; done; cd $CUR_PWD'
+alias gpullall='for DIR in */; do cd $DIR; echo; echo-green $DIR; echo-white; gpull; divider; cd ..; done'
+alias gpullall-laravel='for DIR in */; do cd $DIR; REMOTE=$(git remote | grep laravel-php); if [ ! -z "$REMOTE" ]; then echo; echo-green $DIR; echo-white; gpull $REMOTE master; divider; fi; cd ..; done'
 alias gquick='echo "Commit message: " && read MESSAGE && gstatus && gadd && gcommit "$MESSAGE" && gpush'
-alias gstatusall='CUR_PWD=$(pwd); repos; for DIR in */; do cd $DIR; if ! git diff-index --quiet HEAD --; then gstatus; fi; cd ..; done; cd $CUR_PWD'
+alias gstatusall='for DIR in */; do cd $DIR; if ! git diff-index --quiet HEAD --; then gstatus; fi; cd ..; done'
 
 # Sudo
 alias ifconfig='sudo ifconfig'

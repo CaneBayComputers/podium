@@ -4,7 +4,11 @@ set -e
 
 shopt -s expand_aliases
 
-source ~/repos/cbc-development-setup/.bash_aliases
+cd "$(dirname "$0")"
+
+DEV_DIR=$(pwd)
+
+source .bash_aliases
 
 if [[ "$(whoami)" == "root" ]]; then
 
@@ -73,36 +77,15 @@ if ! uname -a | grep Ubuntu > /dev/null; then
 
 fi
 
-if ! pwd | grep '/repos/cbc-development-setup' > /dev/null; then
-
-	echo-red "This repo's location is incorrect!"
-
-	echo-white "
-
-Run the following commands:
-
-    cd ~
-    mkdir repos
-    cd repos
-    git clone https://github.com/CaneBayComputers/cbc-development-setup.git
-    cd cbc-development-setup
-    ./install.sh
-
-"
-
-	exit 1
-
-fi
-
 if ! [ -f ~/.bash_aliases ]; then
 
-	echo "source ~/repos/cbc-development-setup/.bash_aliases" > ~/.bash_aliases
+	echo "source $DEV_DIR/.bash_aliases" > ~/.bash_aliases
 
 else
 
-	if ! cat ~/.bash_aliases | grep cbc-development-setup > /dev/null; then
+	if ! cat ~/.bash_aliases | grep cbc-development > /dev/null; then
 
-		echo "source ~/repos/cbc-development-setup/.bash_aliases" >> ~/.bash_aliases
+		echo "source $DEV_DIR/.bash_aliases" >> ~/.bash_aliases
 
 	fi
 
@@ -518,13 +501,9 @@ echo-cyan 'Installing repos ...'
 
 echo-white
 
-cd ~
+cd projects
 
-mkdir -p repos
-
-cd repos
-
-REPOS=( certbot-bash-wrapper cbc-docker-stack cbc-laravel-php7 cbc-laravel-php8 )
+REPOS=( cbc-laravel-php7 cbc-laravel-php8 )
 
 for REPO in "${REPOS[@]}"
 
@@ -548,6 +527,8 @@ do
 
 done
 
+cd ..
+
 echo
 
 
@@ -556,10 +537,6 @@ echo
 # Yay all done
 ###############################
 
-repos
-
-cd cbc-development-setup
-
 touch is_installed
 
-source ./startup.sh
+#source ./startup.sh
