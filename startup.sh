@@ -7,7 +7,9 @@ set -e
 
 shopt -s expand_aliases
 
-cd ~/repos/cbc-development-setup
+cd "$(dirname "$0")"
+
+DEV_DIR=$(pwd)
 
 source .bash_aliases
 

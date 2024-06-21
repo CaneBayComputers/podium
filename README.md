@@ -1,10 +1,12 @@
-# A Simple, Turn-Key, Bootstrap Laravel PHP Development Environment for Windows, Linux and Mac for Beginners to Advanced Users!
+# 🚀 CBC Laravel Dev Environment Installer: Your One-Stop Solution for Seamless Setup on Ubuntu!
+
+This installation script is designed to set up a complete development environment for CBC Laravel projects on Ubuntu-based distributions. It automates the installation and configuration of essential tools such as Git, Docker, PHP, NPM, Composer, and AWS CLI. Additionally, the script configures user-specific settings, manages AWS credentials, and clones necessary Git repositories. By ensuring all dependencies and configurations are correctly set up, this script streamlines the initial setup process, allowing developers to quickly get started with their projects.
 
 If you just want to get to coding, using, practicing or checking out Laravel right away then my friend you are at the right place. If you want things to go smoothly please carefully read and **follow the instructions**. This project was designed for the absolute beginner in mind but advanced users can find this useful. This bootstrapped Laravel project tries to take all of the time consuming and difficult development environment setup down to a few simple steps.
 
 ## TLDR
 
-Git clone this repo on an Ubuntu based Linux distribution in a `repos` folder created in the home directory then run the `./install.sh` script.
+Git clone this repo on an Ubuntu based Linux distribution then run the `./install.sh` script.
 
 See more [Linux installation instructions below](#linux-development-option).
 

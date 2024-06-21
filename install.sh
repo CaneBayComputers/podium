@@ -4,6 +4,8 @@ set -e
 
 shopt -s expand_aliases
 
+ORIG_DIR=$(pwd)
+
 cd "$(dirname "$0")"
 
 DEV_DIR=$(pwd)
@@ -128,6 +130,8 @@ echo-white
 git config --global diff.tool meld
 
 git config --global mergetool.keepBackup false
+
+git config --global init.defaultBranch master
 
 if ! git config user.name; then
 
@@ -501,33 +505,23 @@ echo-cyan 'Installing repos ...'
 
 echo-white
 
-cd projects
+# Ask the question
+echo -n "Do you want to create a new project? ([y]/n): "
 
-REPOS=( cbc-laravel-php7 cbc-laravel-php8 )
+read answer
 
-for REPO in "${REPOS[@]}"
+# Default to 'y' if the answer is empty
+answer=${answer:-y}
 
-do
+# Convert the answer to lowercase to handle different cases
+answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
 
-	printf "\n------- $REPO\n"
+# Condition block
+if [ "$answer" == "y" ]; then
 
-	if [ ! -d $REPO ]; then
+    source ./newproject.sh
 
-		git clone https://github.com/CaneBayComputers/$REPO.git
-
-	else
-
-		cd $REPO
-
-		git pull
-
-		cd ..
-
-	fi
-
-done
-
-cd ..
+fi
 
 echo
 
@@ -539,4 +533,4 @@ echo
 
 touch is_installed
 
-#source ./startup.sh
+cd $ORIG_DIR
