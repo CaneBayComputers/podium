@@ -8,7 +8,7 @@ alias ......='cd ../../..'
 alias dockerup="docker compose up -d"
 alias dockerdown="docker compose down"
 alias dockerexec="docker container exec -it"
-alias dockerls="docker container ls -a"
+alias dockerls="docker container ls"
 alias dockerexec-developer='dockerexec --user developer $(basename $(pwd))'
 
 # Color

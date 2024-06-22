@@ -43,13 +43,15 @@ start_project() {
 
   cd "$PROJECT_NAME"
 
-  if [[ -f "install.sh" && ! -f "is_installed" ]]; then
+  if ! [ -f docker-compose.yaml ]; then
 
-    echo
+    echo-red 'No docker-compose.yaml file found!'
 
-    source ./install.sh --dev
+    echo-white 'Possibly not installed. Skipping ...'
 
-    echo; echo
+    cd ..
+
+    return 1
 
   fi
 
@@ -74,6 +76,7 @@ start_project() {
   # Route inbound port traffic
   RULE="-p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80 -m comment --comment 'cbc-rule'"
 
+  # If this rule already exists it's probably still running in Docker
   if iptables -t nat -C PREROUTING $RULE 2>/dev/null; then return; fi
 
   iptables -t nat -A PREROUTING $RULE
@@ -124,14 +127,22 @@ cd ..
 sleep 5
 
 
-# Iterate through each CBC repo and startup
+# Start projects either just one by name or all in the projects directory
 cd projects
 
-for PROJECT_NAME in *; do
+if ! [ -z "$PROJECT_NAME" ]; then
 
-  if [ ! -d "$PROJECT_NAME" ]; then continue; fi
+   start_project $PROJECT_NAME
 
-done
+else
+
+  for PROJECT_NAME in *; do
+
+    if [ ! -d "$PROJECT_NAME" ]; then continue; fi
+
+  done
+
+fi
 
 cd ..
 

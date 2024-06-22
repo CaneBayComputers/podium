@@ -18,23 +18,6 @@ source extras/.bash_aliases
 
 echo; echo
 
-NO_START=false
-
-# Check for the --no-start option
-for arg in "$@"; do
-
-  if [[ "$arg" == "--no-start" ]]; then
-
-    NO_START=true
-
-    shift
-
-    break
-
-  fi
-
-done
-
 if [[ "$(whoami)" == "root" ]]; then
 
   echo-red "Do NOT run with sudo!"; echo-white; echo
@@ -91,18 +74,9 @@ git fetch $VER
 
 git pull $VER master
 
+source install.sh --dev
+
 cd ../..
-
-# Start new project
-if ! $NO_START; then
-
-  cd scripts
-
-  source startup.sh $PROJECT_NAME
-
-  cd ..
-
-fi
 
 echo; echo
 
