@@ -4,9 +4,17 @@ set -e
 
 shopt -s expand_aliases
 
-cd ~/repos/cbc-development-setup
+ORIG_DIR=$(pwd)
 
-source .bash_aliases
+cd "$(dirname "$0")"
+
+cd ..
+
+DEV_DIR=$(pwd)
+
+source extras/.bash_aliases
+
+echo; echo
 
 # Function to remove rules with a specific comment from a given table and chain
 remove_custom_rules() {
@@ -66,7 +74,7 @@ for CONTAINER_ID in $(docker ps -q); do
 
     CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $CONTAINER_ID | sed 's/^\/\+//')
 
-    REPO_DIR=~/repos/$CONTAINER_NAME;
+    REPO_DIR=projects/$CONTAINER_NAME;
 
     if [ -d "$REPO_DIR" ]; then
 
@@ -75,6 +83,8 @@ for CONTAINER_ID in $(docker ps -q); do
     	cd $REPO_DIR
 
     	dockerdown
+
+    	cd ../..
 
     	divider
 
@@ -93,7 +103,7 @@ if dockerls | grep cbc-mariadb > /dev/null; then
 fi
 
 # Remove startup log
-if rm -f ~/repos/cbc-development-setup/startup.log; then true; fi
+if rm -f scripts/startup.log; then true; fi
 
 # Print confirmation message
 echo; echo-green "All CBC containers have been shut down!"; echo-white; echo
