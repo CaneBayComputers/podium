@@ -93,19 +93,17 @@ if ! [ -f is_installed ]; then
 
   echo; echo-red 'Development environment has not been installed!'; echo-white
 
-  echo 'Run: ./install.sh'
+  echo 'Run install.sh'
 
   exit 0
 
 fi
 
-divider
-
 
 # Start CBC stack
-echo; echo-cyan "Starting services ..."; echo-white; echo
-
 if ! check-cbc-mariadb; then
+
+  echo; echo-cyan "Starting services ..."; echo-white; echo
 
   cd docker-stack
 
@@ -123,13 +121,13 @@ cd projects
 
 if ! [ -z "$PROJECT_NAME" ]; then
 
-   start_project $PROJECT_NAME
+  start_project $PROJECT_NAME
 
 else
 
   for PROJECT_NAME in *; do
 
-    if [ ! -d "$PROJECT_NAME" ]; then continue; fi
+    start_project $PROJECT_NAME
 
   done
 

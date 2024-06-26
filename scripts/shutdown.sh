@@ -6,7 +6,7 @@ shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
-cd "$(dirname "$0")"
+cd $(dirname "$(realpath "$0")")
 
 cd ..
 
@@ -16,11 +16,22 @@ source extras/.bash_aliases
 
 echo; echo
 
-# Function to remove rules with a specific comment from a given table and chain
+
+# Variables
+if [[ -n "$1" ]]; then
+
+  PROJECT_NAME="$1"
+
+fi
+
+
+# Functions
 remove_custom_rules() {
 
 	table=$1
+
 	chain=$2
+
 	comment=$3
 
 	# List the rules with line numbers, search for the comment, extract line numbers, and remove those rules
@@ -38,13 +49,17 @@ remove_custom_rules() {
 
 
 # Define the comment to search for
-custom_comment="cbc-rule"
+CUSTOM_COMMENT="cbc-rule"
+
+if ! [ -z "$PROJECT_NAME" ]; then
+
+	$CUSTOM_COMMENT+=""
 
 
 # Remove custom rules from the filter table
 for chain in INPUT FORWARD OUTPUT; do
 	
-	remove_custom_rules filter $chain $custom_comment
+	remove_custom_rules filter $chain $CUSTOM_COMMENT
 	
 done
 
@@ -52,7 +67,7 @@ done
 # Remove custom rules from the nat table
 for chain in PREROUTING POSTROUTING OUTPUT; do
 	
-	remove_custom_rules nat $chain $custom_comment
+	remove_custom_rules nat $chain $CUSTOM_COMMENT
 	
 done
 
@@ -60,9 +75,28 @@ done
 # Remove custom rules from the mangle table
 for chain in PREROUTING INPUT FORWARD OUTPUT POSTROUTING; do
 	
-	remove_custom_rules mangle $chain $custom_comment
+	remove_custom_rules mangle $chain $CUSTOM_COMMENT
 	
 done
+
+
+
+
+
+
+exit 0
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Print confirmation message

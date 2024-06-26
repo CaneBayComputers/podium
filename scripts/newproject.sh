@@ -74,9 +74,6 @@ git fetch $VER
 
 git pull $VER master
 
-# TEMP
-exit 0
-
 source install.sh --dev
 
 cd ../..
