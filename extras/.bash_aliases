@@ -11,6 +11,7 @@ alias dockerexec="docker container exec -it"
 alias dockerls="docker container ls"
 alias dockerexec-developer='dockerexec --user developer $(basename $(pwd))'
 alias check-cbc-mariadb='[ "$(docker ps -q -f name=cbc-mariadb)" ] && true || false'
+alias check-cbc-phpmyadmin='[ "$(docker ps -q -f name=cbc-phpmyadmin)" ] && true || false'
 
 # Color
 alias echo-red='tput setaf 1 ; echo'
