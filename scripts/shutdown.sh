@@ -55,6 +55,8 @@ if ! [ -z "$PROJECT_NAME" ]; then
 
 	$CUSTOM_COMMENT+=""
 
+fi
+
 
 # Remove custom rules from the filter table
 for chain in INPUT FORWARD OUTPUT; do
@@ -99,45 +101,45 @@ exit 0
 
 
 
-# Print confirmation message
-echo; echo-green "CBC iptables rules have been removed!"; echo-white; echo
+# # Print confirmation message
+# echo; echo-green "CBC iptables rules have been removed!"; echo-white; echo
 
 
-# Shut down Docker containers
-for CONTAINER_ID in $(docker ps -q); do
+# # Shut down Docker containers
+# for CONTAINER_ID in $(docker ps -q); do
 
-    CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $CONTAINER_ID | sed 's/^\/\+//')
+#     CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $CONTAINER_ID | sed 's/^\/\+//')
 
-    REPO_DIR=projects/$CONTAINER_NAME;
+#     REPO_DIR=projects/$CONTAINER_NAME;
 
-    if [ -d "$REPO_DIR" ]; then
+#     if [ -d "$REPO_DIR" ]; then
 
-    	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
+#     	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
 
-    	cd $REPO_DIR
+#     	cd $REPO_DIR
 
-    	dockerdown
+#     	dockerdown
 
-    	cd ../..
+#     	cd ../..
 
-    	divider
+#     	divider
 
-    fi
+#     fi
 
-done
+# done
 
-if dockerls | grep cbc-mariadb > /dev/null; then
+# if dockerls | grep cbc-mariadb > /dev/null; then
 
-	echo; echo-cyan "Shutting down cbc-development-setup ..."; echo-white; echo
+# 	echo; echo-cyan "Shutting down cbc-development-setup ..."; echo-white; echo
 
-	downcbcstack
+# 	downcbcstack
 
-	echo
+# 	echo
 
-fi
+# fi
 
-# Remove startup log
-if rm -f scripts/startup.log; then true; fi
+# # Remove startup log
+# if rm -f scripts/startup.log; then true; fi
 
-# Print confirmation message
-echo; echo-green "All CBC containers have been shut down!"; echo-white; echo
+# # Print confirmation message
+# echo; echo-green "All CBC containers have been shut down!"; echo-white; echo

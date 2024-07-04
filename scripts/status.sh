@@ -18,6 +18,8 @@ echo; echo
 
 
 # Variables
+PROJECT_NAME=""
+
 if [[ -n "$1" ]]; then
 
   PROJECT_NAME="$1"
@@ -34,24 +36,102 @@ LAN_IP=$(hostname -I | awk '{print $1}')
 
 WAN_IP=$(whatismyip)
 
-IPTABLES_RULES=$(iptables -L -v -n | grep 'cbc-rule')
+if ! IPTABLES_RULES=$(iptables -t nat -L PREROUTING -v -n | grep 'cbc-rule'); then
+
+  IPTABLES_RULES=""
+
+fi
+
+HOSTS=$(cat /etc/hosts)
 
 
 # Functions
 project_status() {
 
-  PROJECT_NAME=$1
+  PROJ_NAME=$1
 
-  if echo "$IPTABLES_RULES" | grep "$PROJECT_NAME" > /dev/null; then
 
-    RUNNING_SITES+="http://$PROJECT_NAME\n"
+  echo -n PROJECT:
 
-    RUNNING_INTERNAL+="http://$LAN_IP:$EXT_PORT ($PROJECT_NAME) \n"
+  echo-yellow " $PROJ_NAME"
 
-    RUNNING_EXTERNAL+="http://$WAN_IP:$EXT_PORT ($PROJECT_NAME) \n"
+
+  echo-white -n PROJECT FOLDER:
+
+  if ! [ -d "$PROJ_NAME" ]; then
+
+    echo-red " NOT FOUND"
+
+    echo-white -n SUGGESTION:; echo-yellow " Check spelling or clone repo"
+
+    return 1
+
+  else
+
+    echo-green " FOUND"
 
   fi
 
+
+  echo-white -n HOST ENTRY: 
+
+  if ! HOST_ENTRY=$(printf "%s\n" "$HOSTS" | grep " $PROJ_NAME$"); then
+
+    echo-red " NOT FOUND"
+
+    echo-white -n SUGGESTION:; echo-yellow " Run project's install.sh script"
+
+    return 1
+
+  else
+
+    echo-green " FOUND"
+
+  fi
+
+
+  echo-white -n DOCKER STATUS:
+
+  if ! [ "$(docker ps -q -f name=$PROJ_NAME)" ]; then
+
+    echo-red " NOT RUNNING"
+
+    echo-white -n SUGGESTION:; echo-yellow " Run startup.sh script"
+
+    return 1
+
+  else
+
+    echo-green " RUNNING"
+
+  fi
+
+
+  echo-white -n IPTABLES RULES:
+
+  EXT_PORT=$(echo $HOST_ENTRY | cut -d'.' -f 4 | cut -d' ' -f 1)
+
+  if ! printf "%s\n" "$IPTABLES_RULES" | grep "cbc-rule-$PROJ_NAME'" | grep "dpt:$EXT_PORT" > /dev/null; then
+
+    echo-red " NOT FOUND"
+
+    echo-white -n SUGGESTION:; echo-yellow " Run shutdown.sh then startup.sh script"
+
+    return 1
+
+  else
+
+    echo-green " FOUND"
+
+  fi
+
+  echo-white
+
+  echo-white -n LOCAL ACCESS:; echo-yellow " http://$PROJ_NAME"
+
+  echo-white -n LAN ACCESS:; echo-yellow " http://$LAN_IP:$EXT_PORT"
+
+  echo-white -n WAN ACCESS:; echo-yellow " http://$WAN_IP:$EXT_PORT"
 }
 
 
@@ -74,7 +154,7 @@ if ! [ -f is_installed ]; then
 
   echo 'Run install.sh'
 
-  exit 0
+  exit 1
 
 fi
 
@@ -86,7 +166,7 @@ if ! check-cbc-mariadb; then
 
   echo 'Run startup.sh'
 
-  exit 0
+  exit 1
 
 fi
 
@@ -96,19 +176,28 @@ cd projects
 
 if ! [ -z "$PROJECT_NAME" ]; then
 
-  project_status $PROJECT_NAME
+  if project_status $PROJECT_NAME; then true; fi
+
+  echo-white; divider
 
 else
 
   for PROJECT_NAME in *; do
 
-    project_status $PROJECT_NAME
+    if project_status $PROJECT_NAME; then true; fi
+
+    echo-white; divider
 
   done
 
 fi
 
 cd ..
+
+
+# TEMP
+
+exit 0
 
 
 # Output info

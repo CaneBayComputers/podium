@@ -21,11 +21,16 @@ echo; echo
 
 
 # Vars
-if [[ -n "$1" ]]; then
+NO_STATUS=false
+PROJECT_NAME=""
 
-  PROJECT_NAME="$1"
-
-fi
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --no-status) NO_STATUS=true ;;
+        *) PROJECT_NAME="$1" ;;
+    esac
+    shift
+done
 
 
 # Functions
@@ -143,6 +148,14 @@ if ! iptables -C FORWARD $RULE 2>/dev/null; then
 
   iptables -A FORWARD $RULE
   
+fi
+
+if ! $NO_STATUS; then
+
+  cd scripts
+
+  source ./status.sh
+
 fi
 
 cd $ORIG_DIR
