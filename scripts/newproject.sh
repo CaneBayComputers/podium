@@ -74,7 +74,7 @@ git fetch $VER
 
 git pull $VER master
 
-source install.sh --dev
+source install.sh
 
 cd ../..
 

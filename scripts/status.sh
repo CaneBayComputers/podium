@@ -113,7 +113,7 @@ project_status() {
 
   if ! printf "%s\n" "$IPTABLES_RULES" | grep "cbc-rule-$PROJ_NAME'" | grep "dpt:$EXT_PORT" > /dev/null; then
 
-    echo-red " NOT FOUND"
+    echo-red " NOT ESTABLISHED"
 
     echo-white -n SUGGESTION:; echo-yellow " Run shutdown.sh then startup.sh script"
 
@@ -121,7 +121,7 @@ project_status() {
 
   else
 
-    echo-green " FOUND"
+    echo-green " ESTABLISHED"
 
   fi
 
@@ -193,5 +193,9 @@ else
 fi
 
 cd ..
+
+read -n 1 -r -s -p $'Press enter to continue...\n'
+
+echo; echo
 
 cd $ORIG_DIR

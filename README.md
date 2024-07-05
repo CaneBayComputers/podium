@@ -10,21 +10,6 @@ Git clone this repo on an Ubuntu based Linux distribution then run the `./instal
 
 See more [Linux installation instructions below](#linux-development-option).
 
-## Post Installation Information: PLEASE READ
-
-After the installer is finished there will be two important folders.
-
-`cbc-laravel-php7` and `cbc-laravel-php8`
-
-They are located in the `repos` directory that will be created in the [Linux user home directory](https://www.computerhope.com/jargon/h/homedir.htm).
-
-The first is Laravel 7 running on PHP 7 and the other is Laravel 11 (newest as of this writing) running on PHP 8.
-
-Currently, the Laravel 7 folder has a pre-built, bootstrapped, web site framework.
-
-But you can develop and code Laravel PHP in either one.
-
-
 ## Development Environment Options
 
 Choose an installation option:  
@@ -106,26 +91,14 @@ sudo apt-get update
 sudo apt-get install git
 ```
 
-A `repos` directory MUST exist in your user home directory
-
-Create the directory:
-
-```bash
-cd ~
-
-mkdir repos
-```
-
 Clone this repo:
 ```bash
-cd ~/repos
-
-git clone https://github.com/CaneBayComputers/cbc-development-setup.git
+git clone https://github.com/CaneBayComputers/cbc-development.git
 ```
 
 Run installer:
 ```bash
-cd ~/repos/cbc-development-setup
+cd cbc-development/scripts
 
 ./install.sh
 ```
@@ -134,45 +107,6 @@ cd ~/repos/cbc-development-setup
 
 Well, to be honest there isn't exactly one however you should be able to cobble it together by installing VirtualBox on Mac and importing one of the [Linux Ubuntu 24 OVA file](https://s3.amazonaws.com/canebaycomputers.cdn/virtual-machines/cbc-linux-ubuntu-24.ova) which will have Laravel PHP on it ready to go.
 
-
-
-## HOW-TO AND FEATURES
-
-
-### Viewing Web Pages
-
-To view either of the bootstrap Laravel PHP 7 or PHP 8 projects in a web browser simply open the web browser and navigate to the corresponding version:
-
-`http://cbc-laravel-php7` or `http://cbc-laravel-php8`
-
-If you are using one of the virtual Linux machines you MUST use the browser IN the virtual machine. NOT the browser on your host machine, ie. NOT your main computer's browser.
-
-You also MUST include the `http://` part or it will not resolve the domain correctly.
-
-If you are using a virtual machine, by default, there should be bookmarks of these links at the top of the pre-installed browser.
-
-
-### Creating Web Pages
-
-Currently, the Laravel PHP 7 folder has a pre-built, bootstrapped, web site framework.
-
-At the moment, to output content for the Laravel PHP 8 project you must refer to its [routing section](https://laravel.com/docs/11.x/routing).
-
-If you have installed one of the virtual machines you can open Sublime Text.
-
-Open the `cbc-laravel-php7` folder and go to app > resources > views > content.
-
-The location of this folders is mentioned at the [top of this readme](#).
-
-Page index.blade.php refers the to the home page.
-
-Page services.blade.php refers to the 
-
-Pages are created by naming them:  
-page-name.blade.php
-
-Creating a sub-folder will also correspond to a link folder such as:  
-cbc-laravel-php8/sub-folder/page-name
 
 
 ### Viewing and Accessing the MySQL Database
@@ -196,7 +130,4 @@ To access these services you can refer to them by their Docker internal IP addre
 >10.2.0.4 - [MongoDB](https://www.mongodb.com/)  
 >10.2.0.5 - [Redis](https://redis.io/)  
 >10.2.0.6 - [Exim4 (Email server)](https://www.exim.org/)  
->10.2.0.7 - [Memcached](https://memcached.org/)  
-
-
-### MORE INFO COMING SOON ...
+>10.2.0.7 - [Memcached](https://memcached.org/)

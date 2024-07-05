@@ -68,15 +68,15 @@ start_project() {
   RULE="-p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80 -m comment --comment 'cbc-rule-$PROJECT_NAME'"
 
   # If this rule already exists it's probably still running in Docker
-  if iptables -t nat -C PREROUTING $RULE 2>/dev/null; then return; fi
+  if iptables -t nat -C PREROUTING $RULE > /dev/null 2>&1; then return; fi
 
-  iptables -t nat -A PREROUTING $RULE
+  iptables -t nat -A PREROUTING $RULE > /dev/null 2>&1
 
   # Allow forwarding of the traffic to the Docker container
-  iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule-$PROJECT_NAME"
+  iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule-$PROJECT_NAME" > /dev/null 2>&1
 
   # Masquerade outgoing packets from the Docker container
-  iptables -t nat -A POSTROUTING -s 10.2.0.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule-$PROJECT_NAME"
+  iptables -t nat -A POSTROUTING -s 10.2.0.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule-$PROJECT_NAME" > /dev/null 2>&1
 }
 
 
@@ -126,13 +126,13 @@ cd projects
 
 if ! [ -z "$PROJECT_NAME" ]; then
 
-  start_project $PROJECT_NAME
+  if start_project $PROJECT_NAME; then true; fi
 
 else
 
-  for PROJECT_NAME in *; do
+  for PROJECT_FOLDER_NAME in *; do
 
-    start_project $PROJECT_NAME
+    if start_project $PROJECT_FOLDER_NAME; then true; fi
 
   done
 
@@ -144,9 +144,9 @@ cd ..
 # Allow established connections to reply
 RULE="-m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment 'cbc-rule'"
 
-if ! iptables -C FORWARD $RULE 2>/dev/null; then
+if ! iptables -C FORWARD $RULE > /dev/null 2>&1; then
 
-  iptables -A FORWARD $RULE
+  iptables -A FORWARD $RULE > /dev/null 2>&1
   
 fi
 
@@ -154,7 +154,7 @@ if ! $NO_STATUS; then
 
   cd scripts
 
-  source ./status.sh
+  source ./status.sh $PROJECT_NAME
 
 fi
 
