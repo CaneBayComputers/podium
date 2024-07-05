@@ -123,6 +123,8 @@ git config --global mergetool.keepBackup false
 
 git config --global init.defaultBranch master
 
+git config --global pull.rebase false
+
 if ! git config user.name; then
 
 	echo-yellow -ne 'Enter your full name for Git commits: '
