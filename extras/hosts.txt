@@ -1,5 +1,5 @@
-10.2.0.2        cbc-mariadb
-10.2.0.3        cbc-phpmyadmin
-10.2.0.4        cbc-mongo
-10.2.0.5        cbc-redis
-10.2.0.6        cbc-exim4
+.2        mariadb
+.3        phpmyadmin
+.4        mongo
+.5        redis
+.6        exim4

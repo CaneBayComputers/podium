@@ -14,6 +14,8 @@ DEV_DIR=$(pwd)
 
 source extras/.bash_aliases
 
+source docker-stack/.env
+
 if [[ "$(whoami)" == "root" ]]; then
 
 	ORIG_USER=$SUDO_USER
@@ -87,7 +89,7 @@ if ! [ -f ~/.bash_aliases ]; then
 
 else
 
-	if ! cat ~/.bash_aliases | grep cbc-development > /dev/null; then
+	if ! cat ~/.bash_aliases | grep "$DEV_DIR/extras/.bash_aliases"  > /dev/null; then
 
 		echo "source $DEV_DIR/extras/.bash_aliases" >> ~/.bash_aliases
 
@@ -100,7 +102,7 @@ clear
 echo; echo
 
 echo "
-              WELCOME TO THE CBC DEV INSTALLER !
+              WELCOME TO THE DEV INSTALLER !
 
 Leave answers blank if you do not know the info. You can re-run the
 installer to enter in new info when have it."
@@ -250,7 +252,7 @@ echo-white
 
 sudo apt-get update -y
 
-sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip
+sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq
 
 echo
 
@@ -370,13 +372,13 @@ echo-white
 
 echo
 
-echo-cyan 'Installing PHP ...'
+# echo-cyan 'Installing PHP ...'
 
-echo-white
+# echo-white
 
-sudo apt-get -y install php php-bcmath php-cli php-common php-curl php-mbstring php-zip php-xml
+# sudo apt-get -y install php php-bcmath php-cli php-common php-curl php-mbstring php-zip php-xml
 
-echo; echo-green 'PHP installed!'; echo; echo
+# echo; echo-green 'PHP installed!'; echo; echo
 
 echo-cyan 'Installing NPM ...'
 
@@ -407,60 +409,6 @@ echo
 
 
 ###############################
-# Create Docker volume
-###############################
-
-echo
-
-echo-cyan 'Creating Docker volume ...'
-
-echo-white
-
-if ! sudo docker volume ls | grep vol-cbc-docker-stack; then
-
-  sudo docker volume create vol-cbc-docker-stack
-
-fi
-
-echo
-
-echo-green "Docker volume created!"
-
-echo-white
-
-
-
-###############################
-# Composer
-###############################
-
-echo
-
-echo-cyan 'Installing Composer ...'
-
-echo-white
-
-if ! composer --version > /dev/null 2>&1; then
-
-	php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-
-	sudo php composer-setup.php --install-dir=/usr/bin --filename=composer
-
-	rm -f composer-setup.php
-
-fi
-
-echo
-
-echo-green "Composer installed!"
-
-echo-white
-
-echo
-
-
-
-###############################
 # Hosts
 ###############################
 echo-cyan 'Writing domain names to hosts file ...'
@@ -471,21 +419,13 @@ while read HOST; do
 
 	if ! cat /etc/hosts | grep "$HOST"; then
 
-		echo "$HOST" | sudo tee -a /etc/hosts
+		echo "$VPC_SUBNET$HOST" | sudo tee -a /etc/hosts
 
 	fi
 
 done < extras/hosts.txt
 
 echo
-
-
-
-###############################
-# Fonts
-###############################
-
-sudo cp -f extras/ANSI\ Regular.flf /usr/share/figlet
 
 
 

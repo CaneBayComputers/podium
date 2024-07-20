@@ -1,0 +1,15 @@
+services:
+  server:
+    image: canebaycomputers/cbc:nginx-php8
+    container_name: cbc-laravel-php8
+    entrypoint: [ "bash", "-c", "sleep 5 && nginx && supervisord && php-fpm8.2 -F"]
+    volumes:
+      - .:/usr/share/nginx/html
+    networks:
+      default:
+        ipv4_address: IPV4_ADDRESS
+
+networks:
+  default:
+    external: true
+    name: docker-stack_vpcbr
