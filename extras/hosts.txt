@@ -3,3 +3,4 @@
 .4        mongo
 .5        redis
 .6        exim4
+.7        memcached

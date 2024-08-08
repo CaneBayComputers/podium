@@ -14,6 +14,12 @@ DEV_DIR=$(pwd)
 
 source extras/.bash_aliases
 
+if ! [ -f docker-stack/.env ]; then
+
+	cp docker-stack/.env.example docker-stack/.env
+
+fi
+
 source docker-stack/.env
 
 if [[ "$(whoami)" == "root" ]]; then
@@ -187,54 +193,13 @@ if ! [ -f ~/.ssh/id_rsa ]; then
 
 fi
 
-echo-green "Git configured!"
+echo
 
-echo-white
+git --version
 
 echo
 
-
-
-###############################
-# Set S3FS credentials
-###############################
-
-echo 'Enter your AWS credentials.'
-
-AWS_ACCESS_KEY_ID="not set"
-
-AWS_SECRET_ACCESS_KEY="not set"
-
-# Set the path to the AWS credentials file
-CREDENTIALS_FILE="$HOME/.aws/credentials"
-
-if [ -f "$CREDENTIALS_FILE" ]; then
-
-	# Extract the AWS access key ID
-	AWS_ACCESS_KEY_ID=$(grep -A 2 "\[default\]" $CREDENTIALS_FILE | grep "aws_access_key_id" | awk -F ' = ' '{print $2}')
-
-	# Extract the AWS secret access key
-	AWS_SECRET_ACCESS_KEY=$(grep -A 2 "\[default\]" $CREDENTIALS_FILE | grep "aws_secret_access_key" | awk -F ' = ' '{print $2}')
-
-fi
-
-echo-yellow -ne "Access ID [$AWS_ACCESS_KEY_ID]: "
-
-read S3_ACCESS_ID
-
-echo-yellow -ne "Secret Key [$AWS_SECRET_ACCESS_KEY]: "
-
-read S3_SECRET_KEY
-
-echo-white -ne
-
-if ! [ -z "${S3_ACCESS_ID}" ]; then
-
-	echo $S3_ACCESS_ID:$S3_SECRET_KEY > ~/.passwd-s3fs
-
-	chmod 600 ~/.passwd-s3fs
-
-fi
+echo-green "Git configured!"
 
 echo-white
 
@@ -252,7 +217,7 @@ echo-white
 
 sudo apt-get update -y
 
-sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq
+sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq 7zip
 
 echo
 
@@ -274,15 +239,54 @@ if ! aws --version > /dev/null 2>&1; then
 
 	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" > awscli-bundle.zip
 
-	unzip -o awscli-bundle.zip
+	7z x awscli-bundle.zip
 
 	rm -f awscli-bundle.zip
 
 	sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
 
+	# Bug fix
+	sudo chmod -R o+rx /usr/local/aws-cli/v2/current/dist
+
 	rm -fR aws
 
 fi
+
+if ! aws configure get default.region > /dev/null; then
+
+	aws configure set default.region us-east-1
+
+fi
+
+if ! aws configure get default.output > /dev/null; then
+
+	aws configure set default.output json
+
+fi
+
+aws configure
+
+if ! [ -f ~/.passwd-s3fs ]; then
+
+	# Extract the AWS access key ID
+	if AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id); then
+
+		# Extract the AWS secret access key
+		if AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key); then
+
+			echo $AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY > ~/.passwd-s3fs
+
+			chmod 600 ~/.passwd-s3fs
+
+		fi
+
+	fi
+
+fi
+
+echo
+
+aws --version
 
 echo
 
@@ -290,45 +294,11 @@ echo-green "AWS installed!"
 
 echo-white
 
-echo
-
-echo-cyan 'Configuring AWS ...'
-
-echo-white
-
-if aws configure get default.region; then
-
-	aws configure set default.region us-east-1
-
-fi
-
-if aws configure get default.output; then
-
-	aws configure set default.output json
-
-fi
-
-if ! [ -z "${S3_ACCESS_ID}" ]; then
-
-	aws configure set aws_access_key_id $S3_ACCESS_ID
-
-	aws configure set aws_secret_access_key $S3_SECRET_KEY
-
-fi
-
-echo-green "AWS configured!"
-
-echo-white
-
-echo
-
 
 
 ###############################
 # Docker
 ###############################
-
-echo
 
 echo-cyan 'Installing Docker ...'
 
@@ -360,6 +330,10 @@ sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plug
 
 echo
 
+docker --version
+
+echo
+
 echo-green "Docker installed!"
 
 echo-white
@@ -367,36 +341,38 @@ echo-white
 
 
 ###############################
-# PHP / NPM
+# NPM / Nodejs
 ###############################
 
-echo
-
-# echo-cyan 'Installing PHP ...'
-
-# echo-white
-
-# sudo apt-get -y install php php-bcmath php-cli php-common php-curl php-mbstring php-zip php-xml
-
-# echo; echo-green 'PHP installed!'; echo; echo
-
-echo-cyan 'Installing NPM ...'
+echo-cyan 'Installing Nodejs ...'
 
 echo-white
 
-if ! nodejs --version > /dev/null 2>&1; then
+if ! nodejs --version 2> /dev/null; then
 
 	sudo apt-get -y install nodejs
 
 fi
 
-if ! npm --version > /dev/null 2>&1; then
+echo; echo-green 'NPM installed!'
+
+
+echo
+
+echo-cyan 'Installing NPM ...'
+
+echo-white
+
+if ! npm --version 2> /dev/null; then
 
 	sudo apt-get -y install npm
 
 fi
 
-echo; echo-green 'NPM installed!'; echo; echo
+echo; echo-green 'NPM installed!'
+
+
+echo
 
 echo-cyan 'Cleaning up ...'
 
@@ -438,36 +414,14 @@ touch is_installed
 
 
 ###############################
-# Repos
+# Start services
 ###############################
 
-echo-cyan 'Installing repos ...'
+cd scripts
 
-echo-white
+source start_services.sh
 
-# Ask the question
-echo -n "Do you want to create a new project? ([y]/n): "
-
-read answer
-
-# Default to 'y' if the answer is empty
-answer=${answer:-y}
-
-# Convert the answer to lowercase to handle different cases
-answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
-
-# Condition block
-if [ "$answer" == "y" ]; then
-
-		cd scripts
-
-    source newproject.sh
-
-    cd ..
-
-fi
-
-echo
+cd ..
 
 
 

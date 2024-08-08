@@ -1,10 +1,11 @@
 services:
   server:
     image: canebaycomputers/cbc:nginx-php8
-    container_name: cbc-laravel-php8
+    container_name: CONTAINER_NAME
     entrypoint: [ "bash", "-c", "sleep 5 && nginx && supervisord && php-fpm8.2 -F"]
     volumes:
       - .:/usr/share/nginx/html
+      - /etc/hosts:/etc/hosts:ro
     networks:
       default:
         ipv4_address: IPV4_ADDRESS

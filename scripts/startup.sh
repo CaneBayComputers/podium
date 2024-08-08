@@ -56,6 +56,8 @@ start_project() {
 
   dockerup
 
+  sleep 5
+
   cd ..
 
 
@@ -81,44 +83,11 @@ start_project() {
 
 
 # Main
+cd scripts
 
+source start_services.sh
 
-# Do not run as root
-if [[ "$(whoami)" == "root" ]]; then
-
-  echo-red "Do NOT run with sudo!"; echo-white; echo
-
-  exit 1
-
-fi
-
-
-# Check if this environment is installed
-if ! [ -f is_installed ]; then
-
-  echo; echo-red 'Development environment has not been installed!'; echo-white
-
-  echo 'Run install.sh'
-
-  exit 0
-
-fi
-
-
-# Start CBC stack
-if ! check-cbc-mariadb; then
-
-  echo; echo-cyan "Starting services ..."; echo-white; echo
-
-  cd docker-stack
-
-  dockerup
-
-  cd ..
-
-  sleep 5
-
-fi
+cd ..
 
 
 # Start projects either just one by name or all in the projects directory

@@ -58,7 +58,7 @@ alias docker="sudo docker"
 alias dd='sudo dd'
 
 # Composer
-alias composer-docker='dockerexec-developer composer'
+alias composer-docker='dockerexec-developer composer -d /usr/share/nginx/html'
 alias composer-ignore='composer --ignore-platform-reqs'
 
 # Misc
