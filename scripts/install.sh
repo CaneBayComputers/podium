@@ -14,14 +14,36 @@ DEV_DIR=$(pwd)
 
 source extras/.bash_aliases
 
+
+# Check for and set up environment variables
 if ! [ -f docker-stack/.env ]; then
 
 	cp docker-stack/.env.example docker-stack/.env
 
+	# Generate a random string
+	STACK_ID=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
+
+	# Generate random numbers for B and C classes
+	B_CLASS=$((RANDOM % 256))
+	C_CLASS=$((RANDOM % 256))
+
+	VPC_SUBNET="10.$B_CLASS.$C_CLASS"
+	VPC_NAME="$STACK_ID_vpc"
+
+	sed -i "/^#STACK_ID=/c\STACK_ID=$STACK_ID" docker-stack/.env
+
+	sed -i "/^#VPC_SUBNET=/c\VPC_SUBNET=$VPC_SUBNET" docker-stack/.env
+
+	sed -i "/^#VPC_NAME=/c\VPC_NAME=$VPC_NAME" docker-stack/.env
+
+else
+
+	source docker-stack/.env
+
 fi
 
-source docker-stack/.env
 
+# Check and fix root perms
 if [[ "$(whoami)" == "root" ]]; then
 
 	ORIG_USER=$SUDO_USER
@@ -77,6 +99,8 @@ fi
 
 clear
 
+
+# Check for Ubuntu distribution
 if ! uname -a | grep Ubuntu > /dev/null; then
 
 	if ! uname -a | grep pop-os > /dev/null; then
@@ -89,6 +113,8 @@ if ! uname -a | grep Ubuntu > /dev/null; then
 
 fi
 
+
+# Set bash aliases
 if ! [ -f ~/.bash_aliases ]; then
 
 	echo "source $DEV_DIR/extras/.bash_aliases" > ~/.bash_aliases
@@ -107,6 +133,8 @@ clear
 
 echo; echo
 
+
+# Welcome screen
 echo "
               WELCOME TO THE DEV INSTALLER !
 
@@ -173,6 +201,8 @@ if ! git config user.email; then
 
 fi
 
+
+# Create ssh key
 if ! [ -f ~/.ssh/id_rsa ]; then
 
   if ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa; then true; fi

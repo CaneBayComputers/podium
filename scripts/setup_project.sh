@@ -180,6 +180,9 @@ fi
 
 # echo; echo
 
+
+
+# Older Laravel
 # find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
 
 # chmod 777 storage/logs
@@ -190,11 +193,32 @@ fi
 
 # chmod 777 bootstrap/cache
 
+
+
+
+# Newer Laravel
+# find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
+
+# chmod 777 storage/logs
+
+# setfacl -m "default:group::rw" storage/logs
+
+# chmod 777 bootstrap/cache
+
+
+
+
+
 # cd ../../scripts
 
 # source startup.sh $PROJECT_NAME
 
 # cd ../projects/$PROJECT_NAME
+
+
+
+
+
 
 # Return to original directory
 cd $ORIG_DIR
