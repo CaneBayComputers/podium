@@ -160,7 +160,7 @@ fi
 
 
 # Start CBC stack
-if ! check-cbc-mariadb; then
+if ! check-mariadb; then
 
   echo; echo-red 'Development environment is not started!'; echo-white
 

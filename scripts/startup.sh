@@ -17,7 +17,9 @@ DEV_DIR=$(pwd)
 
 source extras/.bash_aliases
 
-echo; echo
+
+# Env vars
+source docker-stack/.env
 
 
 # Vars
@@ -67,7 +69,7 @@ start_project() {
   if [ -z "$EXT_PORT" ]; then return; fi
 
   # Route inbound port traffic
-  RULE="-p tcp --dport $EXT_PORT -j DNAT --to-destination 10.2.0.$EXT_PORT:80 -m comment --comment 'cbc-rule-$PROJECT_NAME'"
+  RULE="-p tcp --dport $EXT_PORT -j DNAT --to-destination $VPC_SUBNET.$EXT_PORT:80 -m comment --comment 'cbc-rule-$PROJECT_NAME'"
 
   # If this rule already exists it's probably still running in Docker
   if iptables -t nat -C PREROUTING $RULE > /dev/null 2>&1; then return; fi
@@ -75,10 +77,10 @@ start_project() {
   iptables -t nat -A PREROUTING $RULE > /dev/null 2>&1
 
   # Allow forwarding of the traffic to the Docker container
-  iptables -A FORWARD -p tcp -d 10.2.0.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule-$PROJECT_NAME" > /dev/null 2>&1
+  iptables -A FORWARD -p tcp -d $VPC_SUBNET.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule-$PROJECT_NAME" > /dev/null 2>&1
 
   # Masquerade outgoing packets from the Docker container
-  iptables -t nat -A POSTROUTING -s 10.2.0.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule-$PROJECT_NAME" > /dev/null 2>&1
+  iptables -t nat -A POSTROUTING -s $VPC_SUBNET.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule-$PROJECT_NAME" > /dev/null 2>&1
 }
 
 

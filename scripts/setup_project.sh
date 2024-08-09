@@ -110,11 +110,13 @@ git clone $REPOSITORY $PROJECT_NAME
 # Set up Docker compose file
 cd $PROJECT_NAME
 
-cp -f ../../extras/docker-compose.yaml .
+cp -f ../../extras/docker-compose.example.yaml docker-compose.yaml
 
 sed -i "s/IPV4_ADDRESS/$IP_ADDRESS/g" docker-compose.yaml
 
 sed -i "s/CONTAINER_NAME/$PROJECT_NAME/g" docker-compose.yaml
+
+sed -i "s/STACK_ID/$STACK_ID/g" docker-compose.yaml
 
 cd ../..
 

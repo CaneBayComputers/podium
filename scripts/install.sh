@@ -15,30 +15,38 @@ DEV_DIR=$(pwd)
 source extras/.bash_aliases
 
 
+# Generate stack id
+STACK_ID=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
+
+
 # Check for and set up environment variables
 if ! [ -f docker-stack/.env ]; then
 
 	cp docker-stack/.env.example docker-stack/.env
-
-	# Generate a random string
-	STACK_ID=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
 
 	# Generate random numbers for B and C classes
 	B_CLASS=$((RANDOM % 256))
 	C_CLASS=$((RANDOM % 256))
 
 	VPC_SUBNET="10.$B_CLASS.$C_CLASS"
-	VPC_NAME="$STACK_ID_vpc"
-
-	sed -i "/^#STACK_ID=/c\STACK_ID=$STACK_ID" docker-stack/.env
 
 	sed -i "/^#VPC_SUBNET=/c\VPC_SUBNET=$VPC_SUBNET" docker-stack/.env
 
-	sed -i "/^#VPC_NAME=/c\VPC_NAME=$VPC_NAME" docker-stack/.env
+	sed -i "/^#STACK_ID=/c\STACK_ID=$STACK_ID" docker-stack/.env
 
 else
 
 	source docker-stack/.env
+
+fi
+
+
+# Check for and set up docker compose yaml
+if ! [ -f docker-stack/docker-compose.yaml ]; then
+
+	cp docker-stack/docker-compose.example.yaml docker-stack/docker-compose.yaml
+
+	sed -i "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
 
 fi
 

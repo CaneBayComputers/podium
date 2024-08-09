@@ -13,4 +13,4 @@ services:
 networks:
   default:
     external: true
-    name: docker-stack_vpcbr
+    name: docker-stack_STACK_ID_vpc
