@@ -40,4 +40,6 @@ if ! check-mariadb; then
 
 fi
 
+echo-green "Services are running!"; echo-white; echo
+
 cd $ORIG_DIR
