@@ -14,6 +14,8 @@ DEV_DIR=$(pwd)
 
 source extras/.bash_aliases
 
+CUR_LARAVEL_BRANCH='11.x'
+
 
 # Main
 cd scripts

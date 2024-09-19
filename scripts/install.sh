@@ -152,6 +152,33 @@ installer to enter in new info when have it."
 
 
 ###############################
+# Initial update and package installations
+###############################
+
+echo-cyan 'Updating and installing initial packages ...'
+
+echo-white
+
+sudo apt-get update -y -q
+
+sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq 7zip gh
+
+echo-green 'Packages installed!'; echo-white; echo
+
+
+
+###############################
+# Create ssh key
+###############################
+if ! [ -f ~/.ssh/id_rsa ]; then
+
+  if ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa; then true; fi
+
+fi
+
+
+
+###############################
 # Set up git committer info
 ###############################
 
@@ -160,8 +187,6 @@ echo
 echo-cyan 'Git config settings ...'
 
 echo-white
-
-git config --global diff.tool meld
 
 git config --global mergetool.keepBackup false
 
@@ -233,33 +258,13 @@ fi
 
 echo
 
-git --version
+git --version; echo
 
-echo
-
-echo-green "Git configured!"
-
-echo-white
-
-echo
+echo-green "Git configured!"; echo-white; echo
 
 
 
-###############################
-# Initial update and package installations
-###############################
 
-echo-cyan 'Updating and installing initial packages ...'
-
-echo-white
-
-sudo apt-get update -y
-
-sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq 7zip
-
-echo
-
-echo
 
 
 
