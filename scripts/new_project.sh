@@ -52,25 +52,25 @@ PROJECT_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | 
 # Set project name
 cd projects
 
-# if [ -d "$PROJECT_NAME" ]; then
+if [ -d "$PROJECT_NAME" ]; then
 
-# 	echo "Error: Project name already exists"
+	echo "Error: Project name already exists"
 
-# 	exit 1
+	exit 1
 
-# fi
+fi
 
-# mkdir $PROJECT_NAME
+mkdir $PROJECT_NAME
 
 cd $PROJECT_NAME
 
-# git init
+git init
 
-# git remote add laravel https://github.com/laravel/laravel.git
+git remote add laravel https://github.com/laravel/laravel.git
 
-# git fetch laravel $CUR_LARAVEL_BRANCH
+git fetch laravel $CUR_LARAVEL_BRANCH
 
-# git merge laravel/$CUR_LARAVEL_BRANCH
+git merge laravel/$CUR_LARAVEL_BRANCH
 
 
 # Push to Github
@@ -84,9 +84,8 @@ cd ..
 
 
 # Setup project
-# cd scripts
+cd scripts
 
+source setup_project.sh $PROJECT_NAME
 
-# source setup_project.sh $PROJECT_NAME
-
-# cd ..
+cd ..
