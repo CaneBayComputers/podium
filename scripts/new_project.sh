@@ -27,7 +27,7 @@ cd ..
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 <project_name>"
+    echo "Usage: $0 <project_name> [organization]"
     exit 1
 }
 
@@ -42,23 +42,51 @@ fi
 # Assign arguments to variables
 PROJECT_NAME=$1
 
+ORGANIZATION=${2:-}
+
+
 # Convert to lowercase, replace spaces with dashes, and remove non-alphanumeric characters
 PROJECT_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-_')
+
 
 # Set project name
 cd projects
 
 # if [ -d "$PROJECT_NAME" ]; then
+
 # 	echo "Error: Project name already exists"
+
 # 	exit 1
+
 # fi
 
 # mkdir $PROJECT_NAME
 
 cd $PROJECT_NAME
 
-git init
+# git init
 
-git remote add laravel https://github.com/laravel/laravel.git
+# git remote add laravel https://github.com/laravel/laravel.git
 
-git ls-remote --heads laravel
+# git fetch laravel $CUR_LARAVEL_BRANCH
+
+# git merge laravel/$CUR_LARAVEL_BRANCH
+
+
+# Push to Github
+REPO_NAME=$PROJECT_NAME
+
+if ! [ -z "$ORGANIZATION" ]; then REPO_NAME="$ORGANIZATION/$PROJECT_NAME"; fi
+
+gh repo create $REPO_NAME --private --source=. --push
+
+cd ..
+
+
+# Setup project
+# cd scripts
+
+
+# source setup_project.sh $PROJECT_NAME
+
+# cd ..

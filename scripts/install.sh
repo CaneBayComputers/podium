@@ -155,11 +155,11 @@ installer to enter in new info when have it."
 # Initial update and package installations
 ###############################
 
-echo-cyan 'Updating and installing initial packages ...'
+echo; echo-cyan 'Updating and installing initial packages ...'
 
 echo-white
 
-sudo apt-get update -y -q
+sudo apt-get update -y
 
 sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq 7zip gh
 
@@ -181,20 +181,27 @@ fi
 ###############################
 # Set up git committer info
 ###############################
+echo; echo-cyan 'Setting up Git ...'; echo-white
 
-echo
+if ! git config --global mergetool.keepBackup > /dev/null 2>&1; then
 
-echo-cyan 'Git config settings ...'
+	git config --global mergetool.keepBackup false
 
-echo-white
+fi
 
-git config --global mergetool.keepBackup false
+if ! git config --global init.defaultBranch > /dev/null 2>&1; then
 
-git config --global init.defaultBranch master
+	git config --global init.defaultBranch master
 
-git config --global pull.rebase false
+fi
 
-if ! git config user.name; then
+if ! git config --global pull.rebase > /dev/null 2>&1; then
+
+	git config --global pull.rebase false
+
+fi
+
+if ! git config user.name > /dev/null 2>&1; then
 
 	echo-yellow -ne 'Enter your full name for Git commits: '
 
@@ -214,7 +221,7 @@ if ! git config user.name; then
 
 fi
 
-if ! git config user.email; then
+if ! git config user.email > /dev/null 2>&1; then
 
 	echo-yellow -ne 'Enter your email address for Git commits: '
 
@@ -234,37 +241,26 @@ if ! git config user.email; then
 
 fi
 
-
-# Create ssh key
-if ! [ -f ~/.ssh/id_rsa ]; then
-
-  if ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa; then true; fi
-
-  echo
-
-  echo-blue 'Copy and paste the following into your Github account under Settings > SSH and GPG keys:'
-
-  echo-white
-
-  cat ~/.ssh/id_rsa.pub
-
-  echo ; echo
-
-  read -n 1 -r -s -p $'Press enter to continue...\n'
-
-  echo ; echo
-
-fi
-
-echo
-
 git --version; echo
 
 echo-green "Git configured!"; echo-white; echo
 
 
 
+###############################
+# Set up Github
+###############################
+echo; echo-cyan 'Setting up Github ...'; echo-white
 
+if ! gh auth status > /dev/null 2>&1; then
+
+	echo-yellow 'Choose SSH for protocol, id_rsa.pub for SSH public key and paste an authentication token:'; echo-white
+
+	gh auth login --hostname github.com
+
+fi
+
+echo; echo-green "Github authentication complete!"; echo-white; echo
 
 
 
