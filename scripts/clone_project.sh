@@ -27,7 +27,7 @@ usage() {
 # Check if repository argument is provided
 if [ -z "$1" ]; then
 
-    echo "Error: Repository is required."
+    echo-red "Error: Repository is required."; echo-white
 
     usage
 fi
@@ -48,6 +48,8 @@ fi
 
 
 # Display the provided arguments
+echo
+
 echo "Repository: $REPOSITORY"
 
 echo "Project Name: $PROJECT_NAME"
@@ -58,13 +60,28 @@ PROJECT_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | 
 
 
 # Clone repository
-echo; echo
+echo
 
 cd projects
 
+if [ -d "$PROJECT_NAME" ]; then
+
+    echo-red "Error: Project name already exists."; echo-white
+
+    exit 1
+
+fi
+
 git clone $REPOSITORY $PROJECT_NAME
+
+echo
 
 cd ..
 
 
 # Setup project
+cd scripts
+
+source setup_project.sh $PROJECT_NAME
+
+cd $ORIG_DIR

@@ -85,7 +85,7 @@ echo "$IP_ADDRESS      $PROJECT_NAME" | sudo tee -a /etc/hosts
 
 
 # Set up Docker compose file
-cd $PROJECT_NAME
+cd projects/$PROJECT_NAME
 
 cp -f ../../extras/docker-compose.example.yaml docker-compose.yaml
 
@@ -138,65 +138,38 @@ if ! [ -f .env ]; then
 fi
 
 
+# Create new database, run migration and seed
+if ! mysql -h"cbc-mariadb" -u"root" -e "USE $PROJECT_NAME_SNAKE;" 2>/dev/null; then
 
+    mysql -h"cbc-mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
 
+    echo; echo
 
+fi
 
+art-docker migrate
 
-# if ! mysql -h"cbc-mariadb" -u"root" -e "USE $PROJECT_NAME_SNAKE;" 2>/dev/null; then
+echo; echo
 
-#     mysql -h"cbc-mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
+art-docker db:seed
 
-#     echo; echo
-
-# fi
-
-# art-docker migrate
-
-# echo; echo
-
-# art-docker db:seed
-
-# echo; echo
-
-
-
-# Older Laravel
-# find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
-
-# chmod 777 storage/logs
-
-# setfacl -m "default:group::rw" storage/logs
-
-# chmod 777 storage/temp
-
-# chmod 777 bootstrap/cache
-
-
+echo; echo
 
 
 # Newer Laravel
-# find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
+find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
 
-# chmod 777 storage/logs
+chmod 777 storage/logs
 
-# setfacl -m "default:group::rw" storage/logs
+setfacl -m "default:group::rw" storage/logs
 
-# chmod 777 bootstrap/cache
-
-
+chmod 777 bootstrap/cache
 
 
+# Show status of running Docker project
+cd ../../scripts
 
-# cd ../../scripts
-
-# source startup.sh $PROJECT_NAME
-
-# cd ../projects/$PROJECT_NAME
-
-
-
-
+source status.sh $PROJECT_NAME
 
 
 # Return to original directory

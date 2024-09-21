@@ -54,7 +54,7 @@ cd projects
 
 if [ -d "$PROJECT_NAME" ]; then
 
-	echo "Error: Project name already exists"
+	echo-red "Error: Project name already exists"; echo-white
 
 	exit 1
 
@@ -80,7 +80,7 @@ if ! [ -z "$ORGANIZATION" ]; then REPO_NAME="$ORGANIZATION/$PROJECT_NAME"; fi
 
 gh repo create $REPO_NAME --private --source=. --push
 
-cd ..
+cd ../..
 
 
 # Setup project
@@ -88,4 +88,4 @@ cd scripts
 
 source setup_project.sh $PROJECT_NAME
 
-cd ..
+cd $ORIG_DIR

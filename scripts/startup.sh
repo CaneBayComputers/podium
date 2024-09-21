@@ -64,6 +64,8 @@ start_project() {
 
 
   # Find D class from hosts file and use as external port access
+  echo; echo-cyan "Creating iptables rules for $PROJECT_NAME ..."; echo-white
+
   EXT_PORT=$(cat /etc/hosts | grep $PROJECT_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
 
   if [ -z "$EXT_PORT" ]; then return; fi
@@ -113,6 +115,8 @@ cd ..
 
 
 # Allow established connections to reply
+echo; echo-cyan "Creating iptables rules to allow establish connections to reply ..."; echo-white
+
 RULE="-m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment 'cbc-rule'"
 
 if ! iptables -C FORWARD $RULE > /dev/null 2>&1; then
