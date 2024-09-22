@@ -82,64 +82,48 @@ for chain in PREROUTING INPUT FORWARD OUTPUT POSTROUTING; do
 done
 
 
+# Print confirmation message
+echo; echo-green "CBC iptables rules have been removed!"; echo-white; echo
 
 
+# Shut down Docker containers
+for CONTAINER_ID in $(docker ps -q); do
+
+    CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $CONTAINER_ID | sed 's/^\/\+//')
+
+    REPO_DIR=projects/$CONTAINER_NAME;
+
+    if [ -d "$REPO_DIR" ]; then
+
+    	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
+
+    	cd $REPO_DIR
+
+    	dockerdown
+
+    	cd ../..
+
+    	divider
+
+    fi
+
+done
+
+if check-mariadb; then
+
+	echo; echo-cyan "Shutting down cbc-development-setup ..."; echo-white; echo
+
+	cd docker-stack
+
+  dockerdown
+
+  cd ..
+
+fi
 
 
-exit 0
+# Print confirmation message
+echo; echo-green "All CBC containers have been shut down!"; echo-white; echo
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-# # Print confirmation message
-# echo; echo-green "CBC iptables rules have been removed!"; echo-white; echo
-
-
-# # Shut down Docker containers
-# for CONTAINER_ID in $(docker ps -q); do
-
-#     CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $CONTAINER_ID | sed 's/^\/\+//')
-
-#     REPO_DIR=projects/$CONTAINER_NAME;
-
-#     if [ -d "$REPO_DIR" ]; then
-
-#     	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
-
-#     	cd $REPO_DIR
-
-#     	dockerdown
-
-#     	cd ../..
-
-#     	divider
-
-#     fi
-
-# done
-
-# if dockerls | grep cbc-mariadb > /dev/null; then
-
-# 	echo; echo-cyan "Shutting down cbc-development-setup ..."; echo-white; echo
-
-# 	downcbcstack
-
-# 	echo
-
-# fi
-
-# # Remove startup log
-# if rm -f scripts/startup.log; then true; fi
-
-# # Print confirmation message
-# echo; echo-green "All CBC containers have been shut down!"; echo-white; echo
+cd $ORIG_DIR

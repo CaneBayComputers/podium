@@ -49,6 +49,10 @@ fi
 PROJECT_NAME=$1
 
 
+# Convert dashes to underscores
+PROJECT_NAME_SNAKE=$(echo "$PROJECT_NAME" | sed 's/-/_/g')
+
+
 # Get a random D class number and make sure it doesn' already exist in hosts file
 echo -n "Docker IP Address: "
 
@@ -83,9 +87,13 @@ done
 # Enter new Docker IP address
 echo "$IP_ADDRESS      $PROJECT_NAME" | sudo tee -a /etc/hosts
 
+echo
+
 
 # Set up Docker compose file
 cd projects/$PROJECT_NAME
+
+unalias cp
 
 cp -f ../../extras/docker-compose.example.yaml docker-compose.yaml
 
@@ -117,35 +125,55 @@ fi
 
 
 # Install and setup .env file
-if ! [ -f .env ]; then
+unalias cp
 
-    cp -f .env.example .env
+cp -f .env.example .env
 
-    sed -i "/^#\?APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
+sed -i "/^APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
 
-    sed -i "/^#\?APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
+sed -i "/^APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
 
-    sed -i "/^#\?DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
 
-    sed -i "/^#\?DB_HOST=/c\DB_HOST=mariadb" .env
+sed -i "/^DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
 
-    sed -i "/^#\?DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME" .env
+sed -i "/^# DB_HOST=/c\DB_HOST=mariadb" .env
 
-    art-docker key:generate
+sed -i "/^# DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
 
-    echo; echo
 
-fi
+sed -i "/^SESSION_DRIVER=/c\SESSION_DRIVER=redis" .env
+
+
+sed -i "/^QUEUE_CONNECTION=/c\QUEUE_CONNECTION=redis" .env
+
+
+sed -i "/^CACHE_STORE=/c\CACHE_STORE=redis" .env
+
+sed -i "/^CACHE_PREFIX=/c\CACHE_PREFIX=$PROJECT_NAME" .env
+
+
+sed -i "/^MEMCACHED_HOST=/c\MEMCACHED_HOST=memcached" .env
+
+
+sed -i "/^REDIS_HOST=/c\REDIS_HOST=redis" .env
+
+
+sed -i "/^MAIL_MAILER=/c\MAIL_MAILER=smtp" .env
+
+sed -i "/^MAIL_HOST=/c\MAIL_HOST=exim4" .env
+
+sed -i "/^MAIL_PORT=/c\MAIL_PORT=25" .env
+
+
+art-docker key:generate
+
+echo; echo
 
 
 # Create new database, run migration and seed
-if ! mysql -h"cbc-mariadb" -u"root" -e "USE $PROJECT_NAME_SNAKE;" 2>/dev/null; then
+mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
 
-    mysql -h"cbc-mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
-
-    echo; echo
-
-fi
+echo; echo
 
 art-docker migrate
 
