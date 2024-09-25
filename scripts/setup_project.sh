@@ -170,6 +170,16 @@ art-docker key:generate
 echo; echo
 
 
+# Make storage writable for all
+find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
+
+chmod 777 storage/logs
+
+setfacl -m "default:group::rw" storage/logs
+
+chmod 777 bootstrap/cache
+
+
 # Create new database, run migration and seed
 mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
 
@@ -182,16 +192,6 @@ echo; echo
 art-docker db:seed
 
 echo; echo
-
-
-# Newer Laravel
-find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
-
-chmod 777 storage/logs
-
-setfacl -m "default:group::rw" storage/logs
-
-chmod 777 bootstrap/cache
 
 
 # Show status of running Docker project
