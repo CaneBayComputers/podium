@@ -79,7 +79,7 @@ project_status() {
 
     echo-red " NOT FOUND"
 
-    echo-white -n SUGGESTION:; echo-yellow " Run project's install.sh script"
+    echo-white -n SUGGESTION:; echo-yellow " Run: setup_project.sh $PROJ_NAME"
 
     return 1
 

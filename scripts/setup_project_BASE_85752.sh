@@ -130,36 +130,44 @@ unalias cp
 cp -f .env.example .env
 
 sed -i "/^APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
+
 sed -i "/^APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
+
+
 sed -i "/^DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
-sed -i "/^DB_HOST=/c\DB_HOST=mariadb" .env
+
 sed -i "/^# DB_HOST=/c\DB_HOST=mariadb" .env
-sed -i "/^DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
+
 sed -i "/^# DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
-sed -i "/^CACHE_DRIVER=/c\CACHE_DRIVER=redis" .env
+
+
 sed -i "/^SESSION_DRIVER=/c\SESSION_DRIVER=redis" .env
+
+
 sed -i "/^QUEUE_CONNECTION=/c\QUEUE_CONNECTION=redis" .env
+
+
 sed -i "/^CACHE_STORE=/c\CACHE_STORE=redis" .env
+
 sed -i "/^CACHE_PREFIX=/c\CACHE_PREFIX=$PROJECT_NAME" .env
+
+
 sed -i "/^MEMCACHED_HOST=/c\MEMCACHED_HOST=memcached" .env
+
+
 sed -i "/^REDIS_HOST=/c\REDIS_HOST=redis" .env
+
+
 sed -i "/^MAIL_MAILER=/c\MAIL_MAILER=smtp" .env
+
 sed -i "/^MAIL_HOST=/c\MAIL_HOST=exim4" .env
+
 sed -i "/^MAIL_PORT=/c\MAIL_PORT=25" .env
+
 
 art-docker key:generate
 
 echo; echo
-
-
-# Make storage writable for all
-find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
-
-chmod 777 storage/logs
-
-setfacl -m "default:group::rw" storage/logs
-
-chmod 777 bootstrap/cache
 
 
 # Create new database, run migration and seed
@@ -174,6 +182,16 @@ echo; echo
 art-docker db:seed
 
 echo; echo
+
+
+# Newer Laravel
+find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
+
+chmod 777 storage/logs
+
+setfacl -m "default:group::rw" storage/logs
+
+chmod 777 bootstrap/cache
 
 
 # Show status of running Docker project

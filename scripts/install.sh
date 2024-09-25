@@ -161,7 +161,7 @@ echo-white
 
 sudo apt-get update -y
 
-sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq 7zip gh
+sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq p7zip-full p7zip-rar
 
 echo-green 'Packages installed!'; echo-white; echo
 
@@ -251,6 +251,19 @@ echo-green "Git configured!"; echo-white; echo
 # Set up Github
 ###############################
 echo; echo-cyan 'Setting up Github ...'; echo-white
+
+if ! gh --version > /dev/null 2>&1; then
+
+	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null
+
+	sudo apt-add-repository \
+	    "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+
+	sudo apt update
+
+	sudo apt install gh
+
+fi
 
 if ! gh auth status > /dev/null 2>&1; then
 

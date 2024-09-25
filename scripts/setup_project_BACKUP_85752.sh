@@ -176,6 +176,17 @@ art-docker db:seed
 echo; echo
 
 
+<<<<<<< HEAD
+=======
+# Make folders writable
+find storage -maxdepth 2 -type d -exec chmod 777 {} +
+
+setfacl -m "default:group::rw" storage/logs
+
+chmod 777 bootstrap/cache
+
+
+>>>>>>> 452d38c48da08efb86a8b65c2b11c05c59fde3b1
 # Show status of running Docker project
 cd ../../scripts
 
