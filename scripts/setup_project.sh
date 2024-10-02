@@ -133,9 +133,9 @@ sed -i "/^APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
 sed -i "/^APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
 sed -i "/^DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
 sed -i "/^DB_HOST=/c\DB_HOST=mariadb" .env
-sed -i "/^# DB_HOST=/c\DB_HOST=mariadb" .env
+sed -i "/^#DB_HOST=/c\DB_HOST=mariadb" .env
 sed -i "/^DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
-sed -i "/^# DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
+sed -i "/^#DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
 sed -i "/^CACHE_DRIVER=/c\CACHE_DRIVER=redis" .env
 sed -i "/^SESSION_DRIVER=/c\SESSION_DRIVER=redis" .env
 sed -i "/^QUEUE_CONNECTION=/c\QUEUE_CONNECTION=redis" .env
@@ -163,15 +163,19 @@ chmod 777 bootstrap/cache
 
 
 # Create new database, run migration and seed
-mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
+if mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"; then
 
-echo; echo
+    echo; echo
 
-art-docker migrate
+    if art-docker migrate; then
 
-echo; echo
+        echo; echo
 
-art-docker db:seed
+        if art-docker db:seed; then true; fi
+
+    fi
+
+fi
 
 echo; echo
 
