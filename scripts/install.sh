@@ -396,36 +396,34 @@ echo-white
 # NPM / Nodejs
 ###############################
 
-echo-cyan 'Installing Nodejs ...'
+echo-cyan 'Installing Node / NPM ...'
 
 echo-white
 
-if ! nodejs --version 2> /dev/null; then
+if ! node -v 2> /dev/null; then
 
-	sudo apt-get -y install nodejs
+	# installs nvm (Node Version Manager)
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
 
-fi
+	# Reread bashrc bc it just wrote some path crap to it
+	source ~/.bashrc
 
-echo; echo-green 'NPM installed!'
+	# download and install Node.js (you may need to restart the terminal)
+	nvm install 20
 
-
-echo
-
-echo-cyan 'Installing NPM ...'
-
-echo-white
-
-if ! npm --version 2> /dev/null; then
-
-	sudo apt-get -y install npm
+	node -v
 
 fi
 
-echo; echo-green 'NPM installed!'
+npm -v
+
+echo; echo-green 'Node / NPM installed!'; echo-white; echo
 
 
-echo
 
+###############################
+# Clean up apt get stuff
+###############################
 echo-cyan 'Cleaning up ...'
 
 echo-white
