@@ -151,6 +151,8 @@ echo; echo
 
 
 # Make storage writable for all
+echo-cyan 'Setting folder permissions ...'; echo-white
+
 find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
 
 chmod 777 storage/logs
@@ -159,17 +161,29 @@ setfacl -m "default:group::rw" storage/logs
 
 chmod 777 bootstrap/cache
 
+echo-green 'Folder permissions set!'; echo-white
+
 
 # Create new database, run migration and seed
+echo-cyan "Creating database $PROJECT_NAME_SNAKE ..."; echo-white
+
 if mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"; then
 
-    echo; echo
+    echo-green 'Database created!'; echo-white
+
+    echo-cyan 'Running migrations ...'; echo-white
 
     if art-docker migrate; then
 
-        echo; echo
+        echo-green 'Migrations successful'; echo-white
 
-        if art-docker db:seed; then true; fi
+        echo-cyan 'Seeding database ...'; echo-white
+
+        if art-docker db:seed; then
+
+            echo-green 'Database seeded!'; echo-white
+
+        fi
 
     fi
 
