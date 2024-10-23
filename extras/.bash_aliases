@@ -26,6 +26,7 @@ alias echo-white='tput setaf 7; echo'
 # Artisan
 alias art='php artisan'
 alias art-docker='dockerexec-developer php /usr/share/nginx/html/artisan'
+alias art-docker-db-refresh='art-docker migrate:fresh; art-docker db:seed'
 
 # Git
 alias gstatus='echo; echo-green $(pwd) ; echo-white ; git status ; divider'
