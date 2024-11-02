@@ -33,6 +33,8 @@ Run the `install.sh` script to install essential development tools and set up yo
 
 This script installs tools such as Git, Docker, PHP, Composer, and other necessary dependencies.
 
+---
+
 ## Script Overview and Usage
 
 **Note**: Always navigate to the `scripts` directory before running any of the scripts.
@@ -108,7 +110,33 @@ To automatically start all projects when your computer or virtual machine is pow
 
 This setup ensures that your projects start automatically without manual intervention after a reboot or power cycle.
 
-Here's the revised section, with an emphasis on how to access project information and clarifications on the details:
+### Stopping Projects with `shutdown.sh`
+
+The `shutdown.sh` script is used to stop running Docker containers and remove custom `iptables` rules for your projects. It helps ensure that all project resources are properly shut down and network configurations are cleaned up.
+
+#### How to Use `shutdown.sh`
+
+- **Shut Down All Projects**:
+  Running `shutdown.sh` without any arguments will stop all Docker containers associated with projects in the `projects` folder and remove any custom `iptables` rules.
+
+  ```bash
+  ./shutdown.sh
+  ```
+
+- **Shut Down a Specific Project**:
+  Provide a project name as an argument to shut down only that specific project. This will stop the project's Docker container and remove any associated `iptables` rules.
+
+  ```bash
+  ./shutdown.sh <project_name>
+  ```
+
+#### What the Script Does:
+- **Removes Custom `iptables` Rules**:
+  The script identifies and removes `iptables` rules tagged with `cbc-rule` from the `filter`, `nat`, and `mangle` tables, ensuring network configurations related to the project are cleared.
+- **Stops Docker Containers**:
+  Iterates through the running containers in the `projects` folder and stops them. If a project name is provided, only that project's container is shut down.
+
+After execution, `shutdown.sh` displays confirmation messages indicating that all specified containers have been stopped and network rules have been removed. This script is particularly useful for safely shutting down projects and cleaning up their network configurations.
 
 ---
 
@@ -166,28 +194,6 @@ The `status.sh` script provides the following URLs for project access:
   - The URL for accessing the project from outside the local network (e.g., `http://<WAN_IP>:<port>`). This requires that the specified port is forwarded to the LAN IP address of the running machine.
 
 Use `status.sh` to ensure your projects are running as expected and to gather all the necessary information for browser access.
-
-### Starting Services with `start_services.sh`
-
-The `start_services.sh` script is used to start the primary microservices required by your projects, such as database and cache services. It is different from `startup.sh`, which is focused on starting project-specific containers.
-
-```bash
-./start_services.sh
-```
-
-- **Note**: Use `start_services.sh` when you need to start essential microservices without starting individual project containers.
-
-## Configuring `config.inc.php`
-
-The `setup_project.sh` script can also configure `config.inc.php` for projects like phpMyAdmin or custom PHP applications. This file helps connect to your database with the following format:
-
-```php
-<?php
-$db_hostname = "localhost";
-$db_username = "root";
-$db_password = "";
-$db_name = "project_db_name";
-```
 
 ## Accessing phpMyAdmin
 
