@@ -130,14 +130,6 @@ The `shutdown.sh` script is used to stop running Docker containers and remove cu
   ./shutdown.sh <project_name>
   ```
 
-#### What the Script Does:
-- **Removes Custom `iptables` Rules**:
-  The script identifies and removes `iptables` rules tagged with `cbc-rule` from the `filter`, `nat`, and `mangle` tables, ensuring network configurations related to the project are cleared.
-- **Stops Docker Containers**:
-  Iterates through the running containers in the `projects` folder and stops them. If a project name is provided, only that project's container is shut down.
-
-After execution, `shutdown.sh` displays confirmation messages indicating that all specified containers have been stopped and network rules have been removed. This script is particularly useful for safely shutting down projects and cleaning up their network configurations.
-
 ---
 
 ## Viewing Project Access Information
@@ -210,8 +202,6 @@ This allows you to handle your database in a user-friendly interface.
 - **Run from `scripts` Directory**: Always navigate to `cbc-development/scripts` before running any script to ensure paths and dependencies are correctly resolved.
 - **Pre-check Environment**: Run `pre_check.sh` to ensure your environment is set up correctly before starting a project.
 - **Environment Flexibility**: The scripts are designed to support various project types, making them ideal for mixed development environments.
-
-Here's the final additional section for the README, including the hosts file example and a note on the `.env.example` configuration:
 
 ---
 
