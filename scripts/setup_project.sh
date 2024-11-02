@@ -173,8 +173,6 @@ elif [ -f "config.example.inc.php" ]; then
     sed -i "s/DB_PASSWORD//" config.inc.php
     sed -i "s/DB_NAME/$PROJECT_NAME_SNAKE/" config.inc.php
 
-fi
-
 # Install wp-config file
 elif [ -f "wp-config-sample.php" ]; then
 
@@ -212,7 +210,7 @@ if [ -d "storage" ]; then
 
     find storage -type d -exec setfacl -m "default:group::rw" {} +
 
-    echo-green 'Stroage folder permissions set!'; echo-white
+    echo-green 'Storage folder permissions set!'; echo-white
 
 fi
 
@@ -248,6 +246,12 @@ if mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SN
             fi
 
         fi
+
+    elif [ -f "create_tables.sql" ]; then
+
+        echo-cyan 'Creating tables ...'; echo-white
+
+        mysql -h"mariadb" -u"root" $PROJECT_NAME_SNAKE < create_tables.sql
 
     fi
 
