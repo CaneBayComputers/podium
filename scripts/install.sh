@@ -25,7 +25,7 @@ if ! [ -f docker-stack/.env ]; then
 	cp docker-stack/.env.example docker-stack/.env
 
 	# Generate random numbers for B and C classes
-	B_CLASS=$((RANDOM % 256))
+	B_CLASS=$((RANDOM % 255 + 1))
 	C_CLASS=$((RANDOM % 256))
 
 	VPC_SUBNET="10.$B_CLASS.$C_CLASS"
