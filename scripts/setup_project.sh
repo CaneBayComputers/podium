@@ -103,6 +103,16 @@ sed -i "s/CONTAINER_NAME/$PROJECT_NAME/g" docker-compose.yaml
 
 sed -i "s/STACK_ID/$STACK_ID/g" docker-compose.yaml
 
+if [ -d "public" ]; then
+
+    sed -i "s/PUBLIC//g" docker-compose.yaml
+
+else
+
+    sed -i "s/PUBLIC/\/public/g" docker-compose.yaml
+
+fi
+
 cd ../..
 
 

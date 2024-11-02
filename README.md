@@ -46,7 +46,7 @@ Use the `new_project.sh` script to create a new project. This script supports ad
 ```
 
 - **`<project_name>`**: The name of your new project (required).
-- **`[organization]`**: (Optional) Specifies an organization for naming or GitHub configuration.
+- **`[organization]`**: (Optional) Specifies a Github organization.
 
 ### Cloning an Existing Project
 
@@ -61,7 +61,7 @@ To clone and set up an existing project, use:
 
 ### Setting Up a Project
 
-For setting up an existing project, use:
+For setting up an already downloaded project, use:
 
 ```bash
 ./setup_project.sh <project_name>
@@ -69,22 +69,113 @@ For setting up an existing project, use:
 
 - **`<project_name>`**: The name of the project (required). This script configures the environment files, Docker services, and runs migrations if applicable.
 
-### Managing Services
+Here's the updated **Managing Services** section for your README, with a focus on the `startup.sh` script as a standalone item:
 
-- **Start Services**:
+---
+
+## Managing Services
+
+### Starting Projects with `startup.sh`
+
+The `startup.sh` script is essential for starting projects that have been stopped or after a system reboot. It ensures that the necessary Docker containers for your projects are running and accessible in your browser.
+
+#### How to Use `startup.sh`
+
+- **Start All Projects**:
+  Running `startup.sh` without parameters will iterate through all projects in the `projects` folder and start their containers, making them accessible in the browser.
+
   ```bash
-  ./start_services.sh
+  ./startup.sh
   ```
 
-- **Shut Down Services**:
+- **Start a Specific Project**:
+  You can specify a project name as a parameter to start only that project.
+
   ```bash
-  ./shutdown.sh
+  ./startup.sh <project_name>
   ```
 
-- **Check the Status of Services**:
+#### Automation on System Startup
+
+To automatically start all projects when your computer or virtual machine is powered on, you can add the `startup.sh` script to your system's startup applications:
+
+- **Add to Startup Applications**:
+  In the Startup Applications manager, add the following command:
+
+  ```bash
+  gnome-terminal -- bash -c "<path to cbc-development>/startup.sh; exec bash"
+  ```
+
+This setup ensures that your projects start automatically without manual intervention after a reboot or power cycle.
+
+Here's the revised section, with an emphasis on how to access project information and clarifications on the details:
+
+---
+
+## Viewing Project Access Information
+
+To access and view the necessary information for opening your projects in a browser, use the `status.sh` script. This script provides a detailed status check of each project, ensuring you know how and where your projects can be accessed.
+
+### How to Use `status.sh`
+
+- **Run Without Parameters**:
+  Running `status.sh` without any arguments will display the status of all projects in the `projects` folder.
+
+  ```bash
+  ./status.sh
+  ```
+
+  **Example Output**:
+  ```text
+  PROJECT: ticket-tracker-pro
+  PROJECT FOLDER: FOUND
+  HOST ENTRY: FOUND
+  DOCKER STATUS: RUNNING
+  IPTABLES RULES: ESTABLISHED
+
+  LOCAL ACCESS: http://ticket-tracker-pro
+  LAN ACCESS: http://192.168.1.5:135
+  WAN ACCESS: http://<hidden>:135
+  ```
+
+- **Run with a Project Name**:
+  Specify a project name to check the status of just that project:
+
   ```bash
   ./status.sh <project_name>
   ```
+
+  If there is an issue, such as a missing project folder or container not running, the script will provide suggestions to help resolve the issue.
+
+### What the Script Checks:
+1. **Project Folder**: Verifies that the project folder exists.
+2. **Host Entry**: Confirms that there is an entry for the project in `/etc/hosts`.
+3. **Docker Status**: Ensures that the Docker container for the project is running.
+4. **`iptables` Rules**: Checks that network routing rules are set for proper access.
+
+### Access Details Explained:
+The `status.sh` script provides the following URLs for project access:
+
+- **Local Access**:
+  - The URL to access the project from the same computer or within the virtual machine running the project (e.g., `http://<project_name>`).
+
+- **LAN Access**:
+  - The URL that allows access from other computers on the same local network (e.g., `http://<LAN_IP>:<port>`).
+
+- **WAN Access**:
+  - The URL for accessing the project from outside the local network (e.g., `http://<WAN_IP>:<port>`). This requires that the specified port is forwarded to the LAN IP address of the running machine.
+
+Use `status.sh` to ensure your projects are running as expected and to gather all the necessary information for browser access.
+
+### Starting Services with `start_services.sh`
+
+The `start_services.sh` script is used to start the primary microservices required by your projects, such as database and cache services. It is different from `startup.sh`, which is focused on starting project-specific containers.
+
+```bash
+./start_services.sh
+```
+
+- **Note**: Use `start_services.sh` when you need to start essential microservices without starting individual project containers.
 
 ## Configuring `config.inc.php`
 
