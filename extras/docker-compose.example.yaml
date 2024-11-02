@@ -3,7 +3,7 @@ services:
     image: canebaycomputers/cbc:nginx-php8
     container_name: CONTAINER_NAME
     volumes:
-      - .:/usr/share/nginx/html
+      - .:/usr/share/nginx/htmlPUBLIC
       - /etc/hosts:/etc/hosts:ro
     networks:
       default:

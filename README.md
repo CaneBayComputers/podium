@@ -39,8 +39,4 @@ cd cbc-development/scripts
 
 This project uses [phpMyAdmin](https://www.phpmyadmin.net/) to manage the database server however feel free to install a different client of choice.
 
-If you are running a virtual machine you will have to install a different client within the virtual machine and not on the host machine.
-
 To access phpMyAdmin simply open the browser and go to `http://cbc-phpmyadmin`.
-
-If you are running a virtual machine there is a bookmark already saved in the pre-installed browser.

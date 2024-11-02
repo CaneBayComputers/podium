@@ -117,9 +117,13 @@ cd ..
 # Install Composer libraries
 cd projects/$PROJECT_NAME
 
-if ! [ -d "vendor" ]; then
+if [ -f "composer.json" ]; then
 
-    composer-docker install
+    if ! [ -d "vendor" ]; then
+
+        composer-docker install
+
+    fi
 
 fi
 
@@ -127,41 +131,87 @@ fi
 # Install and setup .env file
 unalias cp
 
-cp -f .env.example .env
+if [ -f ".env.example" ]; then
 
-sed -i "/^#*\s*APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
-sed -i "/^#*\s*APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
-sed -i "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
-sed -i "/^#*\s*DB_HOST=/c\DB_HOST=mariadb" .env
-sed -i "/^#*\s*DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
-sed -i "/^#*\s*CACHE_DRIVER=/c\CACHE_DRIVER=redis" .env
-sed -i "/^#*\s*SESSION_DRIVER=/c\SESSION_DRIVER=redis" .env
-sed -i "/^#*\s*QUEUE_CONNECTION=/c\QUEUE_CONNECTION=redis" .env
-sed -i "/^#*\s*CACHE_STORE=/c\CACHE_STORE=redis" .env
-sed -i "/^#*\s*CACHE_PREFIX=/c\CACHE_PREFIX=$PROJECT_NAME" .env
-sed -i "/^#*\s*MEMCACHED_HOST=/c\MEMCACHED_HOST=memcached" .env
-sed -i "/^#*\s*REDIS_HOST=/c\REDIS_HOST=redis" .env
-sed -i "/^#*\s*MAIL_MAILER=/c\MAIL_MAILER=smtp" .env
-sed -i "/^#*\s*MAIL_HOST=/c\MAIL_HOST=exim4" .env
-sed -i "/^#*\s*MAIL_PORT=/c\MAIL_PORT=25" .env
+    cp -f .env.example .env
 
-art-docker key:generate
+    sed -i "/^#*\s*APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
+    sed -i "/^#*\s*APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
+    sed -i "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
+    sed -i "/^#*\s*DB_HOST=/c\DB_HOST=mariadb" .env
+    sed -i "/^#*\s*DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
+    sed -i "/^#*\s*CACHE_DRIVER=/c\CACHE_DRIVER=redis" .env
+    sed -i "/^#*\s*SESSION_DRIVER=/c\SESSION_DRIVER=redis" .env
+    sed -i "/^#*\s*QUEUE_CONNECTION=/c\QUEUE_CONNECTION=redis" .env
+    sed -i "/^#*\s*CACHE_STORE=/c\CACHE_STORE=redis" .env
+    sed -i "/^#*\s*CACHE_PREFIX=/c\CACHE_PREFIX=$PROJECT_NAME" .env
+    sed -i "/^#*\s*MEMCACHED_HOST=/c\MEMCACHED_HOST=memcached" .env
+    sed -i "/^#*\s*REDIS_HOST=/c\REDIS_HOST=redis" .env
+    sed -i "/^#*\s*MAIL_MAILER=/c\MAIL_MAILER=smtp" .env
+    sed -i "/^#*\s*MAIL_HOST=/c\MAIL_HOST=exim4" .env
+    sed -i "/^#*\s*MAIL_PORT=/c\MAIL_PORT=25" .env
+
+    art-docker key:generate
+
+# Install config.inc file
+elif [ -f "config.example.inc.php" ]; then
+
+    cp -f config.example.inc.php config.inc.php
+
+    sed -i "s/DB_HOSTNAME/mariadb/" config.inc.php
+    sed -i "s/DB_USERNAME/root/" config.inc.php
+    sed -i "s/DB_PASSWORD//" config.inc.php
+    sed -i "s/DB_NAME/$PROJECT_NAME_SNAKE/" config.inc.php
+
+fi
+
+# Install wp-config file
+elif [ -f "wp-config-sample.php" ]; then
+
+    if ! wp --version > /dev/null 2>&1; then
+
+        curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+
+        chmod +x wp-cli.phar
+
+        sudo mv wp-cli.phar /usr/local/bin/wp
+
+    fi
+
+    wp --version
+
+    if ! wp core is-installed; then
+
+        wp config create --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASSWORD" --dbhost="$DB_HOST" --force
+
+        wp core install --url="$PROJECT_NAME" --title="$PROJECT_NAME" --admin_user="admin" --admin_password="password" --admin_email="$(git config user.email)"
+
+    fi
+
+fi
 
 echo; echo
 
 
 # Make storage writable for all
-echo-cyan 'Setting folder permissions ...'; echo-white
+if [ -d "storage" ]; then
 
-find storage/framework -maxdepth 1 -type d -exec chmod 777 {} +
+    echo-cyan 'Setting folder permissions ...'; echo-white
 
-chmod 777 storage/logs
+    find storage -type d -exec chmod 777 {} +
 
-setfacl -m "default:group::rw" storage/logs
+    find storage -type d -exec setfacl -m "default:group::rw" {} +
 
-chmod 777 bootstrap/cache
+    echo-green 'Stroage folder permissions set!'; echo-white
 
-echo-green 'Folder permissions set!'; echo-white
+fi
+
+# NOT CONVINCED THIS IS NECESSARY
+# if [ -d "bootstrap" ]; then
+
+#     chmod 777 bootstrap/cache
+
+# fi
 
 
 # Create new database, run migration and seed
@@ -171,17 +221,21 @@ if mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SN
 
     echo-green 'Database created!'; echo-white
 
-    echo-cyan 'Running migrations ...'; echo-white
+    if [ -f "artisan" ]; then
 
-    if art-docker migrate; then
+        echo-cyan 'Running migrations ...'; echo-white
 
-        echo-green 'Migrations successful'; echo-white
+        if art-docker migrate; then
 
-        echo-cyan 'Seeding database ...'; echo-white
+            echo-green 'Migrations successful'; echo-white
 
-        if art-docker db:seed; then
+            echo-cyan 'Seeding database ...'; echo-white
 
-            echo-green 'Database seeded!'; echo-white
+            if art-docker db:seed; then
+
+                echo-green 'Database seeded!'; echo-white
+
+            fi
 
         fi
 
