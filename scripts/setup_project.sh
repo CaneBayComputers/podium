@@ -188,11 +188,9 @@ elif [ -f "wp-config-sample.php" ]; then
 
     wp --version
 
-    if ! wp core is-installed; then
+    if ! wp core is-installed > /dev/null 2>&1; then
 
-        wp config create --dbname="$DB_NAME" --dbuser="$DB_USER" --dbpass="$DB_PASSWORD" --dbhost="$DB_HOST" --force
-
-        wp core install --url="$PROJECT_NAME" --title="$PROJECT_NAME" --admin_user="admin" --admin_password="password" --admin_email="$(git config user.email)"
+        wp config create --dbname="$PROJECT_NAME_SNAKE" --dbuser="root" --dbpass="" --dbhost="mariadb" --force
 
     fi
 
