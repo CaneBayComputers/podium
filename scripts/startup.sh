@@ -66,7 +66,7 @@ start_project() {
   # Find D class from hosts file and use as external port access
   echo; echo-cyan "Creating iptables rules for $PROJECT_NAME ..."; echo-white
 
-  EXT_PORT=$(cat /etc/hosts | grep $PROJECT_NAME | cut -d'.' -f 4 | cut -d' ' -f 1)
+  EXT_PORT=$(grep " $PROJECT_NAME$" /etc/hosts | cut -d'.' -f 4 | cut -d' ' -f 1)
 
   if [ -z "$EXT_PORT" ]; then return; fi
 

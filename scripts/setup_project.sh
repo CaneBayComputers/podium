@@ -69,7 +69,7 @@ done
 # Write the new project host and Docker IP address
 while true; do
 
-    HOST_LINE=$(cat /etc/hosts | grep -n -m 1 $PROJECT_NAME | cut -d : -f 1)
+    HOST_LINE=$(grep -n -m 1 " $PROJECT_NAME$" /etc/hosts | cut -d : -f 1)
 
     if ! [[ -z $HOST_LINE ]]; then
 
