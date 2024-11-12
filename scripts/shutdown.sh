@@ -87,29 +87,29 @@ echo; echo-green "CBC iptables rules have been removed!"; echo-white; echo
 
 
 # Shut down Docker containers
-for CONTAINER_ID in $(docker ps -q); do
-
-    CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $CONTAINER_ID | sed 's/^\/\+//')
-
-    REPO_DIR=projects/$CONTAINER_NAME;
-
-    if [ -d "$REPO_DIR" ]; then
-
-    	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
-
-    	cd $REPO_DIR
-
-    	dockerdown
-
-    	cd ../..
-
-    	divider
-
-    fi
-
-done
-
 if [ -z "$PROJECT_NAME" ]; then
+
+	for CONTAINER_ID in $(docker ps -q); do
+
+	    CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $CONTAINER_ID | sed 's/^\/\+//')
+
+	    REPO_DIR=projects/$CONTAINER_NAME;
+
+	    if [ -d "$REPO_DIR" ]; then
+
+	    	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
+
+	    	cd $REPO_DIR
+
+	    	dockerdown
+
+	    	cd ../..
+
+	    	divider
+
+	    fi
+
+	done
 
 	if check-mariadb; then
 
@@ -122,6 +122,24 @@ if [ -z "$PROJECT_NAME" ]; then
 	  cd ..
 
 	fi
+
+else
+
+	REPO_DIR=projects/$PROJECT_NAME;
+
+  if [ -d "$REPO_DIR" ]; then
+
+  	echo; echo-cyan "Shutting down $PROJECT_NAME ..."; echo-white; echo
+
+  	cd $REPO_DIR
+
+  	dockerdown
+
+  	cd ../..
+
+  	divider
+
+  fi
 
 fi
 
