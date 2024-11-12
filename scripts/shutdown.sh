@@ -51,9 +51,9 @@ remove_custom_rules() {
 # Define the comment to search for
 CUSTOM_COMMENT="cbc-rule"
 
-if ! [ -z "$PROJECT_NAME" ]; then
+if [ -n "$PROJECT_NAME" ]; then
 
-	$CUSTOM_COMMENT+=""
+	CUSTOM_COMMENT="${CUSTOM_COMMENT}-${PROJECT_NAME}"
 
 fi
 
@@ -109,15 +109,19 @@ for CONTAINER_ID in $(docker ps -q); do
 
 done
 
-if check-mariadb; then
+if [ -z "$PROJECT_NAME" ]; then
 
-	echo; echo-cyan "Shutting down cbc-development-setup ..."; echo-white; echo
+	if check-mariadb; then
 
-	cd docker-stack
+		echo; echo-cyan "Shutting down cbc-development-setup ..."; echo-white; echo
 
-  dockerdown
+		cd docker-stack
 
-  cd ..
+	  dockerdown
+
+	  cd ..
+
+	fi
 
 fi
 

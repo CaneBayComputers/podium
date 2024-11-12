@@ -58,6 +58,13 @@ Set up an already downloaded project:
 ```
 - **`<project_name>`**: The name of the project (required). This script configures the environment files, Docker services, and runs migrations if applicable.
 
+### Removing a Project
+Delete a project and associated entries:
+```bash
+./remove_project.sh <project_name>
+```
+- **`<project_name>`**: The name of the project (required). This script removes the project directory, any related `iptables` rules, the Docker container, and the `/etc/hosts` entry associated with the project. Optionally, it can also delete the project’s database if confirmed by the user.
+
 ## Managing Services
 
 ### Starting Projects with `startup.sh`
@@ -142,9 +149,10 @@ This interface helps you manage your databases easily.
 
 ## Important Notes on Project Management
 
-### Project Directory Limitations
-- **Project Location**: All projects are saved to the `projects` folder within the `cbc-development` directory. Projects **cannot be renamed or moved** after installation; doing so will break configurations and services.
-- **Project Removal**: To manually remove a project, delete the project folder, stop and remove its Docker container, and ensure any related `/etc/hosts` entries are cleared.
+### Setup Considerations
+
+- **Project Location**: All projects are saved to the `projects` folder within the `cbc-development` directory. Projects **cannot be renamed or moved** after installation, as this will break configurations and services.
+- **Automated Configuration**: The `new_project.sh` script is currently designed only for Laravel projects, while `clone_project.sh` supports any PHP project. Both scripts automatically set up the database name, derived from the project name, and add an entry to the `/etc/hosts` file. These configurations are managed by the setup process and should **not be changed manually** to avoid breaking dependencies and expected configurations.
 
 ### Multiple Installations and VPC Configuration
 - **Unique Networks**: Multiple `cbc-development` setups can run on the same machine, each using a unique `/24` VPC subnet.
