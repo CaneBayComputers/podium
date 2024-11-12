@@ -151,8 +151,11 @@ This interface helps you manage your databases easily.
 
 ### Setup Considerations
 
-- **Project Location**: All projects are saved to the `projects` folder within the `cbc-development` directory. Projects **cannot be renamed or moved** after installation, as this will break configurations and services.
+- **Project Directory Location**: All projects are saved to the `projects` folder within the `cbc-development` directory. Projects **cannot be renamed or moved** after installation, as this will break configurations and services.
 - **Automated Configuration**: The `new_project.sh` script is currently designed only for Laravel projects, while `clone_project.sh` supports any PHP project. Both scripts automatically set up the database name, derived from the project name, and add an entry to the `/etc/hosts` file. These configurations are managed by the setup process and should **not be changed manually** to avoid breaking dependencies and expected configurations.
+
+### Using Existing Docker-Compose Files
+- **For Projects with Existing `docker-compose.yml`**: If a Laravel or PHP project already includes its own `docker-compose.yml` file, it’s recommended to follow that project’s original setup and installation instructions rather than using these scripts. Existing Docker configurations may have custom settings, dependencies, or services that differ from the setup provided by `cbc-development`. Using the project’s own setup will help ensure it functions as expected.
 
 ### Multiple Installations and VPC Configuration
 - **Unique Networks**: Multiple `cbc-development` setups can run on the same machine, each using a unique `/24` VPC subnet.
