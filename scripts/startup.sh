@@ -38,9 +38,9 @@ done
 # Functions
 start_project() {
 
-  PROJECT_NAME=$1
+  PROJECT_FOLDER_NAME=$1
 
-  cd "$PROJECT_NAME"
+  cd "$PROJECT_FOLDER_NAME"
 
   if ! [ -f docker-compose.yaml ]; then
 
@@ -54,7 +54,7 @@ start_project() {
 
   fi
 
-  echo; echo-cyan "Starting up $PROJECT_NAME ..."; echo-white
+  echo; echo-cyan "Starting up $PROJECT_FOLDER_NAME ..."; echo-white
 
   dockerup
 
@@ -64,14 +64,14 @@ start_project() {
 
 
   # Find D class from hosts file and use as external port access
-  echo; echo-cyan "Creating iptables rules for $PROJECT_NAME ..."; echo-white
+  echo; echo-cyan "Creating iptables rules for $PROJECT_FOLDER_NAME ..."; echo-white
 
-  EXT_PORT=$(grep " $PROJECT_NAME$" /etc/hosts | cut -d'.' -f 4 | cut -d' ' -f 1)
+  EXT_PORT=$(grep " $PROJECT_FOLDER_NAME$" /etc/hosts | cut -d'.' -f 4 | cut -d' ' -f 1)
 
   if [ -z "$EXT_PORT" ]; then return; fi
 
   # Route inbound port traffic
-  RULE="-p tcp --dport $EXT_PORT -j DNAT --to-destination $VPC_SUBNET.$EXT_PORT:80 -m comment --comment 'cbc-rule-$PROJECT_NAME'"
+  RULE="-p tcp --dport $EXT_PORT -j DNAT --to-destination $VPC_SUBNET.$EXT_PORT:80 -m comment --comment 'cbc-rule-$PROJECT_FOLDER_NAME'"
 
   # If this rule already exists it's probably still running in Docker
   if iptables -t nat -C PREROUTING $RULE > /dev/null 2>&1; then return; fi
@@ -79,10 +79,10 @@ start_project() {
   iptables -t nat -A PREROUTING $RULE > /dev/null 2>&1
 
   # Allow forwarding of the traffic to the Docker container
-  iptables -A FORWARD -p tcp -d $VPC_SUBNET.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule-$PROJECT_NAME" > /dev/null 2>&1
+  iptables -A FORWARD -p tcp -d $VPC_SUBNET.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule-$PROJECT_FOLDER_NAME" > /dev/null 2>&1
 
   # Masquerade outgoing packets from the Docker container
-  iptables -t nat -A POSTROUTING -s $VPC_SUBNET.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule-$PROJECT_NAME" > /dev/null 2>&1
+  iptables -t nat -A POSTROUTING -s $VPC_SUBNET.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule-$PROJECT_FOLDER_NAME" > /dev/null 2>&1
 }
 
 
