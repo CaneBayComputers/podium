@@ -34,8 +34,6 @@ RUNNING_EXTERNAL=""
 
 LAN_IP=$(hostname -I | awk '{print $1}')
 
-WAN_IP=$(whatismyip)
-
 if ! IPTABLES_RULES=$(iptables -t nat -L PREROUTING -v -n | grep 'cbc-rule'); then
 
   IPTABLES_RULES=""
@@ -125,13 +123,9 @@ project_status() {
 
   fi
 
-  echo-white
-
   echo-white -n LOCAL ACCESS:; echo-yellow " http://$PROJ_NAME"
 
   echo-white -n LAN ACCESS:; echo-yellow " http://$LAN_IP:$EXT_PORT"
-
-  echo-white -n WAN ACCESS:; echo-yellow " http://$WAN_IP:$EXT_PORT"
 }
 
 
@@ -178,7 +172,7 @@ if ! [ -z "$PROJECT_NAME" ]; then
 
   if project_status $PROJECT_NAME; then true; fi
 
-  echo-white; divider
+  divider
 
 else
 
@@ -186,7 +180,7 @@ else
 
     if project_status $PROJECT_NAME; then true; fi
 
-    echo-white; divider
+    divider
 
   done
 
