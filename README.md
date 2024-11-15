@@ -121,10 +121,8 @@ To view project access information, use the `status.sh` script. This script chec
   HOST ENTRY: FOUND
   DOCKER STATUS: RUNNING
   IPTABLES RULES: ESTABLISHED
-
   LOCAL ACCESS: http://ticket-tracker-pro
   LAN ACCESS: http://192.168.1.5:135
-  WAN ACCESS: http://<hidden>:135
   ```
 
 - **Run with a Project Name**:
