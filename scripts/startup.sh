@@ -40,6 +40,16 @@ start_project() {
 
   PROJECT_FOLDER_NAME=$1
 
+  echo; echo-cyan "Starting up $PROJECT_FOLDER_NAME ..."; echo-white
+
+  if ! [ -d "$PROJECT_FOLDER_NAME" ]; then
+
+    echo-red 'Project folder not found!'; echo-white
+
+    exit 1
+
+  fi
+
   cd "$PROJECT_FOLDER_NAME"
 
   if ! [ -f docker-compose.yaml ]; then
@@ -53,8 +63,6 @@ start_project() {
     return 1
 
   fi
-
-  echo; echo-cyan "Starting up $PROJECT_FOLDER_NAME ..."; echo-white
 
   dockerup
 
