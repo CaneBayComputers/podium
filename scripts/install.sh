@@ -400,19 +400,20 @@ echo-cyan 'Installing Node / NPM ...'
 
 echo-white
 
-if ! node -v 2> /dev/null; then
+if ! command -v node > /dev/null 2>&1; then
 
-	# installs nvm (Node Version Manager)
-	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+    # Install nvm (Node Version Manager)
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
 
-	# Reread bashrc bc it just wrote some path crap to it
-	source ~/.bashrc
+    # Explicitly source nvm to make it available in the script
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-	# download and install Node.js (you may need to restart the terminal)
-	nvm install 20
+    # Install Node.js using nvm
+    nvm install 20
 
-	node -v
-
+    # Verify Node.js installation
+    node -v
 fi
 
 npm -v
