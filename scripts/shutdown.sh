@@ -42,6 +42,29 @@ remove_custom_rules() {
 	done
 }
 
+shutdown_container() {
+
+	CONTAINER_NAME=$1
+
+	REPO_DIR=projects/$CONTAINER_NAME;
+
+  if [ -d "$REPO_DIR" ]; then
+
+  	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
+
+  	cd $REPO_DIR
+
+  	dockerdown
+
+  	echo-green "Successfully shut down $CONTAINER_NAME!"; echo-white; echo
+
+  	cd ../..
+
+  	divider
+
+  fi
+}
+
 
 #######################################################
 # Main
@@ -93,31 +116,19 @@ if [ -z "$PROJECT_NAME" ]; then
 
 	    CONTAINER_NAME=$(docker inspect --format='{{.Name}}' $CONTAINER_ID | sed 's/^\/\+//')
 
-	    REPO_DIR=projects/$CONTAINER_NAME;
-
-	    if [ -d "$REPO_DIR" ]; then
-
-	    	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
-
-	    	cd $REPO_DIR
-
-	    	dockerdown
-
-	    	cd ../..
-
-	    	divider
-
-	    fi
+	    shutdown_container $CONTAINER_NAME;
 
 	done
 
 	if check-mariadb; then
 
-		echo; echo-cyan "Shutting down cbc-development-setup ..."; echo-white; echo
+		echo; echo-cyan "Shutting down services ..."; echo-white; echo
 
 		cd docker-stack
 
 	  dockerdown
+
+	  echo-green "Successfully shut down services!"; echo-white; echo
 
 	  cd ..
 
@@ -125,27 +136,8 @@ if [ -z "$PROJECT_NAME" ]; then
 
 else
 
-	REPO_DIR=projects/$PROJECT_NAME;
-
-  if [ -d "$REPO_DIR" ]; then
-
-  	echo; echo-cyan "Shutting down $PROJECT_NAME ..."; echo-white; echo
-
-  	cd $REPO_DIR
-
-  	dockerdown
-
-  	cd ../..
-
-  	divider
-
-  fi
+	shutdown_container $PROJECT_NAME
 
 fi
-
-
-# Print confirmation message
-echo; echo-green "All CBC containers have been shut down!"; echo-white; echo
-
 
 cd $ORIG_DIR

@@ -49,6 +49,14 @@ fi
 PROJECT_NAME=$1
 
 
+# Shutdown project in case it is running
+cd scripts
+
+source shutdown.sh $PROJECT_NAME
+
+cd ..
+
+
 # Convert dashes to underscores
 PROJECT_NAME_SNAKE=$(echo "$PROJECT_NAME" | sed 's/-/_/g')
 
@@ -127,13 +135,15 @@ cd ..
 # Install Composer libraries
 cd projects/$PROJECT_NAME
 
+echo-cyan "Current directory: $(pwd)"; echo-white
+
 if [ -f "composer.json" ]; then
 
-    if ! [ -d "vendor" ]; then
+    echo-cyan "Installing vendor libs with composer ..."; echo-white
 
-        composer-docker install
+    composer-docker install
 
-    fi
+    echo-green "Vendor libs installed!"; echo-white
 
 fi
 
@@ -142,6 +152,8 @@ fi
 unalias cp
 
 if [ -f ".env.example" ]; then
+
+    echo-cyan "Setting up .env file ..."; echo-white
 
     cp -f .env.example .env
 
@@ -162,6 +174,8 @@ if [ -f ".env.example" ]; then
     sed -i "/^#*\s*MAIL_PORT=/c\MAIL_PORT=25" .env
 
     art-docker key:generate
+
+    echo-green "The .env file has been created!"; echo-white
 
 # Install config.inc file
 elif [ -f "config.example.inc.php" ]; then

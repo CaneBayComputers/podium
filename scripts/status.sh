@@ -14,8 +14,6 @@ DEV_DIR=$(pwd)
 
 source extras/.bash_aliases
 
-echo; echo
-
 
 # Variables
 PROJECT_NAME=""

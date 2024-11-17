@@ -10,7 +10,7 @@ alias dockerdown="docker compose down"
 alias dockerexec="docker container exec -it"
 alias dockerls="docker container ls"
 alias dockerexec-root='dockerexec --user root $(basename $(pwd))'
-alias dockerexec-developer='dockerexec --user developer $(basename $(pwd))'
+alias dockerexec-developer='dockerexec --user $(id -u):$(id -g) $(basename $(pwd))'
 alias check-mariadb='[ "$(docker ps -q -f name=mariadb)" ] && true || false'
 alias check-phpmyadmin='[ "$(docker ps -q -f name=phpmyadmin)" ] && true || false'
 

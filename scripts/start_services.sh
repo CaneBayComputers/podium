@@ -28,7 +28,7 @@ cd ..
 # Start CBC stack
 if ! check-mariadb; then
 
-  echo; echo-cyan "Starting services ..."; echo-white; echo
+  echo-cyan "Starting services ..."; echo-white
 
   cd docker-stack
 
@@ -40,6 +40,6 @@ if ! check-mariadb; then
 
 fi
 
-echo-green "Services are running!"; echo-white; echo
+echo-green "Services are running!"; echo-white
 
 cd $ORIG_DIR
