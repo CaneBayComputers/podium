@@ -50,15 +50,23 @@ shutdown_container() {
 
   if [ -d "$REPO_DIR" ]; then
 
-  	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
+  	if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
 
-  	cd $REPO_DIR
+	  	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
 
-  	dockerdown
+	  	cd $REPO_DIR
 
-  	echo-green "Successfully shut down $CONTAINER_NAME!"; echo-white; echo
+	  	dockerdown
 
-  	cd ../..
+	  	echo-green "Successfully shut down $CONTAINER_NAME!"; echo-white; echo
+
+	  	cd ../..
+
+	  else
+
+	  	echo; echo-yellow "Container $CONTAINER_NAME is not running!"; echo-white; echo
+
+	  fi
 
   	divider
 
