@@ -15,14 +15,6 @@ DEV_DIR=$(pwd)
 source extras/.bash_aliases
 
 
-# Main
-cd scripts
-
-source start_services.sh
-
-cd ..
-
-
 # Env vars
 source docker-stack/.env
 
@@ -47,6 +39,26 @@ fi
 
 # Assign arguments to variables
 PROJECT_NAME=$1
+
+PROJECT_DIR="projects/$PROJECT_NAME"
+
+
+# Check for project folder existence
+if ! [ -d "$PROJECT_DIR" ]; then
+
+    echo-red "Project folder does not exist!"; echo-white
+
+    exit 1
+
+fi
+
+
+# Start micro services
+cd scripts
+
+source start_services.sh
+
+cd ..
 
 
 # Shutdown project in case it is running
@@ -99,7 +111,7 @@ echo
 
 
 # Set up Docker compose file
-cd projects/$PROJECT_NAME
+cd "$PROJECT_DIR"
 
 unalias cp
 
@@ -133,7 +145,7 @@ cd ..
 
 
 # Install Composer libraries
-cd projects/$PROJECT_NAME
+cd "$PROJECT_DIR"
 
 echo-cyan "Current directory: $(pwd)"; echo-white
 
