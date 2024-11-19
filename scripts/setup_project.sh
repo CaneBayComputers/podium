@@ -237,35 +237,33 @@ fi
 # Create new database, run migration and seed
 echo-cyan "Creating database $PROJECT_NAME_SNAKE ..."; echo-white
 
-if mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"; then
+mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
 
-    echo-green 'Database created!'; echo-white
+echo-green 'Database created!'; echo-white
 
-    if [ -f "artisan" ]; then
+if [ -f "artisan" ]; then
 
-        echo-cyan 'Running migrations ...'; echo-white
+    echo-cyan 'Running migrations ...'; echo-white
 
-        if art-docker migrate; then
+    if art-docker migrate:fresh; then
 
-            echo-green 'Migrations successful'; echo-white
+        echo-green 'Migrations successful'; echo-white
 
-            echo-cyan 'Seeding database ...'; echo-white
+        echo-cyan 'Seeding database ...'; echo-white
 
-            if art-docker db:seed; then
+        if art-docker db:seed; then
 
-                echo-green 'Database seeded!'; echo-white
-
-            fi
+            echo-green 'Database seeded!'; echo-white
 
         fi
 
-    elif [ -f "create_tables.sql" ]; then
-
-        echo-cyan 'Creating tables ...'; echo-white
-
-        mysql -h"mariadb" -u"root" $PROJECT_NAME_SNAKE < create_tables.sql
-
     fi
+
+elif [ -f "create_tables.sql" ]; then
+
+    echo-cyan 'Creating tables ...'; echo-white
+
+    mysql -h"mariadb" -u"root" $PROJECT_NAME_SNAKE < create_tables.sql
 
 fi
 
