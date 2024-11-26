@@ -14,6 +14,11 @@ alias dockerexec-developer='dockerexec --user $(id -u):$(id -g) $(basename $(pwd
 alias check-mariadb='[ "$(docker ps -q -f name=mariadb)" ] && true || false'
 alias check-phpmyadmin='[ "$(docker ps -q -f name=phpmyadmin)" ] && true || false'
 
+# Redis
+alias redis-cli="dockerexec redis redis-cli"
+alias redis-flushall="redis-cli FLUSHALL"
+
+
 # Color
 alias echo-red='tput setaf 1 ; echo'
 alias echo-green='tput setaf 2 ; echo'
