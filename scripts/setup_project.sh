@@ -184,6 +184,7 @@ if [ -f ".env.example" ]; then
     sed -i "/^#*\s*MAIL_MAILER=/c\MAIL_MAILER=smtp" .env
     sed -i "/^#*\s*MAIL_HOST=/c\MAIL_HOST=exim4" .env
     sed -i "/^#*\s*MAIL_PORT=/c\MAIL_PORT=25" .env
+    echo "\n\nXDG_CONFIG_HOME=/usr/share/nginx/html/storage/app" >> .env
 
     art-docker key:generate
 
