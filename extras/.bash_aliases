@@ -82,6 +82,6 @@ alias bash_aliases='nano ~/.bash_aliases; source ~/.bash_aliases; echo-green "Ne
 alias untar='tar -xvf'
 alias hosts='sudo nano /etc/hosts'
 alias mount-bucket='echo -ne "Bucket: " && read B && mkdir -p ~/s3/$B && s3fs $B ~/s3/$B -o passwd_file=~/.passwd-s3fs,use_path_request_style'
-alias whatismyip='wget -qO- https://ipinfo.io/ip; echo'
+alias whatismyip='dig +short myip.opendns.com @resolver1.opendns.com'
 alias divider='echo; echo-white '==============================='; echo'
 alias iptablesls='iptables -L -v -n'
