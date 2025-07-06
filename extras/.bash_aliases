@@ -31,7 +31,8 @@ alias echo-white='tput setaf 7; echo'
 
 # Artisan
 alias art='php artisan'
-alias art-docker='dockerexec-developer php /usr/share/nginx/html/artisan'
+alias php-docker='dockerexec-developer php'
+alias art-docker='php-docker /usr/share/nginx/html/artisan'
 alias art-docker-db-refresh='art-docker migrate:fresh; art-docker db:seed'
 alias art-docker-refresh='art-docker cache:clear; art-docker route:clear; art-docker config:clear; composer-docker dump-autoload'
 

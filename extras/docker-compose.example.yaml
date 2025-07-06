@@ -1,6 +1,6 @@
 services:
   server:
-    image: canebaycomputers/cbc:nginx-php8
+    image: canebaycomputers/cbc:nginx-phpPHP_VERSION
     container_name: CONTAINER_NAME
     volumes:
       - .:/usr/share/nginx/htmlPUBLIC

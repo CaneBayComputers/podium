@@ -15,6 +15,14 @@ DEV_DIR=$(pwd)
 source extras/.bash_aliases
 
 
+# Pre check to make sure development is installed
+cd scripts
+
+source pre_check.sh
+
+cd ..
+
+
 # Env vars
 source docker-stack/.env
 
@@ -69,6 +77,28 @@ source shutdown.sh $PROJECT_NAME
 cd ..
 
 
+# Enter into project and get PHP version
+cd "$PROJECT_DIR"
+
+pwd; echo
+
+if grep -q '"php":\s*"^7' composer.json; then
+
+    PHP_VERSION="7"
+
+elif grep -q '"php":\s*"^8' composer.json; then
+
+    PHP_VERSION="8"
+
+else
+
+    echo-red "ERROR: Could not determine PHP version requirement from composer.json. Exiting."; echo-white
+
+    exit 1
+
+fi
+
+
 # Convert dashes to underscores
 PROJECT_NAME_SNAKE=$(echo "$PROJECT_NAME" | sed 's/-/_/g')
 
@@ -111,8 +141,6 @@ echo
 
 
 # Set up Docker compose file
-cd "$PROJECT_DIR"
-
 unalias cp
 
 cp -f ../../extras/docker-compose.example.yaml docker-compose.yaml
@@ -122,6 +150,8 @@ sed -i "s/IPV4_ADDRESS/$IP_ADDRESS/g" docker-compose.yaml
 sed -i "s/CONTAINER_NAME/$PROJECT_NAME/g" docker-compose.yaml
 
 sed -i "s/STACK_ID/$STACK_ID/g" docker-compose.yaml
+
+sed -i "s/PHP_VERSION/$PHP_VERSION/g" docker-compose.yaml
 
 if [ -d "public" ]; then
 
@@ -169,7 +199,10 @@ if [ -f ".env.example" ]; then
 
     cp -f .env.example .env
 
+    APP_KEY="base64:$(head -c 32 /dev/urandom | base64)"
+
     sed -i "/^#*\s*APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
+    sed -i "/^#*\s*APP_KEY=/c\APP_KEY=$APP_KEY" .env
     sed -i "/^#*\s*APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
     sed -i "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
     sed -i "/^#*\s*DB_HOST=/c\DB_HOST=mariadb" .env
@@ -186,8 +219,6 @@ if [ -f ".env.example" ]; then
     sed -i "/^#*\s*MAIL_PORT=/c\MAIL_PORT=25" .env
     echo "" >> .env
     echo "XDG_CONFIG_HOME=/usr/share/nginx/html/storage/app" >> .env
-
-    art-docker key:generate
 
     echo-green "The .env file has been created!"; echo-white
 
