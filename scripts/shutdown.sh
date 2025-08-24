@@ -2,7 +2,6 @@
 
 set -e
 
-shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
@@ -12,7 +11,7 @@ cd ..
 
 DEV_DIR=$(pwd)
 
-source extras/.bash_aliases
+source scripts/functions.sh
 
 echo; echo
 
@@ -26,21 +25,7 @@ fi
 
 
 # Functions
-remove_custom_rules() {
-
-	table=$1
-
-	chain=$2
-
-	comment=$3
-
-	# List the rules with line numbers, search for the comment, extract line numbers, and remove those rules
-	iptables -t $table -L $chain --line-numbers -n | grep "$comment" | awk '{print $1}' | tac | while read -r line_number; do
-		
-		iptables -t $table -D $chain $line_number
-	
-	done
-}
+# Docker handles all networking - no iptables rules needed
 
 shutdown_container() {
 
@@ -89,32 +74,8 @@ if [ -n "$PROJECT_NAME" ]; then
 fi
 
 
-# Remove custom rules from the filter table
-for chain in INPUT FORWARD OUTPUT; do
-	
-	remove_custom_rules filter $chain $CUSTOM_COMMENT
-	
-done
-
-
-# Remove custom rules from the nat table
-for chain in PREROUTING POSTROUTING OUTPUT; do
-	
-	remove_custom_rules nat $chain $CUSTOM_COMMENT
-	
-done
-
-
-# Remove custom rules from the mangle table
-for chain in PREROUTING INPUT FORWARD OUTPUT POSTROUTING; do
-	
-	remove_custom_rules mangle $chain $CUSTOM_COMMENT
-	
-done
-
-
-# Print confirmation message
-echo; echo-green "CBC iptables rules have been removed!"; echo-white; echo
+# Docker handles all networking automatically - no iptables cleanup needed
+echo; echo-green "Docker containers shut down successfully!"; echo-white; echo
 
 
 # Shut down Docker containers

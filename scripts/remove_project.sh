@@ -1,14 +1,13 @@
 #!/bin/bash
 
 set -e
-shopt -s expand_aliases
 
 # Set up directories and aliases
 ORIG_DIR=$(pwd)
 cd "$(dirname "$(realpath "$0")")"
 cd ..
 DEV_DIR=$(pwd)
-source extras/.bash_aliases
+source scripts/functions.sh
 
 echo; echo
 
@@ -28,7 +27,8 @@ PROJECT_DIR="$DEV_DIR/projects/$PROJECT_NAME"
 HOSTS_FILE="/etc/hosts"
 
 # Confirm with the user before proceeding
-echo-cyan "This will permanently delete the project '$PROJECT_NAME' and remove associated settings."
+echo-cyan "This will remove the project '$PROJECT_NAME' and associated settings."
+echo-cyan "Project files will be moved to trash (recoverable)."
 echo-white
 read -p "Are you sure? (y/n): " CONFIRM
 if [[ "$CONFIRM" != "y" ]]; then
@@ -42,12 +42,35 @@ echo-cyan "Shutting down project '$PROJECT_NAME'..."
 echo-white
 "$DEV_DIR/scripts/shutdown.sh" "$PROJECT_NAME"
 
-# 2. Remove Project Directory
-echo-cyan "Removing project directory..."
+# 2. Move Project Directory to Trash
+echo-cyan "Moving project directory to trash..."
 echo-white
 if [ -d "$PROJECT_DIR" ]; then
-    rm -rf "$PROJECT_DIR"
-    echo-green "Project directory removed."
+    # Function to move project to trash safely
+    if command -v trash-put &> /dev/null; then
+        trash-put "$PROJECT_DIR"
+        echo-green "Project directory moved to trash (can be recovered)."
+    elif command -v trash &> /dev/null; then
+        # Alternative trash command (some systems)
+        trash "$PROJECT_DIR"
+        echo-green "Project directory moved to trash (can be recovered)."
+    else
+        # Fallback: ask user if they want permanent deletion
+        echo-yellow "Warning: trash-cli not installed. This will PERMANENTLY delete the project!"
+        echo-white
+        read -p "Continue with permanent deletion? (y/n): " PERMANENT_DELETE
+        if [[ "$PERMANENT_DELETE" == "y" ]]; then
+            rm -rf "$PROJECT_DIR"
+            echo-red "Project directory permanently deleted."
+        else
+            echo-yellow "Project directory removal cancelled."
+            echo-white "Install trash-cli for safer project removal:"
+            echo-white "  Linux: sudo apt-get install trash-cli"
+            echo-white "  macOS: brew install trash-cli"
+            cd "$ORIG_DIR"
+            exit 0
+        fi
+    fi
     echo-white
 else
     echo-yellow "Project directory not found. Skipping directory removal."
@@ -58,7 +81,7 @@ fi
 echo-cyan "Removing hosts file entry for the project..."
 echo-white
 if grep -q " $PROJECT_NAME\$" "$HOSTS_FILE"; then
-    sudo sed -i "/ $PROJECT_NAME\$/d" "$HOSTS_FILE"
+    sudo podium-sed "/ $PROJECT_NAME\$/d" "$HOSTS_FILE"
     echo-green "Hosts file entry removed."
     echo-white
 else

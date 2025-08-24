@@ -2,7 +2,6 @@
 
 set -e
 
-shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
@@ -12,7 +11,7 @@ cd ..
 
 DEV_DIR=$(pwd)
 
-source extras/.bash_aliases
+source scripts/functions.sh
 
 # Do not run as root
 if [[ "$(whoami)" == "root" ]]; then

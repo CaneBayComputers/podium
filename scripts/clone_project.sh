@@ -2,7 +2,6 @@
 
 set -e
 
-shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
@@ -12,7 +11,7 @@ cd ..
 
 DEV_DIR=$(pwd)
 
-source extras/.bash_aliases
+source scripts/functions.sh
 
 
 # Function to display usage
@@ -80,8 +79,6 @@ cd ..
 
 
 # Setup project
-cd scripts
-
-source setup_project.sh $PROJECT_NAME
+source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME
 
 cd $ORIG_DIR

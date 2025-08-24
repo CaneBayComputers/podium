@@ -5,7 +5,6 @@
 
 set -e
 
-shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
@@ -15,7 +14,7 @@ cd ..
 
 DEV_DIR=$(pwd)
 
-source extras/.bash_aliases
+source scripts/functions.sh
 
 
 # Env vars
@@ -70,36 +69,12 @@ start_project() {
 
   cd ..
 
-
-  # Find D class from hosts file and use as external port access
-  echo; echo-cyan "Creating iptables rules for $PROJECT_FOLDER_NAME ..."; echo-white
-
-  EXT_PORT=$(grep " $PROJECT_FOLDER_NAME$" /etc/hosts | cut -d'.' -f 4 | cut -d' ' -f 1)
-
-  if [ -z "$EXT_PORT" ]; then return; fi
-
-  # Route inbound port traffic
-  RULE="-p tcp --dport $EXT_PORT -j DNAT --to-destination $VPC_SUBNET.$EXT_PORT:80 -m comment --comment 'cbc-rule-$PROJECT_FOLDER_NAME'"
-
-  # If this rule already exists it's probably still running in Docker
-  if iptables -t nat -C PREROUTING $RULE > /dev/null 2>&1; then return; fi
-
-  iptables -t nat -A PREROUTING $RULE > /dev/null 2>&1
-
-  # Allow forwarding of the traffic to the Docker container
-  iptables -A FORWARD -p tcp -d $VPC_SUBNET.$EXT_PORT --dport 80 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT -m comment --comment "cbc-rule-$PROJECT_FOLDER_NAME" > /dev/null 2>&1
-
-  # Masquerade outgoing packets from the Docker container
-  iptables -t nat -A POSTROUTING -s $VPC_SUBNET.$EXT_PORT -j MASQUERADE -m comment --comment "cbc-rule-$PROJECT_FOLDER_NAME" > /dev/null 2>&1
+  echo-green "Project $PROJECT_FOLDER_NAME started successfully!"
 }
 
 
 # Main
-cd scripts
-
-source start_services.sh
-
-cd ..
+source "$DEV_DIR/scripts/start_services.sh"
 
 
 # Start projects either just one by name or all in the projects directory
@@ -122,22 +97,11 @@ fi
 cd ..
 
 
-# Allow established connections to reply
-echo; echo-cyan "Creating iptables rules to allow establish connections to reply ..."; echo-white
-
-RULE="-m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment 'cbc-rule'"
-
-if ! iptables -C FORWARD $RULE > /dev/null 2>&1; then
-
-  iptables -A FORWARD $RULE > /dev/null 2>&1
-  
-fi
+# Docker handles all networking automatically
 
 if ! $NO_STATUS; then
 
-  cd scripts
-
-  source ./status.sh $PROJECT_NAME
+  source "$DEV_DIR/scripts/status.sh" $PROJECT_NAME
 
 fi
 

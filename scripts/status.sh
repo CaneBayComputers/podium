@@ -2,7 +2,6 @@
 
 set -e
 
-shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
@@ -12,7 +11,7 @@ cd ..
 
 DEV_DIR=$(pwd)
 
-source extras/.bash_aliases
+source scripts/functions.sh
 
 
 # Variables
@@ -32,11 +31,7 @@ RUNNING_EXTERNAL=""
 
 LAN_IP=$(hostname -I | awk '{print $1}')
 
-if ! IPTABLES_RULES=$(iptables -t nat -L PREROUTING -v -n | grep 'cbc-rule'); then
-
-  IPTABLES_RULES=""
-
-fi
+# Docker handles port mapping automatically
 
 HOSTS=$(cat /etc/hosts)
 
@@ -103,13 +98,14 @@ project_status() {
   fi
 
 
-  echo-white -n IPTABLES RULES:
+  echo-white -n DOCKER PORT MAPPING:
 
   EXT_PORT=$(echo $HOST_ENTRY | cut -d'.' -f 4 | cut -d' ' -f 1)
 
-  if ! printf "%s\n" "$IPTABLES_RULES" | grep "cbc-rule-$PROJ_NAME'" | grep "dpt:$EXT_PORT" > /dev/null; then
+  # Check if Docker container has port mapping
+  if ! docker port "$PROJ_NAME" 80/tcp > /dev/null 2>&1; then
 
-    echo-red " NOT ESTABLISHED"
+    echo-red " NOT MAPPED"
 
     echo-white -n SUGGESTION:; echo-yellow " Run shutdown.sh then startup.sh script"
 
@@ -117,7 +113,7 @@ project_status() {
 
   else
 
-    echo-green " ESTABLISHED"
+    echo-green " MAPPED"
 
   fi
 

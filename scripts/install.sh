@@ -2,7 +2,6 @@
 
 set -e
 
-shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
@@ -12,7 +11,61 @@ cd ..
 
 DEV_DIR=$(pwd)
 
-source extras/.bash_aliases
+source scripts/functions.sh
+
+# Check for GUI mode flag and parse arguments
+GUI_MODE=false
+GIT_NAME=""
+GIT_EMAIL=""
+AWS_ACCESS_KEY=""
+AWS_SECRET_KEY=""
+AWS_REGION="us-east-1"
+SKIP_AWS=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --gui-mode)
+            GUI_MODE=true
+            shift
+            ;;
+        --git-name)
+            GIT_NAME="$2"
+            shift 2
+            ;;
+        --git-email)
+            GIT_EMAIL="$2"
+            shift 2
+            ;;
+        --aws-access-key)
+            AWS_ACCESS_KEY="$2"
+            shift 2
+            ;;
+        --aws-secret-key)
+            AWS_SECRET_KEY="$2"
+            shift 2
+            ;;
+        --aws-region)
+            AWS_REGION="$2"
+            shift 2
+            ;;
+        --skip-aws)
+            SKIP_AWS=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+# Detect platform and load appropriate package installer
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    PLATFORM="mac"
+    source scripts/install-mac-packages.sh
+else
+    PLATFORM="linux"
+    source scripts/install-linux-packages.sh
+fi
 
 
 # Generate stack id
@@ -30,9 +83,9 @@ if ! [ -f docker-stack/.env ]; then
 
 	VPC_SUBNET="10.$B_CLASS.$C_CLASS"
 
-	sed -i "/^#VPC_SUBNET=/c\VPC_SUBNET=$VPC_SUBNET" docker-stack/.env
-
-	sed -i "/^#STACK_ID=/c\STACK_ID=$STACK_ID" docker-stack/.env
+	# Cross-platform sed
+	podium-sed "/^#VPC_SUBNET=/c\VPC_SUBNET=$VPC_SUBNET" docker-stack/.env
+	podium-sed "/^#STACK_ID=/c\STACK_ID=$STACK_ID" docker-stack/.env
 
 else
 
@@ -46,95 +99,129 @@ if ! [ -f docker-stack/docker-compose.yaml ]; then
 
 	cp docker-stack/docker-compose.example.yaml docker-stack/docker-compose.yaml
 
-	sed -i "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
+	# Cross-platform sed for docker-compose.yaml
+	podium-sed "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
 
 fi
 
 
-# Check and fix root perms
-if [[ "$(whoami)" == "root" ]]; then
+# Platform-specific permission checks (skip in GUI mode)
+if [[ "$GUI_MODE" != "true" ]]; then
+	if [[ "$PLATFORM" == "linux" ]]; then
+		# Check and fix root perms (Linux only)
+		if [[ "$(whoami)" == "root" ]]; then
 
-	ORIG_USER=$SUDO_USER
+			ORIG_USER=$SUDO_USER
 
-	# On first sudo or root run we are going to look to see if sudo group is set
-	# up as NOPASSWD. If not we are going to alter the sudoers file so that it
-	# is. On subsequent root runs, if sudo is already set as NOPASSWD, we are
-	# going to remind user to now run as the regular user.
+				echo; echo-red "Do NOT run with sudo or as root!";
 
-	SUDO_GROUP=$(cat /etc/sudoers | grep -n '%sudo' | grep 'ALL:ALL')
+		echo; echo-white "Please run as regular user (you may be prompted for sudo password when needed)."; echo
 
-	if ! echo $SUDO_GROUP | grep NOPASSWD > /dev/null; then
+		exit 1
 
-		SUDO_GROUP_LINE=$(echo $SUDO_GROUP | cut -d : -f 1)
+		fi
 
-		sed -i "${SUDO_GROUP_LINE}s/.*/]\\%%sudo   ALL=(ALL:ALL) NOPASSWD: ALL/" /etc/sudoers
+		echo; echo
 
-		echo; echo-green 'Password now not needed for sudo.'
+		echo-cyan 'IMPORTANT: This script must NOT be run with sudo!'
 
-		echo; echo-white 'Please run as regular user.'; echo
+		echo; echo-white 'Running with sudo would configure Git and AWS for the root user instead of your user account.'
 
-		exit 0
+		echo-white 'The script will prompt for sudo password only when needed for system-level operations.'
 
-	else
+		echo; echo
 
-		echo; echo-red "Do NOT run with sudo or as root!";
+		if ! sudo -v; then
 
-		echo; echo-white "Remove sudo or log in as regular user."; echo
+			echo; echo-red "No sudo privileges. Root access required!"; echo
 
-		exit 1;
+			exit 1;
 
+		fi
+	elif [[ "$PLATFORM" == "mac" ]]; then
+		# Mac users typically have sudo access, just verify
+		if ! sudo -v; then
+			echo; echo-red "Administrator privileges required for installation!"; echo
+			exit 1;
+		fi
 	fi
-
-fi
-
-echo; echo
-
-echo-cyan 'Sudo password is not set.'
-
-echo; echo-white 'If you want to remove the password requirement for sudo run this script with sudo.'
-
-echo; echo 'Press Ctrl + C to exit script and run: sudo ./install.sh'
-
-echo; echo
-
-if ! sudo -v; then
-
-	echo; echo-red "No sudo privileges. Root access required!"; echo
-
-	exit 1;
-
+else
+	echo-cyan "Running in GUI mode - skipping permission checks"
+	echo
 fi
 
 clear
 
 
-# Check for Ubuntu distribution
-if ! uname -a | grep Ubuntu > /dev/null; then
-
-	if ! uname -a | grep pop-os > /dev/null; then
-
-		echo-red "This script is for an Ubuntu based distribution!"
-
-		exit 1
-
+# Platform-specific checks
+if [[ "$PLATFORM" == "linux" ]]; then
+	# Check for Ubuntu distribution
+	if ! uname -a | grep Ubuntu > /dev/null; then
+		if ! uname -a | grep pop-os > /dev/null; then
+			echo-red "This script is for an Ubuntu based distribution!"
+			exit 1
+		fi
 	fi
-
+elif [[ "$PLATFORM" == "mac" ]]; then
+	echo-cyan "Detected macOS - using Homebrew for package management"
+	echo-white
 fi
 
 
-# Set bash aliases
-if ! [ -f ~/.bash_aliases ]; then
-
-	echo "source $DEV_DIR/extras/.bash_aliases" > ~/.bash_aliases
-
-else
-
-	if ! cat ~/.bash_aliases | grep "$DEV_DIR/extras/.bash_aliases"  > /dev/null; then
-
-		echo "source $DEV_DIR/extras/.bash_aliases" >> ~/.bash_aliases
-
+# Set shell aliases (bash/zsh compatible)
+if [[ "$PLATFORM" == "mac" ]]; then
+	# Mac typically uses zsh
+	SHELL_RC="$HOME/.zshrc"
+	if [[ "$SHELL" == *"bash"* ]]; then
+		SHELL_RC="$HOME/.bash_profile"
 	fi
+else
+	# Linux typically uses bash
+	SHELL_RC="$HOME/.bash_aliases"
+fi
 
+# Essential development aliases for Docker-based workflow
+echo; echo-cyan "IMPORTANT: Podium uses Docker-based development tools"
+echo-white "This includes containerized versions of:"
+echo-white "  • composer-docker - Runs Composer inside container (proper PHP environment)"
+echo-white "  • art-docker      - Runs Laravel Artisan inside container"
+echo-white "  • wp-docker       - Runs WP-CLI inside container"
+echo-white "  • php-docker      - Runs PHP inside container"
+echo-white
+echo-cyan "These aliases are ESSENTIAL for Podium's workflow."
+echo-yellow "Without them, you'll need to type long docker exec commands manually."
+echo-white
+read -p "Install essential development aliases? (strongly recommended) (y/n): " INSTALL_ALIASES
+
+if [[ "$INSTALL_ALIASES" == "y" ]]; then
+	if [[ "$PLATFORM" == "mac" ]]; then
+		# For Mac, add to shell RC file
+		if ! grep -q "$DEV_DIR/extras/.podium_aliases" "$SHELL_RC" 2>/dev/null; then
+			echo "source $DEV_DIR/extras/.podium_aliases" >> "$SHELL_RC"
+			echo-green "Essential development aliases added to $SHELL_RC"
+		fi
+	else
+		# For Linux, use bash_aliases
+		if ! [ -f ~/.bash_aliases ]; then
+			echo "source $DEV_DIR/extras/.podium_aliases" > ~/.bash_aliases
+		else
+			if ! grep -q "$DEV_DIR/extras/.podium_aliases" ~/.bash_aliases 2>/dev/null; then
+				echo "source $DEV_DIR/extras/.podium_aliases" >> ~/.bash_aliases
+			fi
+		fi
+		echo-green "Essential development aliases added to ~/.bash_aliases"
+	fi
+	echo-white
+	echo-cyan "IMPORTANT: Source your shell or open a new terminal session, then use these commands:"
+	echo-white "  • composer-docker install    (instead of: composer install)"
+	echo-white "  • art-docker migrate         (instead of: php artisan migrate)"
+	echo-white "  • wp-docker plugin list      (instead of: wp plugin list)"
+	echo-white "  • php-docker -v              (to check container PHP version)"
+	echo-white
+else
+	echo-yellow "Aliases skipped - you'll need to use full docker exec commands:"
+	echo-white "  docker exec -it \$(basename \$(pwd)) composer install"
+	echo-white "  docker exec -it \$(basename \$(pwd)) php artisan migrate"
 fi
 
 clear
@@ -144,26 +231,20 @@ echo; echo
 
 # Welcome screen
 echo "
-              WELCOME TO THE DEV INSTALLER !
+          WELCOME TO PODIUM DEVELOPMENT ENVIRONMENT !
 
+Setting up your $PLATFORM development environment for PHP projects...
 Leave answers blank if you do not know the info. You can re-run the
-installer to enter in new info when have it."
+installer to enter in new info when you have it."
 
 
 
 ###############################
-# Initial update and package installations
+# Platform-specific package installation
 ###############################
 
-echo; echo-cyan 'Updating and installing initial packages ...'
-
-echo-white
-
-sudo apt-get update -y
-
-sudo apt-get -y install ca-certificates curl python3-pip python3-venv figlet mariadb-client apt-transport-https gnupg lsb-release s3fs acl unzip jq p7zip-full p7zip-rar
-
-echo-green 'Packages installed!'; echo-white; echo
+# Call the platform-specific package installation function
+install_packages
 
 
 
@@ -201,44 +282,52 @@ if ! git config --global pull.rebase > /dev/null 2>&1; then
 
 fi
 
-if ! git config user.name > /dev/null 2>&1; then
-
-	echo-yellow -ne 'Enter your full name for Git commits: '
-
-	echo-white -ne
-
-	read GIT_NAME
-
-	if ! [ -z "${GIT_NAME}" ]; then
-
+# Configure Git (use GUI-provided values or prompt)
+if [[ "$GUI_MODE" == "true" ]]; then
+	if [[ -n "$GIT_NAME" ]]; then
 		git config --global user.name "$GIT_NAME"
+		echo-cyan "Git name set to: $GIT_NAME"
+	fi
+	if [[ -n "$GIT_EMAIL" ]]; then
+		git config --global user.email "$GIT_EMAIL"
+		echo-cyan "Git email set to: $GIT_EMAIL"
+	fi
+else
+	if ! git config user.name > /dev/null 2>&1; then
 
-		sudo git config --global user.name "$GIT_NAME"
+		echo-yellow -ne 'Enter your full name for Git commits: '
+
+		echo-white -ne
+
+		read GIT_NAME
+
+		if ! [ -z "${GIT_NAME}" ]; then
+
+			git config --global user.name "$GIT_NAME"
+
+		fi
+
+		echo
 
 	fi
 
-	echo
+	if ! git config user.email > /dev/null 2>&1; then
 
-fi
+		echo-yellow -ne 'Enter your email address for Git commits: '
 
-if ! git config user.email > /dev/null 2>&1; then
+		echo-white -ne
 
-	echo-yellow -ne 'Enter your email address for Git commits: '
+		read GIT_EMAIL
 
-	echo-white -ne
+		if ! [ -z "${GIT_EMAIL}" ]; then
 
-	read GIT_EMAIL
+			git config --global user.email $GIT_EMAIL
 
-	if ! [ -z "${GIT_EMAIL}" ]; then
+		fi
 
-		git config --global user.email $GIT_EMAIL
-
-		sudo git config --global user.email $GIT_EMAIL
+		echo
 
 	fi
-
-	echo
-
 fi
 
 git --version; echo
@@ -248,22 +337,9 @@ echo-green "Git configured!"; echo-white; echo
 
 
 ###############################
-# Set up Github
+# Set up Github authentication
 ###############################
-echo; echo-cyan 'Setting up Github ...'; echo-white
-
-if ! gh --version > /dev/null 2>&1; then
-
-	curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null
-
-	sudo apt-add-repository \
-	    "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
-
-	sudo apt update
-
-	sudo apt install gh
-
-fi
+echo; echo-cyan 'Setting up Github authentication ...'; echo-white
 
 if ! gh auth status > /dev/null 2>&1; then
 
@@ -281,64 +357,102 @@ echo; echo-green "Github authentication complete!"; echo-white; echo
 # AWS
 ###############################
 
-echo-cyan 'Installing AWS ...'
+# AWS Configuration
+if [[ "$SKIP_AWS" == "true" ]]; then
+	echo-cyan 'Skipping AWS setup (user choice)'
+	echo
+elif [[ "$GUI_MODE" == "true" ]]; then
+	echo-cyan 'Configuring AWS with GUI-provided settings...'
 
-mkdir -p ~/s3
+	mkdir -p ~/s3
 
-echo-white
+	# Install AWS CLI if not present
+	if ! aws --version > /dev/null 2>&1; then
+		curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" > awscli-bundle.zip
+		7z x awscli-bundle.zip
+		rm -f awscli-bundle.zip
+		sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+		sudo chmod -R o+rx /usr/local/aws-cli/v2/current/dist
+		rm -fR aws
+	fi
 
-if ! aws --version > /dev/null 2>&1; then
+	# Configure AWS with GUI values
+	if [[ -n "$AWS_ACCESS_KEY" && -n "$AWS_SECRET_KEY" ]]; then
+		aws configure set aws_access_key_id "$AWS_ACCESS_KEY"
+		aws configure set aws_secret_access_key "$AWS_SECRET_KEY"
+		aws configure set default.region "$AWS_REGION"
+		aws configure set default.output json
+		
+		# Create s3fs password file
+		echo "$AWS_ACCESS_KEY:$AWS_SECRET_KEY" > ~/.passwd-s3fs
+		chmod 600 ~/.passwd-s3fs
+		
+		echo-cyan "AWS configured with region: $AWS_REGION"
+	fi
+else
+	echo-cyan 'Installing AWS ...'
 
-	curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" > awscli-bundle.zip
+	mkdir -p ~/s3
 
-	7z x awscli-bundle.zip
+	echo-white
 
-	rm -f awscli-bundle.zip
+	if ! aws --version > /dev/null 2>&1; then
 
-	sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+		curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" > awscli-bundle.zip
 
-	# Bug fix
-	sudo chmod -R o+rx /usr/local/aws-cli/v2/current/dist
+		7z x awscli-bundle.zip
 
-	rm -fR aws
+		rm -f awscli-bundle.zip
 
-fi
+		sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
 
-if ! aws configure get default.region > /dev/null; then
+		# Bug fix
+		sudo chmod -R o+rx /usr/local/aws-cli/v2/current/dist
 
-	aws configure set default.region us-east-1
+		rm -fR aws
 
-fi
+	fi
 
-if ! aws configure get default.output > /dev/null; then
+	if ! aws configure get default.region > /dev/null; then
 
-	aws configure set default.output json
+		aws configure set default.region us-east-1
 
-fi
+	fi
 
-aws configure
+	if ! aws configure get default.output > /dev/null; then
 
-if ! [ -f ~/.passwd-s3fs ]; then
+		aws configure set default.output json
 
-	# Extract the AWS access key ID
-	if AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id); then
+	fi
 
-		# Extract the AWS secret access key
-		if AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key); then
+	aws configure
 
-			echo $AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY > ~/.passwd-s3fs
+	if ! [ -f ~/.passwd-s3fs ]; then
 
-			chmod 600 ~/.passwd-s3fs
+		# Extract the AWS access key ID
+		if AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id); then
+
+			# Extract the AWS secret access key
+			if AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key); then
+
+				echo $AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY > ~/.passwd-s3fs
+
+				chmod 600 ~/.passwd-s3fs
+
+			fi
 
 		fi
 
 	fi
-
 fi
 
 echo
 
-aws --version
+if [[ "$GUI_MODE" != "true" ]]; then
+	aws --version
+else
+	echo-cyan 'AWS setup skipped in GUI mode'
+fi
 
 echo
 
@@ -348,90 +462,7 @@ echo-white
 
 
 
-###############################
-# Docker
-###############################
-
-echo-cyan 'Installing Docker ...'
-
-echo-white
-
-for PKG in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do
-
-	if sudo apt-get -y purge $PKG; then true; fi
-
-done
-
-if ! [ -f /etc/apt/sources.list.d/docker.list ]; then
-
-  sudo install -m 0755 -d /etc/apt/keyrings
-
-  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-
-  sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-  echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "$UBUNTU_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-  sudo apt-get update -y -q
-
-fi
-
-sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-echo
-
-docker --version
-
-echo
-
-echo-green "Docker installed!"
-
-echo-white
-
-
-
-###############################
-# NPM / Nodejs
-###############################
-
-echo-cyan 'Installing Node / NPM ...'
-
-echo-white
-
-if ! command -v node > /dev/null 2>&1; then
-
-    # Install nvm (Node Version Manager)
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
-
-    # Explicitly source nvm to make it available in the script
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-    # Install Node.js using nvm
-    nvm install 20
-
-    # Verify Node.js installation
-    node -v
-fi
-
-npm -v
-
-echo; echo-green 'Node / NPM installed!'; echo-white; echo
-
-
-
-###############################
-# Clean up apt get stuff
-###############################
-echo-cyan 'Cleaning up ...'
-
-echo-white
-
-sudo apt-get -y -q autoremove
-
-echo
+# Docker and Node installation handled by platform-specific installers
 
 
 
@@ -444,13 +475,13 @@ echo-white
 
 while read HOST; do
 
-	if ! cat /etc/hosts | grep "$HOST"; then
+	if ! cat /etc/hosts | grep "$HOST" > /dev/null 2>&1; then
 
-		echo "$VPC_SUBNET$HOST" | sudo tee -a /etc/hosts
+		echo "$VPC_SUBNET$HOST" | sudo tee -a /etc/hosts > /dev/null
 
 	fi
 
-done < extras/hosts.txt
+done < extras/hosts.txt 2>/dev/null || true
 
 echo
 
@@ -468,11 +499,20 @@ touch is_installed
 # Start services
 ###############################
 
-cd scripts
-
-source start_services.sh
-
-cd ..
+# Start services
+if [[ "$GUI_MODE" == "true" ]]; then
+	echo-cyan 'Setting up docker group permissions...'
+	# Add user to docker group if not already there
+	sudo usermod -aG docker $USER
+	echo-green 'Docker group configured!'
+	echo-white
+	echo-yellow 'Note: Services can be started from the dashboard after installation'
+	echo-white
+	echo-green 'GUI installation completed successfully!'
+	echo-white
+else
+	source "$DEV_DIR/scripts/start_services.sh"
+fi
 
 
 

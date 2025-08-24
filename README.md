@@ -1,254 +1,386 @@
-# 🚀 CBC Development Environment: Automated Project Setup
+# 🚀 Podium: The Complete PHP Development Platform
 
-Welcome to the CBC Development Environment repository! This collection of scripts provides an automated way to set up and manage projects—whether Laravel, WordPress, or other PHP-based projects—on Ubuntu-based systems. The scripts handle everything from installation to project initialization and service management, ensuring a smooth development experience for users with basic Linux terminal knowledge.
+**One command. Complete development environment. Any PHP project.**
 
-## Quick Start Guide
+Podium is a comprehensive Docker-based development platform that creates professional PHP development environments with complete automation. **Manage multiple projects across different frameworks** - Laravel, WordPress, and generic PHP - all running simultaneously with shared services. Perfect for teams, agencies, and developers who need **easy project access for demos and collaboration**, including LAN access so your boss Frank can check your work from any device on the network.
 
-### 1. Install Git
-Ensure Git is installed before cloning the repository:
+## ✨ What Makes Podium Special
+
+### 🎯 **Complete Turnkey Experience**
+- **One installer** sets up your entire development environment
+- **One command** creates ready-to-code projects  
+- **Zero manual configuration** - everything works out of the box
+- **Cross-platform** - Linux, macOS, Windows (WSL2)
+
+### 🏗️ **Multi-Project Architecture**
+- **Run multiple projects simultaneously** - Laravel, WordPress, PHP all at once
+- **Cross-framework compatibility** - Mix and match project types
+- **Shared services** (MySQL, Redis, phpMyAdmin) serve all projects efficiently
+- **Individual project isolation** with unique ports and containers
+
+### 🌐 **Easy Access for Everyone**
+- **Local development**: `http://project-name` for your work
+- **LAN access**: `http://your-ip:port` for team demos and testing
+- **Mobile testing**: Access projects from phones and tablets on your network
+- **Client presentations**: Show work to stakeholders from any device
+
+## 🎬 Quick Start
+
+### Install Podium
 ```bash
-sudo apt-get update
-sudo apt-get install git
+git clone https://github.com/CaneBayComputers/podium-cli.git
+cd podium-cli
+./scripts/install.sh
 ```
 
-### 2. Clone This Repository
-Clone this repository to your local development environment:
+### Create Your First Project
 ```bash
-git clone https://github.com/CaneBayComputers/cbc-development.git
-cd cbc-development
+./scripts/new_project.sh my-awesome-app
 ```
 
-### 3. Run the Installer
-Navigate to the `scripts` directory:
+### Start Coding! 
 ```bash
-cd scripts
+# Your project is ready at:
+http://my-awesome-app
 ```
 
-Run the `install.sh` script to install essential development tools and set up your environment:
+**You now have a fully configured development environment with:**
+- ✅ Running Laravel/WordPress application
+- ✅ Database configured and connected
+- ✅ Redis caching ready
+- ✅ Email system configured
+- ✅ phpMyAdmin for database management
+- ✅ Professional development tools
+
+## 🛠️ Core Commands
+
+### Project Management
+
+#### Creating New Projects
 ```bash
-./install.sh
+./scripts/new_project.sh <project_name> [organization]
 ```
+- **`<project_name>`**: The name of your new project (required)
+- **`[organization]`**: Optional GitHub organization for repository creation
 
-This script handles the installation of Docker and other necessary dependencies.
+Creates a new Laravel or WordPress project with:
+- Interactive framework selection (Laravel/WordPress)
+- Version selection (Laravel 12.x, 11.x, 10.x or WordPress latest/6.4/6.3)
+- Automatic GitHub repository creation
+- Complete environment configuration
+- Database setup and connection
 
-## Script Overview and Usage
-
-**Note**: Always navigate to the `scripts` directory before running any of the scripts.
-
-### Creating a New Project
-Use the `new_project.sh` script to create a new project:
+#### Cloning Existing Projects
 ```bash
-./new_project.sh <project_name> [organization]
+./scripts/clone_project.sh <repository> [project_name]
 ```
-- **`<project_name>`**: The name of your new project (required).
-- **`[organization]`**: (Optional) Specifies a GitHub organization.
+- **`<repository>`**: The URL of the repository to clone (required)
+- **`[project_name]`**: Optional custom name for the cloned project
 
-### Cloning an Existing Project
-Clone and set up an existing project:
+Clones an existing project and automatically:
+- Downloads the repository
+- Detects project type (Laravel/WordPress/PHP)
+- Configures environment files
+- Sets up database connections
+- Starts the development environment
+
+#### Setting Up Downloaded Projects
 ```bash
-./clone_project.sh <repository> [project_name]
+./scripts/setup_project.sh <project_name>
 ```
-- **`<repository>`**: The URL of the repository to clone (required).
-- **`[project_name]`**: (Optional) Specifies a custom name for the cloned project.
+- **`<project_name>`**: The name of the project directory (required)
 
-### Setting Up a Project
-Set up an already downloaded project:
+Configures an already downloaded project by:
+- Detecting PHP version requirements from composer.json
+- Creating Docker Compose configuration
+- Setting up environment files (.env for Laravel, wp-config.php for WordPress)
+- Creating and configuring project database
+- Running migrations and setup commands
+- Starting the project container
+
+#### Removing Projects Safely
 ```bash
-./setup_project.sh <project_name>
+./scripts/remove_project.sh <project_name>
 ```
-- **`<project_name>`**: The name of the project (required). This script configures the environment files, Docker services, and runs migrations if applicable.
+- **`<project_name>`**: The name of the project to remove (required)
 
-### Removing a Project
-Delete a project and associated entries:
+Safely removes a project by:
+- Moving project directory to system trash (recoverable)
+- Stopping and removing Docker containers
+- Cleaning up database (with confirmation)
+- Removing hosts file entries
+- Cleaning up all project-related configurations
+
+### Service Management
+
+#### Starting Projects
 ```bash
-./remove_project.sh <project_name>
+# Start all projects
+./scripts/startup.sh
+
+# Start specific project
+./scripts/startup.sh <project_name>
 ```
-- **`<project_name>`**: The name of the project (required). This script removes the project directory, any related `iptables` rules, the Docker container, and the `/etc/hosts` entry associated with the project. Optionally, it can also delete the project’s database if confirmed by the user.
+- Starts Docker containers for projects
+- Configures networking and port mapping
+- Makes projects accessible via browser
 
-## Managing Services
-
-### Starting Projects with `startup.sh`
-The `startup.sh` script starts projects that have been stopped or after a system reboot, ensuring the necessary Docker containers are running and accessible.
-
-#### How to Use `startup.sh`
-- **Start All Projects**:
-  ```bash
-  ./startup.sh
-  ```
-  This will start all projects in the `projects` folder and make them accessible in the browser.
-
-- **Start a Specific Project**:
-  ```bash
-  ./startup.sh <project_name>
-  ```
-
-#### Automation on System Startup
-To automatically start all projects when your system is powered on, add the `startup.sh` script to your startup applications:
+#### Stopping Projects
 ```bash
-gnome-terminal -- bash -c "<path to cbc-development>/startup.sh; exec bash"
+# Stop all projects
+./scripts/shutdown.sh
+
+# Stop specific project  
+./scripts/shutdown.sh <project_name>
 ```
+- Gracefully stops Docker containers
+- Cleans up networking configurations
+- Preserves project data and configurations
 
-### Stopping Projects with `shutdown.sh`
-The `shutdown.sh` script stops running Docker containers and removes custom `iptables` rules for your projects.
-
-#### How to Use `shutdown.sh`
-- **Shut Down All Projects**:
-  ```bash
-  ./shutdown.sh
-  ```
-  Stops all Docker containers associated with projects in the `projects` folder and removes custom `iptables` rules.
-
-- **Shut Down a Specific Project**:
-  ```bash
-  ./shutdown.sh <project_name>
-  ```
-
-## Accessing and Checking Project Status
-
-To view project access information, use the `status.sh` script. This script checks if your projects are running and provides URLs for browser access.
-
-### How to Use `status.sh`
-- **Run Without Parameters**:
-  ```bash
-  ./status.sh
-  ```
-  Displays the status of all projects in the `projects` folder.
-
-  **Example Output**:
-  ```text
-  PROJECT: ticket-tracker-pro
-  PROJECT FOLDER: FOUND
-  HOST ENTRY: FOUND
-  DOCKER STATUS: RUNNING
-  IPTABLES RULES: ESTABLISHED
-  LOCAL ACCESS: http://ticket-tracker-pro
-  LAN ACCESS: http://192.168.1.5:135
-  ```
-
-- **Run with a Project Name**:
-  ```bash
-  ./status.sh <project_name>
-  ```
-  Displays the status for the specified project. If issues are detected, the script provides suggestions for resolving them.
-
-### Access Details Explained:
-- **Local Access**: URL for accessing the project from the same computer or within the virtual machine (e.g., `http://<project_name>`).
-- **LAN Access**: URL for accessing the project from other computers on the same network (e.g., `http://<LAN_IP>:<port>`).
-- **WAN Access**: URL for accessing the project from outside the local network (e.g., `http://<WAN_IP>:<port>`), provided the specified port is forwarded to the LAN IP of the machine.
-
-Use `status.sh` to ensure your projects are accessible and running as expected.
-
-## Accessing phpMyAdmin
-To manage your database, navigate to:
-```
-http://cbc-phpmyadmin
-```
-This interface helps you manage your databases easily.
-
-## Important Notes on Project Management
-
-### Setup Considerations
-
-- **Project Directory Location**: All projects are saved to the `projects` folder within the `cbc-development` directory. Projects **cannot be renamed or moved** after installation, as this will break configurations and services.
-- **Automated Configuration**: The `new_project.sh` script is currently designed only for Laravel projects, while `clone_project.sh` supports any PHP project. Both scripts automatically set up the database name, derived from the project name, and add an entry to the `/etc/hosts` file. These configurations are managed by the setup process and should **not be changed manually** to avoid breaking dependencies and expected configurations.
-
-### Using Existing Docker-Compose Files
-- **For Projects with Existing `docker-compose.yml`**: If a Laravel or PHP project already includes its own `docker-compose.yml` file, it’s recommended to follow that project’s original setup and installation instructions rather than using these scripts. Existing Docker configurations may have custom settings, dependencies, or services that differ from the setup provided by `cbc-development`. Using the project’s own setup will help ensure it functions as expected.
-
-### Multiple Installations and VPC Configuration
-- **Unique Networks**: Multiple `cbc-development` setups can run on the same machine, each using a unique `/24` VPC subnet.
-- **Custom VPC Subnet**: To set a unique `10.x.x.x` network:
-  1. Copy `.env.example` to `.env` in the `docker-stack` folder.
-  2. Set the `VPC_SUBNET` (e.g., `10.217.153`) without the D class.
-
-**Example of `.env` Configuration**:
+#### Checking Project Status
 ```bash
-VPC_SUBNET=10.217.153
-STACK_ID=EjpyugOY
+# Check all projects
+./scripts/status.sh
+
+# Check specific project
+./scripts/status.sh <project_name>
+```
+- Displays project status and health
+- Shows access URLs (local and LAN)
+- Provides troubleshooting suggestions if issues detected
+
+## 🔧 Essential Development Tools
+
+### Why Containerized Tools Matter
+
+Podium uses **containerized development tools** that run inside Docker containers instead of on your host system. This is **crucial for professional PHP development** because:
+
+#### **🎯 Consistent Environment**
+- **Same PHP version** across all team members
+- **Identical extensions** and configurations  
+- **No "works on my machine" problems**
+- **Perfect for team collaboration**
+
+#### **🔄 Proper Dependencies**
+- **Composer runs with correct PHP version** - ensures packages install correctly
+- **WP-CLI uses container's WordPress environment** - commands work reliably  
+- **Artisan uses container's Laravel setup** - migrations and commands execute properly
+- **No host system conflicts** - your system PHP doesn't interfere
+
+#### **🚀 Professional Workflow Benefits**
+- **Switch between PHP versions** per project without system changes
+- **Clean host system** - no PHP version conflicts or extension issues
+- **Portable environments** - same setup works on any developer's machine
+- **Production parity** - development matches server environment
+
+### Core Development Commands
+```bash
+# Composer (runs inside container with correct PHP environment)
+composer-docker install
+composer-docker require laravel/sanctum
+composer-docker update
+
+# Laravel Artisan (runs inside container)
+art-docker migrate
+art-docker make:controller UserController
+art-docker tinker
+art-docker queue:work
+
+# WordPress CLI (runs inside container)  
+wp-docker plugin list
+wp-docker user create john john@example.com --role=administrator
+wp-docker db export backup.sql
+
+# PHP (runs inside container)
+php-docker -v
+php-docker script.php
 ```
 
-## Sending Emails
-Configure Exim for sending emails using Amazon SES or Gmail as an SMTP relay. The configuration should be done in the `.env` file.
+### Enhanced Laravel Workflows
+```bash
+# Database refresh with seeding
+art-docker-db-refresh
 
-### Amazon SES Configuration
-1. **Set Up Amazon SES**: [Guide](https://aws.amazon.com/ses/getting-started/)
-2. **Generate SMTP Credentials**: [Instructions](https://docs.aws.amazon.com/ses/latest/dg/smtp-credentials.html)
-3. **Add to `.env`**:
-   ```bash
-   # Amazon SES Configuration
-   EXIM_SMARTHOST="email-smtp.<region>.amazonaws.com:587"
-   EXIM_PASSWORD="*.amazonaws.com:<SMTP_USERNAME>:<SMTP_PASSWORD>"
-   ```
+# Clear all Laravel caches
+art-docker-refresh
+```
 
-### Gmail Configuration
-1. **App Passwords Required**: Enable 2-Step Verification and create an [App Password](https://support.google.com/accounts/answer/185833?hl=en).
-2. **Add to `.env`**:
-   ```bash
-   # Gmail Configuration
-   EXIM_SMARTHOST="smtp.gmail.com:587"
-   EXIM_PASSWORD="*.google.com:yourAccount@gmail.com:<APP_PASSWORD>"
-   ```
+### Service Management
+```bash
+# Redis CLI access
+redis-docker
+redis-flushall
 
-**Note**: Using Gmail for SMTP relay now requires OAuth 2.0 for third-party applications.
+# Direct container access
+dockerexec my-project bash
+dockerexec-root my-project bash
+```
 
-## Helper Commands
+### Container Execution Helpers
+```bash
+# Execute commands in project container
+dockerexec my-project bash
 
-During the installation process, the `install.sh` script adds a set of helper commands to your `.bash_aliases` file in your home directory. These commands are known as **aliases**, which are shortcuts to longer commands that simplify everyday tasks. Below are some of the most useful aliases included and how they can be used:
+# Execute as root (for system tasks)
+dockerexec-root my-project apt-get install something
 
-### Key Aliases and Their Uses
+# Execute as developer (for application tasks)
+dockerexec-developer my-project composer install
+```
 
-1. **Project-Specific Commands**:
-   - **`art-docker`**: Runs Laravel Artisan commands inside the Docker container. Before using this command, navigate to the project directory you want to work on.
-     ```bash
-     cd ~/projects/my-laravel-project
-     art-docker migrate
-     ```
-   - **`composer-docker`**: Runs Composer commands inside the Docker container, allowing you to manage PHP dependencies for your project.
-     ```bash
-     cd ~/projects/my-laravel-project
-     composer-docker install
-     ```
+## 🌐 Multi-Project Development
 
-2. **Git Workflow Shortcuts**:
-   - **`gquick`**: Stages all new and modified files, commits them with a user-provided message, and pushes to the current branch. This is perfect for quick fixes and updates.
-     ```bash
-     cd ~/projects/my-project
-     gquick
-     # Follow the prompt to input your commit message
-     ```
+Podium excels at **managing multiple projects simultaneously across different frameworks**:
 
-3. **System and Command Enhancements**:
-   - **`sudo` Aliases**: Many commands like `apt-get`, `ifconfig`, `iptables`, and `mount` are aliased to automatically include `sudo`, saving you from manually typing it each time.
-     ```bash
-     apt-get update    # Runs as `sudo apt-get update`
-     iptables -L       # Runs as `sudo iptables -L`
-     ```
+```bash
+# Create multiple projects of different types
+./scripts/new_project.sh client-website    # WordPress
+./scripts/new_project.sh api-backend       # Laravel  
+./scripts/new_project.sh legacy-app        # PHP
 
-4. **Terminal Customization**:
-   - Change the color of your terminal text for better readability or emphasis using these aliases:
-     ```bash
-     echo-red "This is a warning message"
-     echo-green "Operation successful"
-     echo-blue "Informational message"
-     ```
+# All running simultaneously:
+# http://client-website     (WordPress)
+# http://api-backend        (Laravel)  
+# http://legacy-app         (PHP)
+```
 
-5. **Mounting S3 Buckets**:
-   - **`mount-bucket`**: Quickly mounts an Amazon S3 bucket to your local filesystem. It prompts for the bucket name and creates a directory under `~/s3/` to mount it.
-     ```bash
-     mount-bucket
-     # Enter the bucket name when prompted
-     ```
+**Shared services** (MySQL, Redis, phpMyAdmin) serve all projects efficiently while maintaining complete isolation between projects.
 
-6. **WAN IP Display**:
-   - **`whatismyip`**: Displays your current WAN (external) IP address. This is useful for verifying external access and is also used in the `status.sh` script for WAN access checks.
-     ```bash
-     whatismyip
-     ```
+## 🔍 Project Status and Access
 
-7. **Viewing or Modifying Aliases**:
-   - **`bash_aliases`**: Will open your `~/.bash_aliases` file in an editor and reload any chages upon exiting.
-     ```bash
-     bash_aliases
-     ```
+### Status Display Example:
+```text
+PROJECT: my-laravel-app
+PROJECT FOLDER: ✅ FOUND
+HOST ENTRY: ✅ FOUND  
+DOCKER STATUS: ✅ RUNNING
+DOCKER PORT MAPPING: ✅ MAPPED
+LOCAL ACCESS: http://my-laravel-app
+LAN ACCESS: http://192.168.1.100:8123
+```
 
-These aliases are designed to make your workflow smoother and faster, allowing you to focus more on your projects and less on repetitive terminal commands.
+### Access Your Projects:
+- **Local Development**: `http://project-name` 
+- **LAN Testing**: `http://YOUR-IP:PORT` - Perfect for showing Frank your progress from his phone or computer
+- **Database Management**: `http://podium-phpmyadmin`
+
+## 🏗️ Architecture Overview
+
+### Shared Services (One Stack for All Projects)
+- **MariaDB**: Database server for all projects
+- **Redis**: Caching and sessions
+- **phpMyAdmin**: Database management interface  
+- **Memcached**: Additional caching layer
+- **Exim4**: Email delivery system
+
+### Per-Project Containers
+Each project gets its own optimized container:
+- **Custom Docker Image**: Pre-built with PHP, Nginx, Composer, WP-CLI
+- **Automatic Configuration**: Ready-to-use environment
+- **Port Mapping**: Unique port for LAN access
+- **Volume Mounting**: Live code editing
+
+## 🌍 Cross-Platform Support
+
+### Linux (Ubuntu/Debian)
+```bash
+./scripts/install.sh  # Installs Docker, Git, Node.js, development tools
+```
+
+### macOS
+```bash
+./scripts/install.sh  # Installs via Homebrew: Docker Desktop, Git, development tools
+```
+
+### Windows
+```bash
+# Via WSL2 Ubuntu
+./scripts/install.sh  # Same as Linux installation
+```
+
+## 📁 Project Structure
+
+```
+podium-cli/
+├── docker-stack/           # Shared services (MySQL, Redis, etc.)
+│   ├── docker-compose.yaml
+│   └── .env
+├── projects/               # Your development projects
+│   ├── my-laravel-app/
+│   ├── client-website/
+│   └── api-backend/
+├── scripts/                # Core Podium scripts
+│   ├── install.sh         # Environment installer
+│   ├── new_project.sh     # Project creator
+│   ├── setup_project.sh   # Project configurator
+│   └── functions.sh       # Internal functions
+└── extras/
+    └── .podium_aliases    # Optional development aliases
+```
+
+## 🎯 Perfect For
+
+### Laravel Developers
+- **Multiple Laravel versions** (12.x, 11.x LTS, 10.x)
+- **Instant setup** with database, Redis, email
+- **Proper containerized tools** (Composer, Artisan)
+- **Multi-project workflows**
+
+### WordPress Developers  
+- **Latest WordPress** or specific versions
+- **Automatic database setup**
+- **WP-CLI ready** in containers
+- **Development-optimized** configuration
+
+### PHP Teams
+- **Consistent environments** across team members
+- **Easy project sharing** and onboarding
+- **Professional development workflow**
+- **Docker-based isolation**
+
+### Agencies and Freelancers
+- **Quick client demos** via LAN access
+- **Multiple client projects** running simultaneously  
+- **Professional presentation** capabilities
+- **Easy stakeholder access** from any device
+
+## 🚀 Advanced Features
+
+### Automatic Project Setup
+- **Smart PHP version detection** from composer.json
+- **Database creation** and configuration
+- **Environment file generation** (.env for Laravel, wp-config.php for WordPress)
+- **Hosts file management** for local domains
+- **Port assignment** and networking
+
+### Development Optimization
+- **Redis caching** configured automatically
+- **Email testing** with Exim4
+- **File permissions** handled correctly
+- **Cross-platform compatibility** built-in
+
+### Safety Features
+- **Trash integration** (projects moved to trash, not deleted)
+- **Confirmation prompts** for destructive operations
+- **Non-invasive installation** (minimal system changes)
+- **Isolated environments** (no conflicts between projects)
+
+## 💡 Why Use Podium?
+
+### The Problem with Traditional PHP Development
+- **Environment inconsistencies** between developers
+- **Complex multi-container Docker setups** that are slow and resource-heavy
+- **Manual configuration** for each new project
+- **Host system pollution** with multiple PHP versions and tools
+- **Difficult project sharing** and team onboarding
+
+### The Podium Solution
+- **Single command installation** sets up everything
+- **Optimized single-container architecture** that's fast and efficient
+- **Automatic project configuration** with zero manual setup
+- **Clean containerized tools** that don't affect your host system
+- **Instant project access** for demos and collaboration
+
+---
+
+*Podium: Professional PHP development made simple.* 🎭

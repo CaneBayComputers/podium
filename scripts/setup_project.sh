@@ -2,7 +2,6 @@
 
 set -e
 
-shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
@@ -12,15 +11,11 @@ cd ..
 
 DEV_DIR=$(pwd)
 
-source extras/.bash_aliases
+source scripts/functions.sh
 
 
 # Pre check to make sure development is installed
-cd scripts
-
-source pre_check.sh
-
-cd ..
+source "$DEV_DIR/scripts/pre_check.sh"
 
 
 # Env vars
@@ -62,19 +57,11 @@ fi
 
 
 # Start micro services
-cd scripts
-
-source start_services.sh
-
-cd ..
+source "$DEV_DIR/scripts/start_services.sh"
 
 
 # Shutdown project in case it is running
-cd scripts
-
-source shutdown.sh $PROJECT_NAME
-
-cd ..
+source "$DEV_DIR/scripts/shutdown.sh" $PROJECT_NAME
 
 
 # Enter into project and get PHP version
@@ -123,7 +110,7 @@ while true; do
 
     if ! [[ -z $HOST_LINE ]]; then
 
-        sudo sed -i "${HOST_LINE}d" /etc/hosts
+        sudo podium-sed "${HOST_LINE}d" /etc/hosts
 
     else
 
@@ -145,21 +132,23 @@ unalias cp
 
 cp -f ../../extras/docker-compose.example.yaml docker-compose.yaml
 
-sed -i "s/IPV4_ADDRESS/$IP_ADDRESS/g" docker-compose.yaml
+podium-sed "s/IPV4_ADDRESS/$IP_ADDRESS/g" docker-compose.yaml
 
-sed -i "s/CONTAINER_NAME/$PROJECT_NAME/g" docker-compose.yaml
+podium-sed "s/CONTAINER_NAME/$PROJECT_NAME/g" docker-compose.yaml
 
-sed -i "s/STACK_ID/$STACK_ID/g" docker-compose.yaml
+podium-sed "s/STACK_ID/$STACK_ID/g" docker-compose.yaml
 
-sed -i "s/PHP_VERSION/$PHP_VERSION/g" docker-compose.yaml
+podium-sed "s/PHP_VERSION/$PHP_VERSION/g" docker-compose.yaml
+
+podium-sed "s/PROJECT_PORT/$D_CLASS/g" docker-compose.yaml
 
 if [ -d "public" ]; then
 
-    sed -i "s/PUBLIC//g" docker-compose.yaml
+    podium-sed "s/PUBLIC//g" docker-compose.yaml
 
 else
 
-    sed -i "s/PUBLIC/\/public/g" docker-compose.yaml
+    podium-sed "s/PUBLIC/\/public/g" docker-compose.yaml
 
 fi
 
@@ -167,11 +156,7 @@ cd ../..
 
 
 # Start Docker instance
-cd scripts
-
-source startup.sh --no-status $PROJECT_NAME
-
-cd ..
+source "$DEV_DIR/scripts/startup.sh" --no-status $PROJECT_NAME
 
 
 # Install Composer libraries
@@ -201,22 +186,22 @@ if [ -f ".env.example" ]; then
 
     APP_KEY="base64:$(head -c 32 /dev/urandom | base64)"
 
-    sed -i "/^#*\s*APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
-    sed -i "/^#*\s*APP_KEY=/c\APP_KEY=$APP_KEY" .env
-    sed -i "/^#*\s*APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
-    sed -i "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
-    sed -i "/^#*\s*DB_HOST=/c\DB_HOST=mariadb" .env
-    sed -i "/^#*\s*DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
-    sed -i "/^#*\s*CACHE_DRIVER=/c\CACHE_DRIVER=redis" .env
-    sed -i "/^#*\s*SESSION_DRIVER=/c\SESSION_DRIVER=redis" .env
-    sed -i "/^#*\s*QUEUE_CONNECTION=/c\QUEUE_CONNECTION=redis" .env
-    sed -i "/^#*\s*CACHE_STORE=/c\CACHE_STORE=redis" .env
-    sed -i "/^#*\s*CACHE_PREFIX=/c\CACHE_PREFIX=$PROJECT_NAME" .env
-    sed -i "/^#*\s*MEMCACHED_HOST=/c\MEMCACHED_HOST=memcached" .env
-    sed -i "/^#*\s*REDIS_HOST=/c\REDIS_HOST=redis" .env
-    sed -i "/^#*\s*MAIL_MAILER=/c\MAIL_MAILER=smtp" .env
-    sed -i "/^#*\s*MAIL_HOST=/c\MAIL_HOST=exim4" .env
-    sed -i "/^#*\s*MAIL_PORT=/c\MAIL_PORT=25" .env
+    podium-sed "/^#*\s*APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
+    podium-sed "/^#*\s*APP_KEY=/c\APP_KEY=$APP_KEY" .env
+    podium-sed "/^#*\s*APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
+    podium-sed "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
+    podium-sed "/^#*\s*DB_HOST=/c\DB_HOST=mariadb" .env
+    podium-sed "/^#*\s*DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
+    podium-sed "/^#*\s*CACHE_DRIVER=/c\CACHE_DRIVER=redis" .env
+    podium-sed "/^#*\s*SESSION_DRIVER=/c\SESSION_DRIVER=redis" .env
+    podium-sed "/^#*\s*QUEUE_CONNECTION=/c\QUEUE_CONNECTION=redis" .env
+    podium-sed "/^#*\s*CACHE_STORE=/c\CACHE_STORE=redis" .env
+    podium-sed "/^#*\s*CACHE_PREFIX=/c\CACHE_PREFIX=$PROJECT_NAME" .env
+    podium-sed "/^#*\s*MEMCACHED_HOST=/c\MEMCACHED_HOST=memcached" .env
+    podium-sed "/^#*\s*REDIS_HOST=/c\REDIS_HOST=redis" .env
+    podium-sed "/^#*\s*MAIL_MAILER=/c\MAIL_MAILER=smtp" .env
+    podium-sed "/^#*\s*MAIL_HOST=/c\MAIL_HOST=exim4" .env
+    podium-sed "/^#*\s*MAIL_PORT=/c\MAIL_PORT=25" .env
     echo "" >> .env
     echo "XDG_CONFIG_HOME=/usr/share/nginx/html/storage/app" >> .env
 
@@ -227,31 +212,52 @@ elif [ -f "config.example.inc.php" ]; then
 
     cp -f config.example.inc.php config.inc.php
 
-    sed -i "s/DB_HOSTNAME/mariadb/" config.inc.php
-    sed -i "s/DB_USERNAME/root/" config.inc.php
-    sed -i "s/DB_PASSWORD//" config.inc.php
-    sed -i "s/DB_NAME/$PROJECT_NAME_SNAKE/" config.inc.php
+    podium-sed "s/DB_HOSTNAME/mariadb/" config.inc.php
+    podium-sed "s/DB_USERNAME/root/" config.inc.php
+    podium-sed "s/DB_PASSWORD//" config.inc.php
+    podium-sed "s/DB_NAME/$PROJECT_NAME_SNAKE/" config.inc.php
 
 # Install wp-config file
 elif [ -f "wp-config-sample.php" ]; then
 
-    if ! wp --version > /dev/null 2>&1; then
+    echo-cyan "Configuring WordPress for containerized setup..."
+    
+    # Create wp-config.php with database connection
+    cat > wp-config.php << EOF
+<?php
+define('DB_NAME', '$PROJECT_NAME_SNAKE');
+define('DB_USER', 'root');
+define('DB_PASSWORD', '');
+define('DB_HOST', 'mariadb');
+define('DB_CHARSET', 'utf8mb4');
+define('DB_COLLATE', '');
 
-        curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+define('AUTH_KEY',         '$(openssl rand -base64 32)');
+define('SECURE_AUTH_KEY',  '$(openssl rand -base64 32)');
+define('LOGGED_IN_KEY',    '$(openssl rand -base64 32)');
+define('NONCE_KEY',        '$(openssl rand -base64 32)');
+define('AUTH_SALT',        '$(openssl rand -base64 32)');
+define('SECURE_AUTH_SALT', '$(openssl rand -base64 32)');
+define('LOGGED_IN_SALT',   '$(openssl rand -base64 32)');
+define('NONCE_SALT',       '$(openssl rand -base64 32)');
 
-        chmod +x wp-cli.phar
+\$table_prefix = 'wp_';
 
-        sudo mv wp-cli.phar /usr/local/bin/wp
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+define('WP_DEBUG_DISPLAY', false);
 
-    fi
+if ( ! defined( 'ABSPATH' ) ) {
+    define( 'ABSPATH', __DIR__ . '/' );
+}
 
-    wp --version
-
-    if ! wp core is-installed > /dev/null 2>&1; then
-
-        wp config create --dbname="$PROJECT_NAME_SNAKE" --dbuser="root" --dbpass="" --dbhost="mariadb" --force
-
-    fi
+require_once ABSPATH . 'wp-settings.php';
+EOF
+    
+    echo-green "WordPress configuration created!"
+    echo-white
+    echo-cyan "WordPress will be automatically set up when the container starts."
+    echo-white "After setup completes, visit http://$PROJECT_NAME to complete the WordPress installation."
 
 fi
 
@@ -316,9 +322,7 @@ echo; echo
 
 
 # Show status of running Docker project
-cd ../../scripts
-
-source status.sh $PROJECT_NAME
+source "$DEV_DIR/scripts/status.sh" $PROJECT_NAME
 
 
 # Return to original directory

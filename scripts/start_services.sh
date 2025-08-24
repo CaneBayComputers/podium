@@ -2,7 +2,6 @@
 
 set -e
 
-shopt -s expand_aliases
 
 ORIG_DIR=$(pwd)
 
@@ -12,17 +11,13 @@ cd ..
 
 DEV_DIR=$(pwd)
 
-source extras/.bash_aliases
+source scripts/functions.sh
 
 echo; echo
 
 
 # Main
-cd scripts
-
-source pre_check.sh
-
-cd ..
+source "$DEV_DIR/scripts/pre_check.sh"
 
 
 # Start CBC stack
