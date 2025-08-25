@@ -42,10 +42,10 @@ chown -R root:root /usr/local/share/podium-cli
 chmod -R 755 /usr/local/share/podium-cli
 chmod +x /usr/local/share/podium-cli/scripts/*.sh
 
-# Run the full installation automatically
+# Run full installation but skip package installation (already handled by .deb)
 echo "Running Podium environment setup..."
 cd /usr/local/share/podium-cli
-./scripts/install.sh --gui-mode --skip-aws
+./scripts/install.sh --gui-mode --skip-aws --skip-packages
 
 echo ""
 echo "🎉 Podium CLI has been installed and configured successfully!"

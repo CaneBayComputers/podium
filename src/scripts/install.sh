@@ -23,6 +23,7 @@ AWS_REGION="us-east-1"
 SKIP_AWS=false
 DATABASE_ENGINE=""
 PROJECTS_DIR=""
+SKIP_PACKAGES=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -61,6 +62,10 @@ while [[ $# -gt 0 ]]; do
         --projects-dir)
             PROJECTS_DIR="$2"
             shift 2
+            ;;
+        --skip-packages)
+            SKIP_PACKAGES=true
+            shift
             ;;
         *)
             shift
@@ -298,8 +303,14 @@ installer to enter in new info when you have it."
 # Platform-specific package installation
 ###############################
 
-# Call the platform-specific package installation function
-install_packages
+# Skip package installation if installed via .deb (packages already handled)
+if [[ "$SKIP_PACKAGES" != "true" ]]; then
+    # Call the platform-specific package installation function
+    install_packages
+else
+    echo-cyan "Skipping package installation (already handled by package manager)"
+    echo-white
+fi
 
 
 

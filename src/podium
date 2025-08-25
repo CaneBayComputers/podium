@@ -49,6 +49,7 @@ show_help() {
     echo "  podium remove <project>   - Remove project"
     echo
     echo-white "SYSTEM MANAGEMENT:"
+    echo "  podium install-docker     - Install Docker (if not already installed)"
     echo "  podium start-services     - Start shared services"
     echo "  podium stop-services      - Stop shared services"
     echo "  podium config projects <path> - Set custom projects directory"
@@ -243,6 +244,17 @@ case "$1" in
         ;;
     
     # System management
+    "install-docker")
+        echo-cyan "Installing Docker..."
+        echo-white "This will install Docker CE from the official Docker repository"
+        echo-white
+        read -p "Continue? (y/n): " CONFIRM
+        if [[ "$CONFIRM" == "y" ]]; then
+            "$SCRIPT_DIR/scripts/install-linux-packages.sh"
+        else
+            echo-yellow "Docker installation cancelled"
+        fi
+        ;;
     "install")
         "$SCRIPT_DIR/scripts/install.sh" "${@:2}"
         ;;
