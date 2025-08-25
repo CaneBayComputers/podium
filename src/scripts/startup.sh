@@ -6,6 +6,9 @@
 set -e
 
 
+# Store the current directory (should be projects directory)
+PROJECTS_DIR=$(pwd)
+
 cd $(dirname "$(realpath "$0")")
 
 cd ..
@@ -14,9 +17,11 @@ DEV_DIR=$(pwd)
 
 source scripts/functions.sh
 
-
 # Env vars
 source docker-stack/.env
+
+# Return to projects directory for project operations
+cd "$PROJECTS_DIR"
 
 
 # Vars
@@ -84,6 +89,9 @@ if ! [ -z "$PROJECT_NAME" ]; then
 
 else
 
+  # Ensure we're in the projects directory before iterating
+  cd "$(get_projects_dir)"
+  
   for PROJECT_FOLDER_NAME in *; do
 
     if start_project $PROJECT_FOLDER_NAME; then true; fi

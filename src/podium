@@ -237,10 +237,10 @@ case "$1" in
         ;;
     "clone")
         if [ -z "$2" ]; then
-            echo-red "Usage: podium clone <repository-url>"
+            echo-red "Usage: podium clone <repository-url> [project-name]"
             exit 1
         fi
-        "$SCRIPT_DIR/scripts/clone_project.sh" "$2"
+        "$SCRIPT_DIR/scripts/clone_project.sh" "${@:2}"
         ;;
     "remove")
         if [ -z "$2" ]; then

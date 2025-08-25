@@ -57,6 +57,28 @@ dockerexec() { docker container exec -it "$@"; }
 dockerls() { docker container ls "$@"; }
 dockerrm() { docker container rm "$@"; }
 
+# Project-specific Docker commands (run inside project containers)
+composer-docker() { 
+    local project_name="$(basename "$(pwd)")"
+    if [ -t 0 ]; then
+        # Interactive mode (TTY available)
+        docker container exec -it --user "$(id -u):$(id -g)" --workdir /usr/share/nginx/html "$project_name" composer "$@"
+    else
+        # Non-interactive mode (no TTY, for scripts)
+        docker container exec --user "$(id -u):$(id -g)" --workdir /usr/share/nginx/html "$project_name" composer "$@"
+    fi
+}
+art-docker() { 
+    local project_name="$(basename "$(pwd)")"
+    if [ -t 0 ]; then
+        # Interactive mode (TTY available)
+        docker container exec -it --user "$(id -u):$(id -g)" --workdir /usr/share/nginx/html "$project_name" php artisan "$@"
+    else
+        # Non-interactive mode (no TTY, for scripts)
+        docker container exec --user "$(id -u):$(id -g)" --workdir /usr/share/nginx/html "$project_name" php artisan "$@"
+    fi
+}
+
 # Check if services are running
 check-mariadb() { [ "$(docker ps -q -f name=mariadb)" ] && return 0 || return 1; }
 check-phpmyadmin() { [ "$(docker ps -q -f name=phpmyadmin)" ] && return 0 || return 1; }

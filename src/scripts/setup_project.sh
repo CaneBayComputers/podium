@@ -59,7 +59,9 @@ fi
 # Assign arguments to variables
 PROJECT_NAME=$1
 
-PROJECT_DIR="projects/$PROJECT_NAME"
+# Use the configured projects directory
+PROJECTS_DIR=$(get_projects_dir)
+PROJECT_DIR="$PROJECTS_DIR/$PROJECT_NAME"
 
 
 # Check for project folder existence
@@ -126,7 +128,7 @@ while true; do
 
     if ! [[ -z $HOST_LINE ]]; then
 
-        sudo podium-sed "${HOST_LINE}d" /etc/hosts
+        sudo sed -i "${HOST_LINE}d" /etc/hosts
 
     else
 
@@ -144,9 +146,11 @@ echo
 
 
 # Set up Docker compose file
-unalias cp
+unalias cp 2>/dev/null || true
 
-cp -f ../../docker-stack/docker-compose.project.yaml docker-compose.yaml
+# Use absolute path to docker-stack directory
+PODIUM_DIR="$DEV_DIR"
+cp -f "$PODIUM_DIR/docker-stack/docker-compose.project.yaml" docker-compose.yaml
 
 podium-sed "s/IPV4_ADDRESS/$IP_ADDRESS/g" docker-compose.yaml
 
@@ -168,11 +172,22 @@ else
 
 fi
 
-cd ../..
-
-
+# Stay in project directory for Docker operations
 # Start Docker instance
-source "$DEV_DIR/scripts/startup.sh" --no-status $PROJECT_NAME
+echo; echo-cyan "Starting up $PROJECT_NAME ..."; echo-white
+
+if ! [ -f docker-compose.yaml ]; then
+    echo-red 'No docker-compose.yaml file found!'
+    echo-white 'Project setup incomplete. Exiting.'
+    exit 1
+fi
+
+# Start the container
+dockerup
+
+sleep 5
+
+echo-green "Project $PROJECT_NAME started successfully!"
 
 
 # Install Composer libraries
@@ -192,7 +207,7 @@ fi
 
 
 # Install and setup .env file
-unalias cp
+unalias cp 2>/dev/null || true
 
 if [ -f ".env.example" ]; then
 

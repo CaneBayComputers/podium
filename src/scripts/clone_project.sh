@@ -61,7 +61,9 @@ PROJECT_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | 
 # Clone repository
 echo
 
-cd projects
+# Navigate to the configured projects directory
+PROJECTS_DIR=$(get_projects_dir)
+cd "$PROJECTS_DIR"
 
 if [ -d "$PROJECT_NAME" ]; then
 

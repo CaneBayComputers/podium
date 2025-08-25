@@ -23,7 +23,7 @@ if [ -z "$1" ]; then
 fi
 
 PROJECT_NAME=$1
-PROJECT_DIR="$DEV_DIR/projects/$PROJECT_NAME"
+PROJECT_DIR="$(get_projects_dir)/$PROJECT_NAME"
 HOSTS_FILE="/etc/hosts"
 
 # Confirm with the user before proceeding
@@ -81,7 +81,7 @@ fi
 echo-cyan "Removing hosts file entry for the project..."
 echo-white
 if grep -q " $PROJECT_NAME\$" "$HOSTS_FILE"; then
-    sudo podium-sed "/ $PROJECT_NAME\$/d" "$HOSTS_FILE"
+    sudo sed -i "/ $PROJECT_NAME\$/d" "$HOSTS_FILE"
     echo-green "Hosts file entry removed."
     echo-white
 else

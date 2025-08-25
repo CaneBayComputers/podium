@@ -70,11 +70,9 @@ if [ ! -f docker-stack/.env ]; then
     sed -i "s/#STACK_ID=.*/STACK_ID=$STACK_ID/" docker-stack/.env
 fi
 
-# Set up Docker Compose services file (always use clean MariaDB template)
-echo "Configuring MariaDB as default database..."
-# Use the clean MariaDB-only template (overwrite existing)
-cp docker-stack/docker-compose.mariadb.yaml docker-stack/docker-compose.yaml
-# Replace STACK_ID placeholder
+# Configure the main docker-compose.yaml for shared services
+echo "Configuring shared services..."
+# Replace STACK_ID placeholder in the main docker-compose.yaml
 STACK_ID=$(grep "^STACK_ID=" docker-stack/.env | cut -d'=' -f2)
 sed -i "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
 
@@ -121,6 +119,8 @@ touch is_installed
 if [ "$SUDO_USER" != "" ] && [ "$SUDO_USER" != "root" ]; then
     chown -R "$SUDO_USER:$SUDO_USER" docker-stack/.env
     chown "$SUDO_USER:$SUDO_USER" is_installed
+    # Make docker-stack directory writable for project setup
+    chown -R "$SUDO_USER:$SUDO_USER" docker-stack/
 fi
 
 echo "✅ Basic configuration completed!"
