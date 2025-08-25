@@ -35,18 +35,17 @@ Podium is a comprehensive Docker-based development platform that creates profess
 
 ### Option 1: Command Line Installation
 ```bash
-git clone https://github.com/CaneBayComputers/cbc-development.git
-cd cbc-development/src
+git clone https://github.com/CaneBayComputers/podium-cli.git
+cd podium-cli/src
 ./scripts/install.sh
 ```
 
 ### Option 2: GUI Installation
 ```bash
-# Download and run the GUI installer
-git clone https://github.com/CaneBayComputers/podium-gui.git
-cd podium-gui
-npm install
-npm start
+# Download the AppImage (coming soon)
+wget https://github.com/CaneBayComputers/podium-gui/releases/latest/download/Podium.AppImage
+chmod +x Podium.AppImage
+./Podium.AppImage
 ```
 
 ### Create Your First Project
@@ -64,7 +63,6 @@ http://your-project-name
 - ✅ Running Laravel/WordPress application
 - ✅ Database configured and connected
 - ✅ Redis caching ready
-- ✅ Email system configured
 - ✅ phpMyAdmin for database management
 - ✅ Professional development tools
 
@@ -263,11 +261,13 @@ podium help
 
 ### Installation
 ```bash
-# Clone and run the GUI
-git clone https://github.com/CaneBayComputers/podium-gui.git
-cd podium-gui
-npm install
-npm start
+# Download AppImage (Linux)
+wget https://github.com/CaneBayComputers/podium-gui/releases/latest/download/Podium.AppImage
+chmod +x Podium.AppImage
+./Podium.AppImage
+
+# Or download from releases page for Windows/macOS
+# https://github.com/CaneBayComputers/podium-gui/releases
 ```
 
 ### GUI Features
@@ -319,7 +319,6 @@ LAN ACCESS: http://192.168.1.100:8123
 - **Redis**: Caching and sessions
 - **phpMyAdmin**: Database management interface  
 - **Memcached**: Additional caching layer
-- **Exim4**: Email delivery system
 
 ### Per-Project Containers
 Each project gets its own optimized container:
@@ -391,7 +390,7 @@ cbc-development/
 
 ### Laravel Developers
 - **Multiple Laravel versions** (11.x LTS, 10.x)
-- **Instant setup** with database, Redis, email
+- **Instant setup** with database, Redis, caching
 - **Proper containerized tools** (Composer, Artisan)
 - **Multi-project workflows**
 
@@ -424,7 +423,6 @@ cbc-development/
 
 ### Development Optimization
 - **Redis caching** configured automatically
-- **Email testing** with Exim4
 - **File permissions** handled correctly
 - **Cross-platform compatibility** built-in
 
@@ -467,8 +465,8 @@ sudo dpkg -i podium-cli.deb
 
 ### Manual Installation
 ```bash
-git clone https://github.com/CaneBayComputers/cbc-development.git
-cd cbc-development/src
+git clone https://github.com/CaneBayComputers/podium-cli.git
+cd podium-cli/src
 ./scripts/install.sh
 ```
 
