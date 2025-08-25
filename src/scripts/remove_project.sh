@@ -81,7 +81,7 @@ fi
 echo-cyan "Removing hosts file entry for the project..."
 echo-white
 if grep -q " $PROJECT_NAME\$" "$HOSTS_FILE"; then
-    sudo sed -i "/ $PROJECT_NAME\$/d" "$HOSTS_FILE"
+    sudo-podium-sed "/ $PROJECT_NAME\$/d" "$HOSTS_FILE"
     echo-green "Hosts file entry removed."
     echo-white
 else

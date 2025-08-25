@@ -128,7 +128,7 @@ while true; do
 
     if ! [[ -z $HOST_LINE ]]; then
 
-        sudo sed -i "${HOST_LINE}d" /etc/hosts
+        sudo-podium-sed "${HOST_LINE}d" /etc/hosts
 
     else
 

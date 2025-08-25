@@ -96,6 +96,15 @@ podium-sed() {
     fi
 }
 
+# Cross-platform sudo sed function
+sudo-podium-sed() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sudo sed -i '' "$@"
+    else
+        sudo sed -i "$@"
+    fi
+}
+
 # Safe sudo function (doesn't override user's sudo)
 podium-sudo() {
     if command -v sudo >/dev/null 2>&1; then
