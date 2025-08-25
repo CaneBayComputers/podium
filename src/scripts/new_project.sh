@@ -11,10 +11,10 @@ cd ..
 
 DEV_DIR=$(pwd)
 
+source scripts/functions.sh
+
 # Get projects directory
 PROJECTS_DIR="$(get_projects_dir)"
-
-source scripts/functions.sh
 
 # Main
 source "$DEV_DIR/scripts/pre_check.sh"
@@ -28,17 +28,25 @@ usage() {
 }
 
 
-# Check if repository argument is provided
+# Interactive mode if no project name provided
 if [ -z "$1" ]; then
-    echo "Error: Project name is required."
-    usage
+    echo; echo-cyan "🚀 Create a New Podium Project"
+    echo
+    echo-white -n "Enter project name: "
+    read PROJECT_NAME
+    
+    if [ -z "$PROJECT_NAME" ]; then
+        echo-red "Project name cannot be empty!"
+        exit 1
+    fi
+    
+    echo-white -n "Enter organization name (optional): "
+    read ORGANIZATION
+else
+    # Assign arguments to variables
+    PROJECT_NAME=$1
+    ORGANIZATION=${2:-}
 fi
-
-
-# Assign arguments to variables
-PROJECT_NAME=$1
-
-ORGANIZATION=${2:-}
 
 
 # Convert to lowercase, replace spaces with dashes, and remove non-alphanumeric characters

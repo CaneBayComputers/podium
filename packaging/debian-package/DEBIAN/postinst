@@ -117,6 +117,12 @@ fi
 # Create the is_installed marker file
 touch is_installed
 
+# Fix permissions so users can modify configuration
+if [ "$SUDO_USER" != "" ] && [ "$SUDO_USER" != "root" ]; then
+    chown -R "$SUDO_USER:$SUDO_USER" docker-stack/.env
+    chown "$SUDO_USER:$SUDO_USER" is_installed
+fi
+
 echo "✅ Basic configuration completed!"
 echo ""
 echo "📋 Next steps:"
