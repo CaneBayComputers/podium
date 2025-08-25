@@ -47,9 +47,42 @@ services:
       STACK_ID_vpc:
         ipv4_address: "${VPC_SUBNET}.7"
 
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    expose:
+      - "27017"
+    volumes:
+      - STACK_ID_mongo_data:/data/db
+    networks:
+      STACK_ID_vpc:
+        ipv4_address: "${VPC_SUBNET}.4"
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    expose:
+      - "5432"
+    volumes:
+      - STACK_ID_postgres_data:/var/lib/postgresql/data
+    networks:
+      STACK_ID_vpc:
+        ipv4_address: "${VPC_SUBNET}.6"
+
 volumes:
   STACK_ID_redis_data:
   STACK_ID_mysql_data:
+  STACK_ID_mongo_data:
+  STACK_ID_postgres_data:
 
 networks:
   STACK_ID_vpc:

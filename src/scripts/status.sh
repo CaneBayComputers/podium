@@ -35,88 +35,108 @@ HOSTS=$(cat /etc/hosts)
 
 
 # Functions
-project_status() {
+get_service_status() {
+    local service_name="$1"
+    if docker ps --format "table {{.Names}}" | grep -q "$service_name"; then
+        echo "running"
+    else
+        echo "stopped"
+    fi
+}
 
+get_project_status() {
+    local proj_name="$1"
+    local project_data="{}"
+    
+    # Project folder check
+    if [ -d "$proj_name" ]; then
+        project_data=$(echo "$project_data" | jq --arg name "$proj_name" '. + {name: $name, folder_exists: true}')
+    else
+        project_data=$(echo "$project_data" | jq --arg name "$proj_name" '. + {name: $name, folder_exists: false}')
+    fi
+    
+    # Host entry check
+    if HOST_ENTRY=$(printf "%s\n" "$HOSTS" | grep " $proj_name$"); then
+        EXT_PORT=$(echo $HOST_ENTRY | cut -d'.' -f 4 | cut -d' ' -f 1)
+        project_data=$(echo "$project_data" | jq --arg port "$EXT_PORT" '. + {host_entry: true, external_port: $port}')
+    else
+        project_data=$(echo "$project_data" | jq '. + {host_entry: false, external_port: null}')
+    fi
+    
+    # Docker status check
+    if [ "$(docker ps -q -f name=$proj_name)" ]; then
+        project_data=$(echo "$project_data" | jq '. + {docker_running: true}')
+        
+        # Port mapping check (only if running)
+        if docker port "$proj_name" 80/tcp > /dev/null 2>&1; then
+            project_data=$(echo "$project_data" | jq '. + {port_mapped: true}')
+        else
+            project_data=$(echo "$project_data" | jq '. + {port_mapped: false}')
+        fi
+    else
+        project_data=$(echo "$project_data" | jq '. + {docker_running: false, port_mapped: false}')
+    fi
+    
+    # URLs
+    if [ -n "$HOST_ENTRY" ]; then
+        project_data=$(echo "$project_data" | jq --arg local "http://$proj_name" --arg lan "http://$LAN_IP:$EXT_PORT" '. + {local_url: $local, lan_url: $lan}')
+    else
+        project_data=$(echo "$project_data" | jq '. + {local_url: null, lan_url: null}')
+    fi
+    
+    echo "$project_data"
+}
+
+project_status() {
   PROJ_NAME=$1
 
+  if [[ "$JSON_OUTPUT" == "1" ]]; then
+    # JSON output is handled in main section
+    return 0
+  fi
 
   echo -n PROJECT:
-
   echo-yellow " $PROJ_NAME"
 
-
   echo-white -n PROJECT FOLDER:
-
   if ! [ -d "$PROJ_NAME" ]; then
-
     echo-red " NOT FOUND"
-
     echo-white -n SUGGESTION:; echo-yellow " Check spelling or clone repo"
-
     return 1
-
   else
-
     echo-green " FOUND"
-
   fi
-
 
   echo-white -n HOST ENTRY: 
-
   if ! HOST_ENTRY=$(printf "%s\n" "$HOSTS" | grep " $PROJ_NAME$"); then
-
     echo-red " NOT FOUND"
-
     echo-white -n SUGGESTION:; echo-yellow " Run: setup_project.sh $PROJ_NAME"
-
     return 1
-
   else
-
     echo-green " FOUND"
-
   fi
-
 
   echo-white -n DOCKER STATUS:
-
   if ! [ "$(docker ps -q -f name=$PROJ_NAME)" ]; then
-
     echo-red " NOT RUNNING"
-
     echo-white -n SUGGESTION:; echo-yellow " Run startup.sh script"
-
     return 1
-
   else
-
     echo-green " RUNNING"
-
   fi
 
-
   echo-white -n DOCKER PORT MAPPING:
-
   EXT_PORT=$(echo $HOST_ENTRY | cut -d'.' -f 4 | cut -d' ' -f 1)
-
   # Check if Docker container has port mapping
   if ! docker port "$PROJ_NAME" 80/tcp > /dev/null 2>&1; then
-
     echo-red " NOT MAPPED"
-
     echo-white -n SUGGESTION:; echo-yellow " Run shutdown.sh then startup.sh script"
-
     return 1
-
   else
-
     echo-green " MAPPED"
-
   fi
 
   echo-white -n LOCAL ACCESS:; echo-yellow " http://$PROJ_NAME"
-
   echo-white -n LAN ACCESS:; echo-yellow " http://$LAN_IP:$EXT_PORT"
 }
 
@@ -134,11 +154,11 @@ fi
 
 
 # Check if this environment is installed
-if ! [ -f is_installed ]; then
+if ! [ -f docker-stack/.env ]; then
 
-  echo; echo-red 'Development environment has not been installed!'; echo-white
+  echo; echo-red 'Development environment has not been configured!'; echo-white
 
-  echo 'Run install.sh'
+  echo 'Run: podium config'
 
   exit 1
 
@@ -157,40 +177,108 @@ if ! check-mariadb; then
 fi
 
 
-# Show shared services status first
+# Handle JSON output
+if [[ "$JSON_OUTPUT" == "1" ]]; then
+    # Collect all data first
+    JSON_DATA='{"shared_services": {}, "projects": []}'
+    
+    # Get shared services status
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'mariadb')" '.shared_services.mariadb = {name: "MariaDB", status: $status}')
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'phpmyadmin')" '.shared_services.phpmyadmin = {name: "phpMyAdmin", status: $status}')
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'redis')" '.shared_services.redis = {name: "Redis", status: $status}')
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'memcached')" '.shared_services.memcached = {name: "Memcached", status: $status}')
+    
+    # Get projects directory and iterate through projects
+    PROJECTS_DIR=$(get_projects_dir)
+    cd "$PROJECTS_DIR"
+    
+    if ! [ -z "$PROJECT_NAME" ]; then
+        # Single project requested
+        if [ -d "$PROJECT_NAME" ]; then
+            PROJECT_JSON=$(get_project_status "$PROJECT_NAME")
+            JSON_DATA=$(echo "$JSON_DATA" | jq --argjson project "$PROJECT_JSON" '.projects += [$project]')
+        fi
+    else
+        # All projects
+        for item in *; do
+            if [ -d "$item" ] && [ "$item" != "." ] && [ "$item" != ".." ]; then
+                PROJECT_JSON=$(get_project_status "$item")
+                JSON_DATA=$(echo "$JSON_DATA" | jq --argjson project "$PROJECT_JSON" '.projects += [$project]')
+            fi
+        done
+    fi
+    
+    # Output JSON
+    echo "$JSON_DATA"
+    exit 0
+fi
+
+# Traditional text output
 echo-cyan "SHARED SERVICES STATUS:"
 echo
 
 # Check MariaDB
 echo-white -n "MariaDB: "
 if docker ps --format "table {{.Names}}" | grep -q "mariadb"; then
-    echo-green "✅ RUNNING"
+    if [[ "$NO_COLOR" != "1" ]]; then
+        echo-green "✅ RUNNING"
+    else
+        echo-green "RUNNING"
+    fi
 else
-    echo-red "❌ STOPPED"
+    if [[ "$NO_COLOR" != "1" ]]; then
+        echo-red "❌ STOPPED"
+    else
+        echo-red "STOPPED"
+    fi
 fi
 
 # Check phpMyAdmin
 echo-white -n "phpMyAdmin: "
 if docker ps --format "table {{.Names}}" | grep -q "phpmyadmin"; then
-    echo-green "✅ RUNNING"
+    if [[ "$NO_COLOR" != "1" ]]; then
+        echo-green "✅ RUNNING"
+    else
+        echo-green "RUNNING"
+    fi
 else
-    echo-red "❌ STOPPED"
+    if [[ "$NO_COLOR" != "1" ]]; then
+        echo-red "❌ STOPPED"
+    else
+        echo-red "STOPPED"
+    fi
 fi
 
 # Check Redis
 echo-white -n "Redis: "
 if docker ps --format "table {{.Names}}" | grep -q "redis"; then
-    echo-green "✅ RUNNING"
+    if [[ "$NO_COLOR" != "1" ]]; then
+        echo-green "✅ RUNNING"
+    else
+        echo-green "RUNNING"
+    fi
 else
-    echo-red "❌ STOPPED"
+    if [[ "$NO_COLOR" != "1" ]]; then
+        echo-red "❌ STOPPED"
+    else
+        echo-red "STOPPED"
+    fi
 fi
 
 # Check Memcached
 echo-white -n "Memcached: "
 if docker ps --format "table {{.Names}}" | grep -q "memcached"; then
-    echo-green "✅ RUNNING"
+    if [[ "$NO_COLOR" != "1" ]]; then
+        echo-green "✅ RUNNING"
+    else
+        echo-green "RUNNING"
+    fi
 else
-    echo-red "❌ STOPPED"
+    if [[ "$NO_COLOR" != "1" ]]; then
+        echo-red "❌ STOPPED"
+    else
+        echo-red "STOPPED"
+    fi
 fi
 
 divider
@@ -228,8 +316,6 @@ else
         done
     fi
 fi
-
-read -n 1 -r -s -p $'Press enter to continue...\n'
 
 echo; echo
 

@@ -17,6 +17,26 @@ SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" && pwd)"
 # Source functions
 source "$SCRIPT_DIR/scripts/functions.sh"
 
+# Check for --no-coloring flag and set NO_COLOR environment variable
+for arg in "$@"; do
+    if [[ "$arg" == "--no-coloring" ]]; then
+        export NO_COLOR=1
+        # Remove --no-coloring from arguments
+        set -- "${@/$arg}"
+        break
+    fi
+done
+
+# Check for --json-output flag and set JSON_OUTPUT environment variable
+for arg in "$@"; do
+    if [[ "$arg" == "--json-output" ]]; then
+        export JSON_OUTPUT=1
+        # Remove --json-output from arguments
+        set -- "${@/$arg}"
+        break
+    fi
+done
+
 # Initialize projects directory
 init_projects_dir
 
@@ -56,7 +76,7 @@ show_help() {
     echo "  podium remove <project>   - Remove project"
     echo
     echo-white "SYSTEM MANAGEMENT:"
-    echo "  podium install-docker     - Install Docker (if not already installed)"
+    echo "  podium config             - Configure Podium environment"
     echo "  podium start-services     - Start shared services"
     echo "  podium stop-services      - Stop shared services"
     echo "  podium config projects <path> - Set custom projects directory"
@@ -251,19 +271,8 @@ case "$1" in
         ;;
     
     # System management
-    "install-docker")
-        echo-cyan "Installing Docker..."
-        echo-white "This will install Docker CE from the official Docker repository"
-        echo-white
-        read -p "Continue? (y/n): " CONFIRM
-        if [[ "$CONFIRM" == "y" ]]; then
-            "$SCRIPT_DIR/scripts/install-linux-packages.sh"
-        else
-            echo-yellow "Docker installation cancelled"
-        fi
-        ;;
-    "install")
-        "$SCRIPT_DIR/scripts/install.sh" "${@:2}"
+    "config")
+        "$SCRIPT_DIR/scripts/configure.sh" "${@:2}"
         ;;
     "start-services")
         "$SCRIPT_DIR/scripts/start_services.sh"

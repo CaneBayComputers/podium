@@ -2,14 +2,18 @@
 
 set -e
 
+# Store current working directory (should be projects directory)
+PROJECTS_DIR=$(pwd)
 
-cd $(dirname "$(realpath "$0")")
-
-cd ..
-
+# Get the CLI directory for sourcing functions
+CLI_DIR=$(dirname "$(realpath "$0")")
+cd "$CLI_DIR/.."
 DEV_DIR=$(pwd)
 
 source scripts/functions.sh
+
+# Return to projects directory
+cd "$PROJECTS_DIR"
 
 echo; echo
 
@@ -27,9 +31,9 @@ fi
 
 shutdown_container() {
 
-	CONTAINER_NAME=$1
+        CONTAINER_NAME=$1
 
-	REPO_DIR=projects/$CONTAINER_NAME;
+        REPO_DIR=$CONTAINER_NAME;
 
   if [ -d "$REPO_DIR" ]; then
 
@@ -73,8 +77,6 @@ fi
 
 
 # Docker handles all networking automatically - no iptables cleanup needed
-echo; echo-green "Docker containers shut down successfully!"; echo-white; echo
-
 
 # Shut down Docker containers
 if [ -z "$PROJECT_NAME" ]; then
@@ -87,23 +89,25 @@ if [ -z "$PROJECT_NAME" ]; then
 
 	done
 
-	if check-mariadb; then
+	        if check-mariadb; then
 
-		echo; echo-cyan "Shutting down services ..."; echo-white; echo
+                echo; echo-cyan "Shutting down services ..."; echo-white; echo
 
-		cd docker-stack
+                cd "$DEV_DIR/docker-stack"
 
-	  dockerdown
+          dockerdown
 
-	  echo-green "Successfully shut down services!"; echo-white; echo
+          echo-green "Successfully shut down services!"; echo-white; echo
 
-	  cd ..
+          cd "$PROJECTS_DIR"
 
-	fi
+        fi
 
 else
 
-	shutdown_container $PROJECT_NAME
+        shutdown_container $PROJECT_NAME
 
 fi
+
+echo; echo-green "Docker containers shut down successfully!"; echo-white; echo
 

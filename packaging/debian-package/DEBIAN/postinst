@@ -3,7 +3,7 @@ set -e
 
 # Post-installation script for Podium CLI
 
-echo "Setting up Podium development environment..."
+echo "Installing Podium CLI..."
 
 # Create symlink to make podium command available
 if [ ! -L /usr/local/bin/podium ]; then
@@ -34,113 +34,19 @@ else
     systemctl start docker.service || echo "Note: Could not start Docker service"
 fi
 
-# Create projects directory in the installation location
-mkdir -p /usr/local/share/podium-cli/projects
-
 # Set proper permissions
 chown -R root:root /usr/local/share/podium-cli
 chmod -R 755 /usr/local/share/podium-cli
 chmod +x /usr/local/share/podium-cli/scripts/*.sh
 
-# Set HOME if not set (common issue during package installation)
-if [ -z "$HOME" ]; then
-    if [ "$SUDO_USER" != "" ] && [ "$SUDO_USER" != "root" ]; then
-        export HOME="/home/$SUDO_USER"
-    else
-        export HOME="/root"
-    fi
-fi
-
-# Run minimal configuration setup (skip interactive parts)
-echo "Running Podium environment setup..."
-cd /usr/local/share/podium-cli
-
-# Create docker-stack/.env if it doesn't exist
-if [ ! -f docker-stack/.env ]; then
-    cp docker-stack/env.example docker-stack/.env
-    
-    # Generate random network configuration
-    STACK_ID=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
-    B_CLASS=$((RANDOM % 255 + 1))
-    C_CLASS=$((RANDOM % 256))
-    VPC_SUBNET="10.$B_CLASS.$C_CLASS"
-    
-    # Update .env file
-    sed -i "s/#VPC_SUBNET=.*/VPC_SUBNET=$VPC_SUBNET/" docker-stack/.env
-    sed -i "s/#STACK_ID=.*/STACK_ID=$STACK_ID/" docker-stack/.env
-fi
-
-# Configure the main docker-compose.yaml for shared services
-echo "Configuring shared services..."
-# Replace STACK_ID placeholder in the main docker-compose.yaml
-STACK_ID=$(grep "^STACK_ID=" docker-stack/.env | cut -d'=' -f2)
-sed -i "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
-
-# Set basic Git config only if not already set (non-interactive)
-if ! git config --global user.name > /dev/null 2>&1; then
-    git config --global user.name "Podium User"
-fi
-if ! git config --global user.email > /dev/null 2>&1; then
-    git config --global user.email "user@localhost"
-fi
-
-# Set other Git defaults
-git config --global mergetool.keepBackup false 2>/dev/null || true
-git config --global init.defaultBranch main 2>/dev/null || true
-git config --global pull.rebase false 2>/dev/null || true
-
-# Set up hosts file entries for services
-echo "Setting up hosts file entries..."
-VPC_SUBNET=$(grep "^VPC_SUBNET=" docker-stack/.env | cut -d'=' -f2)
-if [ -n "$VPC_SUBNET" ]; then
-    HOSTS_ENTRIES=(
-        "$VPC_SUBNET.2        mariadb"
-        "$VPC_SUBNET.3        phpmyadmin" 
-        "$VPC_SUBNET.4        mongo"
-        "$VPC_SUBNET.5        redis"
-        "$VPC_SUBNET.6        postgres"
-        "$VPC_SUBNET.7        memcached"
-    )
-    
-    for HOST in "${HOSTS_ENTRIES[@]}"; do
-        if ! grep -q "$(echo "$HOST" | awk '{print $2}')" /etc/hosts; then
-            echo "$HOST" >> /etc/hosts
-        fi
-    done
-    echo "✅ Hosts file updated with service entries"
-else
-    echo "⚠️  Could not read VPC_SUBNET from .env file"
-fi
-
-# Create the is_installed marker file
-touch is_installed
-
-# Fix permissions so users can modify configuration
-if [ "$SUDO_USER" != "" ] && [ "$SUDO_USER" != "root" ]; then
-    chown -R "$SUDO_USER:$SUDO_USER" docker-stack/.env
-    chown "$SUDO_USER:$SUDO_USER" is_installed
-    # Make docker-stack directory writable for project setup
-    chown -R "$SUDO_USER:$SUDO_USER" docker-stack/
-fi
-
-echo "✅ Basic configuration completed!"
+echo "✅ Podium CLI installed successfully!"
 echo ""
-echo "📋 Next steps:"
-echo "   1. Configure Git: git config --global user.name 'Your Name'"
-echo "   2. Configure Git: git config --global user.email 'your@email.com'"
-echo "   3. Set up GitHub: gh auth login"
-echo "   4. Start services: podium start-services"
-echo "   5. Create project: podium new"
-
+echo "🚀 Next steps:"
+echo "   1. Log out and back in (or run: newgrp docker)"
+echo "   2. Run: podium config"
+echo "   3. Create your first project: podium new"
 echo ""
-echo "🎉 Podium CLI has been installed and configured successfully!"
-echo ""
-echo "To get started:"
-echo "  1. Log out and back in (or run: newgrp docker)"
-echo "  2. Run: podium help"
-echo "  3. Create your first project: podium new"
-echo ""
-echo "For more information, visit: https://github.com/CaneBayComputers/podium-cli"
+echo "📖 Documentation: https://github.com/CaneBayComputers/podium-cli"
 echo ""
 
 exit 0

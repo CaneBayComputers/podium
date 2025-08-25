@@ -21,7 +21,6 @@ AWS_ACCESS_KEY=""
 AWS_SECRET_KEY=""
 AWS_REGION="us-east-1"
 SKIP_AWS=false
-DATABASE_ENGINE=""
 PROJECTS_DIR=""
 SKIP_PACKAGES=false
 
@@ -55,10 +54,6 @@ while [[ $# -gt 0 ]]; do
             SKIP_AWS=true
             shift
             ;;
-        --database)
-            DATABASE_ENGINE="$2"
-            shift 2
-            ;;
         --projects-dir)
             PROJECTS_DIR="$2"
             shift 2
@@ -73,13 +68,11 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Detect platform and load appropriate package installer
+# Detect platform
 if [[ "$OSTYPE" == "darwin"* ]]; then
     PLATFORM="mac"
-    source scripts/install-mac-packages.sh
 else
     PLATFORM="linux"
-    source scripts/install-linux-packages.sh
 fi
 
 
@@ -109,29 +102,6 @@ else
 fi
 
 
-# Database engine selection
-if [ -z "$DATABASE_ENGINE" ] && [ "$GUI_MODE" != "true" ]; then
-	echo
-	echo-cyan "Choose your database engine:"
-	echo-white "1) MariaDB (default - MySQL compatible, recommended)"
-	echo-white "2) PostgreSQL (advanced features, JSON support)"  
-	echo-white "3) MongoDB (document database, NoSQL)"
-	echo
-	read -p "Enter your choice (1-3) [1]: " DB_CHOICE
-	
-	case $DB_CHOICE in
-		2) DATABASE_ENGINE="postgresql" ;;
-		3) DATABASE_ENGINE="mongodb" ;;
-		*) DATABASE_ENGINE="mariadb" ;;
-	esac
-elif [ -z "$DATABASE_ENGINE" ]; then
-	# Default for GUI mode (will be overridden by GUI)
-	DATABASE_ENGINE="mariadb"
-fi
-
-echo-cyan "Selected database engine: $DATABASE_ENGINE"
-echo-white
-
 # Check for and set up docker compose yaml
 if ! [ -f docker-stack/docker-compose.yaml ]; then
 
@@ -145,36 +115,8 @@ if ! [ -f docker-stack/docker-compose.yaml ]; then
 	# Cross-platform sed for docker-compose.yaml
 	podium-sed "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
 	
-	# Configure selected database engine by commenting out unused services
-	case $DATABASE_ENGINE in
-		"postgresql")
-			echo-cyan "Configuring PostgreSQL as primary database..."
-			# Comment out MySQL/MariaDB and MongoDB services
-			podium-sed '/^  mysql:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
-			podium-sed '/^  mongo:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
-			# Comment out unused volumes
-			podium-sed 's/^  STACK_ID_mysql_data:/#  STACK_ID_mysql_data:/' docker-stack/docker-compose.yaml
-			podium-sed 's/^  STACK_ID_mongo_data:/#  STACK_ID_mongo_data:/' docker-stack/docker-compose.yaml
-			;;
-		"mongodb")
-			echo-cyan "Configuring MongoDB as primary database..."
-			# Comment out MySQL/MariaDB and PostgreSQL services
-			podium-sed '/^  mysql:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
-			podium-sed '/^  postgres:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
-			# Comment out unused volumes
-			podium-sed 's/^  STACK_ID_mysql_data:/#  STACK_ID_mysql_data:/' docker-stack/docker-compose.yaml
-			podium-sed 's/^  STACK_ID_postgres_data:/#  STACK_ID_postgres_data:/' docker-stack/docker-compose.yaml
-			;;
-		*)
-			echo-cyan "Configuring MariaDB as primary database..."
-			# Comment out PostgreSQL and MongoDB services (keep MySQL/MariaDB)
-			podium-sed '/^  postgres:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
-			podium-sed '/^  mongo:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
-			# Comment out unused volumes
-			podium-sed 's/^  STACK_ID_postgres_data:/#  STACK_ID_postgres_data:/' docker-stack/docker-compose.yaml
-			podium-sed 's/^  STACK_ID_mongo_data:/#  STACK_ID_mongo_data:/' docker-stack/docker-compose.yaml
-			;;
-	esac
+	echo-cyan "All database services (MariaDB, PostgreSQL, MongoDB) will be available"
+	echo-white "Database selection happens per-project during project creation"
 
 fi
 
@@ -303,14 +245,9 @@ installer to enter in new info when you have it."
 # Platform-specific package installation
 ###############################
 
-# Skip package installation if installed via .deb (packages already handled)
-if [[ "$SKIP_PACKAGES" != "true" ]]; then
-    # Call the platform-specific package installation function
-    install_packages
-else
-    echo-cyan "Skipping package installation (already handled by package manager)"
-    echo-white
-fi
+# Package installation is now handled by package managers (.deb dependencies or Homebrew)
+echo-cyan "Package installation handled by package manager (.deb dependencies or Homebrew)"
+echo-white
 
 
 
@@ -563,7 +500,7 @@ echo
 # Yay all done
 ###############################
 
-touch is_installed
+# Configuration complete - docker-stack/.env exists
 
 
 

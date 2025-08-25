@@ -23,12 +23,12 @@ if [[ "$(whoami)" == "root" ]]; then
 fi
 
 
-# Check if this environment is installed
-if ! [ -f is_installed ]; then
+# Check if this environment is configured
+if ! [ -f docker-stack/.env ]; then
 
-  echo; echo-red 'Development environment has not been installed!'; echo-white
+  echo; echo-red 'Development environment has not been configured!'; echo-white
 
-  echo 'Run install.sh'
+  echo 'Run: podium config'
 
   exit 0
 

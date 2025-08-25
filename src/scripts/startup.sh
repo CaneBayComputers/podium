@@ -79,9 +79,11 @@ start_project() {
 # Main
 source "$DEV_DIR/scripts/start_services.sh"
 
+# Ensure we're back in the projects directory after sourcing other scripts
+cd "$(get_projects_dir)"
 
 # Start projects either just one by name or all in the projects directory
-# Note: We're already in the projects directory (set by podium command)
+# Note: We're in the projects directory
 
 if ! [ -z "$PROJECT_NAME" ]; then
 

@@ -1,6 +1,3 @@
-.env
-is_installed
-
 # Build artifacts
 packaging/podium-cli_*.deb
 packaging/podium-cli_*_all/

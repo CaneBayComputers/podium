@@ -42,13 +42,13 @@ init_projects_dir() {
 }
 
 # Color output functions
-echo-red() { tput setaf 1 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
-echo-green() { tput setaf 2 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
-echo-yellow() { tput setaf 3 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
-echo-blue() { tput setaf 4 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
-echo-magenta() { tput setaf 5 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
-echo-cyan() { tput setaf 6 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
-echo-white() { tput setaf 7 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
+echo-red() { if [[ "$NO_COLOR" != "1" ]]; then tput setaf 1 2>/dev/null; fi; echo "$@"; if [[ "$NO_COLOR" != "1" ]]; then tput sgr0 2>/dev/null; fi; }
+echo-green() { if [[ "$NO_COLOR" != "1" ]]; then tput setaf 2 2>/dev/null; fi; echo "$@"; if [[ "$NO_COLOR" != "1" ]]; then tput sgr0 2>/dev/null; fi; }
+echo-yellow() { if [[ "$NO_COLOR" != "1" ]]; then tput setaf 3 2>/dev/null; fi; echo "$@"; if [[ "$NO_COLOR" != "1" ]]; then tput sgr0 2>/dev/null; fi; }
+echo-blue() { if [[ "$NO_COLOR" != "1" ]]; then tput setaf 4 2>/dev/null; fi; echo "$@"; if [[ "$NO_COLOR" != "1" ]]; then tput sgr0 2>/dev/null; fi; }
+echo-magenta() { if [[ "$NO_COLOR" != "1" ]]; then tput setaf 5 2>/dev/null; fi; echo "$@"; if [[ "$NO_COLOR" != "1" ]]; then tput sgr0 2>/dev/null; fi; }
+echo-cyan() { if [[ "$NO_COLOR" != "1" ]]; then tput setaf 6 2>/dev/null; fi; echo "$@"; if [[ "$NO_COLOR" != "1" ]]; then tput sgr0 2>/dev/null; fi; }
+echo-white() { if [[ "$NO_COLOR" != "1" ]]; then tput setaf 7 2>/dev/null; fi; echo "$@"; if [[ "$NO_COLOR" != "1" ]]; then tput sgr0 2>/dev/null; fi; }
 
 # Docker aliases used by scripts (keep these for internal script usage)
 dockerup() { docker compose up -d "$@"; }

@@ -10,6 +10,13 @@ class PodiumCli < Formula
   depends_on "git"
   depends_on "curl"
   depends_on "jq"
+  depends_on "python@3.12"
+  depends_on "mysql-client"
+  depends_on "unzip"
+  depends_on "p7zip"
+  depends_on "trash"
+  depends_on "node" => :recommended
+  depends_on "npm" => :recommended
 
   def install
     # Install all source files to the prefix
@@ -19,13 +26,13 @@ class PodiumCli < Formula
     bin.install_symlink prefix/"src/podium"
     
     # Make scripts executable
-    chmod 0755, prefix/"src/scripts/install.sh"
+    chmod 0755, prefix/"src/scripts/configure.sh"
     chmod 0755, prefix/"src/podium"
   end
 
   def post_install
-    # Run the installation script in GUI mode (non-interactive)
-    system "#{prefix}/src/scripts/install.sh", "--gui-mode", "--skip-aws"
+    # Run the configuration script in GUI mode (non-interactive)
+    system "#{prefix}/src/scripts/configure.sh", "--gui-mode", "--skip-aws", "--skip-packages"
     
     ohai "Podium CLI installed successfully!"
     puts ""
