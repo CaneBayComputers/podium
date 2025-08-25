@@ -22,6 +22,7 @@ AWS_SECRET_KEY=""
 AWS_REGION="us-east-1"
 SKIP_AWS=false
 DATABASE_ENGINE=""
+PROJECTS_DIR=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -57,6 +58,10 @@ while [[ $# -gt 0 ]]; do
             DATABASE_ENGINE="$2"
             shift 2
             ;;
+        --projects-dir)
+            PROJECTS_DIR="$2"
+            shift 2
+            ;;
         *)
             shift
             ;;
@@ -80,7 +85,7 @@ STACK_ID=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
 # Check for and set up environment variables
 if ! [ -f docker-stack/.env ]; then
 
-	cp docker-stack/.env.example docker-stack/.env
+	cp docker-stack/env.example docker-stack/.env
 
 	# Generate random numbers for B and C classes
 	B_CLASS=$((RANDOM % 255 + 1))
@@ -127,6 +132,11 @@ if ! [ -f docker-stack/docker-compose.yaml ]; then
 
 	 cp docker-stack/docker-compose.services.yaml docker-stack/docker-compose.yaml
 
+	# Set projects directory if specified
+	if [ -n "$PROJECTS_DIR" ]; then
+		podium-sed "/^#PROJECTS_DIR=/c\PROJECTS_DIR=$PROJECTS_DIR" docker-stack/.env
+	fi
+	
 	# Cross-platform sed for docker-compose.yaml
 	podium-sed "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
 	

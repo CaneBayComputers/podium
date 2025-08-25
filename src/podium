@@ -49,10 +49,9 @@ show_help() {
     echo "  podium remove <project>   - Remove project"
     echo
     echo-white "SYSTEM MANAGEMENT:"
-    echo "  podium install            - Install/setup development environment"
     echo "  podium start-services     - Start shared services"
     echo "  podium stop-services      - Stop shared services"
-    echo "  podium config projects <path> - Set projects directory location"
+    echo "  podium config projects <path> - Set custom projects directory"
     echo
     echo-white "EXAMPLES:"
     echo "  podium composer install"
@@ -262,8 +261,20 @@ case "$1" in
                     echo-cyan "Current projects directory: $(get_projects_dir)"
                     echo-white "To change: podium config projects /path/to/projects"
                 else
+                    # Update docker-stack/.env (preferred method)
+                    if [ -f "$SCRIPT_DIR/docker-stack/.env" ]; then
+                        # Update existing PROJECTS_DIR line or add it
+                        if grep -q "^PROJECTS_DIR=" "$SCRIPT_DIR/docker-stack/.env"; then
+                            podium-sed "s|^PROJECTS_DIR=.*|PROJECTS_DIR=$3|" "$SCRIPT_DIR/docker-stack/.env"
+                        else
+                            echo "PROJECTS_DIR=$3" >> "$SCRIPT_DIR/docker-stack/.env"
+                        fi
+                    fi
+                    
+                    # Also update legacy config for backward compatibility
                     mkdir -p ~/.podium
                     echo "PROJECTS_DIR=$3" > ~/.podium/config
+                    
                     echo-green "Projects directory set to: $3"
                     init_projects_dir
                 fi

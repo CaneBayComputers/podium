@@ -4,7 +4,22 @@
 
 # Get the projects directory (configurable)
 get_projects_dir() {
-    # Check if user has configured a custom projects directory
+    # Get the directory where this script is located
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local podium_root="$(dirname "$script_dir")"
+    
+    # First check docker-stack/.env file (preferred method)
+    if [ -f "$podium_root/docker-stack/.env" ]; then
+        PROJECTS_DIR=$(grep "^PROJECTS_DIR=" "$podium_root/docker-stack/.env" 2>/dev/null | cut -d'=' -f2)
+        if [ -n "$PROJECTS_DIR" ]; then
+            # Expand tilde to home directory
+            PROJECTS_DIR="${PROJECTS_DIR/#\~/$HOME}"
+            echo "$PROJECTS_DIR"
+            return
+        fi
+    fi
+    
+    # Fallback to legacy ~/.podium/config for backward compatibility
     if [ -f ~/.podium/config ]; then
         PROJECTS_DIR=$(grep "^PROJECTS_DIR=" ~/.podium/config | cut -d'=' -f2)
         if [ -n "$PROJECTS_DIR" ]; then
