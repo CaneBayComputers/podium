@@ -1,0 +1,22 @@
+Package: podium-cli
+Version: 1.0.0
+Section: devel
+Priority: optional
+Architecture: all
+Depends: docker.io, git, curl
+Maintainer: Cane Bay Computers <info@canecomputers.com>
+Description: Universal PHP Development Environment
+ Podium is a comprehensive Docker-based development platform that creates
+ professional PHP development environments with complete automation.
+ .
+ Manage multiple projects across different frameworks - Laravel, WordPress,
+ and generic PHP - all running simultaneously with shared services.
+ .
+ Features:
+  * One-command project creation
+  * Cross-framework compatibility (Laravel, WordPress, PHP)
+  * Shared services (MySQL, Redis, phpMyAdmin)
+  * LAN access for team collaboration
+  * Containerized development tools
+  * Cross-platform support (Linux, macOS)
+Homepage: https://github.com/CaneBayComputers/podium-cli

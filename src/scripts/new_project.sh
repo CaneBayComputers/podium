@@ -11,6 +11,9 @@ cd ..
 
 DEV_DIR=$(pwd)
 
+# Get projects directory
+PROJECTS_DIR="$(get_projects_dir)"
+
 source scripts/functions.sh
 
 # Main
@@ -129,7 +132,7 @@ echo; echo
 
 
 # Set project name
-cd projects
+cd "$PROJECTS_DIR"
 
 if [ -d "$PROJECT_NAME" ]; then
 

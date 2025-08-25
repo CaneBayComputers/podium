@@ -1,6 +1,0 @@
-.2        mariadb
-.3        phpmyadmin
-.4        mongo
-.5        redis
-.6        exim4
-.7        memcached

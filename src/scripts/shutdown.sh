@@ -3,8 +3,6 @@
 set -e
 
 
-ORIG_DIR=$(pwd)
-
 cd $(dirname "$(realpath "$0")")
 
 cd ..
@@ -109,4 +107,3 @@ else
 
 fi
 
-cd $ORIG_DIR

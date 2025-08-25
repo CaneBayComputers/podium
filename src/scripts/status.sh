@@ -3,8 +3,6 @@
 set -e
 
 
-ORIG_DIR=$(pwd)
-
 cd $(dirname "$(realpath "$0")")
 
 cd ..
@@ -186,4 +184,3 @@ read -n 1 -r -s -p $'Press enter to continue...\n'
 
 echo; echo
 
-cd $ORIG_DIR

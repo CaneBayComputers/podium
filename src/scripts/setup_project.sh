@@ -21,6 +21,22 @@ source "$DEV_DIR/scripts/pre_check.sh"
 # Env vars
 source docker-stack/.env
 
+# Detect active database engine from docker-compose services
+detect_database_engine() {
+    if [ -f "docker-stack/docker-compose.yaml" ]; then
+        if grep -q "^  postgres:" "docker-stack/docker-compose.yaml"; then
+            echo "postgresql"
+        elif grep -q "^  mongo:" "docker-stack/docker-compose.yaml"; then
+            echo "mongodb"  
+        else
+            echo "mariadb"
+        fi
+    else
+        echo "mariadb"  # default fallback
+    fi
+}
+
+DATABASE_ENGINE=$(detect_database_engine)
 
 # Function to display usage
 usage() {
@@ -130,7 +146,7 @@ echo
 # Set up Docker compose file
 unalias cp
 
-cp -f ../../extras/docker-compose.example.yaml docker-compose.yaml
+cp -f ../../docker-stack/docker-compose.project.yaml docker-compose.yaml
 
 podium-sed "s/IPV4_ADDRESS/$IP_ADDRESS/g" docker-compose.yaml
 
@@ -189,9 +205,33 @@ if [ -f ".env.example" ]; then
     podium-sed "/^#*\s*APP_NAME=/c\APP_NAME=$PROJECT_NAME" .env
     podium-sed "/^#*\s*APP_KEY=/c\APP_KEY=$APP_KEY" .env
     podium-sed "/^#*\s*APP_URL=/c\APP_URL=http:\/\/$PROJECT_NAME" .env
-    podium-sed "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
-    podium-sed "/^#*\s*DB_HOST=/c\DB_HOST=mariadb" .env
-    podium-sed "/^#*\s*DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
+    # Configure database connection based on selected engine
+    case $DATABASE_ENGINE in
+        "postgresql")
+            podium-sed "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=pgsql" .env
+            podium-sed "/^#*\s*DB_HOST=/c\DB_HOST=postgres" .env
+            podium-sed "/^#*\s*DB_PORT=/c\DB_PORT=5432" .env
+            podium-sed "/^#*\s*DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
+            podium-sed "/^#*\s*DB_USERNAME=/c\DB_USERNAME=postgres" .env
+            podium-sed "/^#*\s*DB_PASSWORD=/c\DB_PASSWORD=postgres" .env
+            ;;
+        "mongodb")
+            podium-sed "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=mongodb" .env
+            podium-sed "/^#*\s*DB_HOST=/c\DB_HOST=mongo" .env
+            podium-sed "/^#*\s*DB_PORT=/c\DB_PORT=27017" .env
+            podium-sed "/^#*\s*DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
+            podium-sed "/^#*\s*DB_USERNAME=/c\DB_USERNAME=root" .env
+            podium-sed "/^#*\s*DB_PASSWORD=/c\DB_PASSWORD=root" .env
+            ;;
+        *)
+            podium-sed "/^#*\s*DB_CONNECTION=/c\DB_CONNECTION=mysql" .env
+            podium-sed "/^#*\s*DB_HOST=/c\DB_HOST=mariadb" .env
+            podium-sed "/^#*\s*DB_PORT=/c\DB_PORT=3306" .env
+            podium-sed "/^#*\s*DB_DATABASE=/c\DB_DATABASE=$PROJECT_NAME_SNAKE" .env
+            podium-sed "/^#*\s*DB_USERNAME=/c\DB_USERNAME=root" .env
+            podium-sed "/^#*\s*DB_PASSWORD=/c\DB_PASSWORD=" .env
+            ;;
+    esac
     podium-sed "/^#*\s*CACHE_DRIVER=/c\CACHE_DRIVER=redis" .env
     podium-sed "/^#*\s*SESSION_DRIVER=/c\SESSION_DRIVER=redis" .env
     podium-sed "/^#*\s*QUEUE_CONNECTION=/c\QUEUE_CONNECTION=redis" .env
@@ -199,9 +239,7 @@ if [ -f ".env.example" ]; then
     podium-sed "/^#*\s*CACHE_PREFIX=/c\CACHE_PREFIX=$PROJECT_NAME" .env
     podium-sed "/^#*\s*MEMCACHED_HOST=/c\MEMCACHED_HOST=memcached" .env
     podium-sed "/^#*\s*REDIS_HOST=/c\REDIS_HOST=redis" .env
-    podium-sed "/^#*\s*MAIL_MAILER=/c\MAIL_MAILER=smtp" .env
-    podium-sed "/^#*\s*MAIL_HOST=/c\MAIL_HOST=exim4" .env
-    podium-sed "/^#*\s*MAIL_PORT=/c\MAIL_PORT=25" .env
+    # Email configuration removed - configure SMTP in your project's .env as needed
     echo "" >> .env
     echo "XDG_CONFIG_HOME=/usr/share/nginx/html/storage/app" >> .env
 
@@ -222,13 +260,26 @@ elif [ -f "wp-config-sample.php" ]; then
 
     echo-cyan "Configuring WordPress for containerized setup..."
     
+    # Set database host based on engine
+    case $DATABASE_ENGINE in
+        "postgresql")
+            DB_HOST_VALUE="postgres"
+            ;;
+        "mongodb")
+            DB_HOST_VALUE="mongo"
+            ;;
+        *)
+            DB_HOST_VALUE="mariadb"
+            ;;
+    esac
+    
     # Create wp-config.php with database connection
     cat > wp-config.php << EOF
 <?php
 define('DB_NAME', '$PROJECT_NAME_SNAKE');
 define('DB_USER', 'root');
 define('DB_PASSWORD', '');
-define('DB_HOST', 'mariadb');
+define('DB_HOST', '$DB_HOST_VALUE');
 define('DB_CHARSET', 'utf8mb4');
 define('DB_COLLATE', '');
 
@@ -276,14 +327,6 @@ if [ -d "storage" ]; then
     echo-green 'Storage folder permissions set!'; echo-white
 
 fi
-
-# NOT CONVINCED THIS IS NECESSARY
-# if [ -d "bootstrap" ]; then
-
-#     chmod 777 bootstrap/cache
-
-# fi
-
 
 # Create new database, run migration and seed
 echo-cyan "Creating database $PROJECT_NAME_SNAKE ..."; echo-white

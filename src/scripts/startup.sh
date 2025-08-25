@@ -6,8 +6,6 @@
 set -e
 
 
-ORIG_DIR=$(pwd)
-
 cd $(dirname "$(realpath "$0")")
 
 cd ..
@@ -78,7 +76,7 @@ source "$DEV_DIR/scripts/start_services.sh"
 
 
 # Start projects either just one by name or all in the projects directory
-cd projects
+# Note: We're already in the projects directory (set by podium command)
 
 if ! [ -z "$PROJECT_NAME" ]; then
 
@@ -94,8 +92,6 @@ else
 
 fi
 
-cd ..
-
 
 # Docker handles all networking automatically
 
@@ -104,5 +100,3 @@ if ! $NO_STATUS; then
   source "$DEV_DIR/scripts/status.sh" $PROJECT_NAME
 
 fi
-
-cd $ORIG_DIR

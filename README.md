@@ -24,24 +24,40 @@ Podium is a comprehensive Docker-based development platform that creates profess
 - **Mobile testing**: Access projects from phones and tablets on your network
 - **Client presentations**: Show work to stakeholders from any device
 
+### 🖥️ **GUI Management Interface**
+- **Desktop application** for visual project management
+- **Real-time status monitoring** with live updates
+- **One-click project operations** (start, stop, remove)
+- **System health dashboard** with service status
+- **Cross-platform** - Linux, Windows, macOS support
+
 ## 🎬 Quick Start
 
-### Install Podium
+### Option 1: Command Line Installation
 ```bash
-git clone https://github.com/CaneBayComputers/podium-cli.git
-cd podium-cli
+git clone https://github.com/CaneBayComputers/cbc-development.git
+cd cbc-development/src
 ./scripts/install.sh
+```
+
+### Option 2: GUI Installation
+```bash
+# Download and run the GUI installer
+git clone https://github.com/CaneBayComputers/podium-gui.git
+cd podium-gui
+npm install
+npm start
 ```
 
 ### Create Your First Project
 ```bash
-./scripts/new_project.sh my-awesome-app
+podium new
 ```
 
 ### Start Coding! 
 ```bash
 # Your project is ready at:
-http://my-awesome-app
+http://your-project-name
 ```
 
 **You now have a fully configured development environment with:**
@@ -58,21 +74,21 @@ http://my-awesome-app
 
 #### Creating New Projects
 ```bash
-./scripts/new_project.sh <project_name> [organization]
+podium new [project_name] [organization]
 ```
-- **`<project_name>`**: The name of your new project (required)
+- **`[project_name]`**: Optional name for your new project
 - **`[organization]`**: Optional GitHub organization for repository creation
 
 Creates a new Laravel or WordPress project with:
 - Interactive framework selection (Laravel/WordPress)
-- Version selection (Laravel 12.x, 11.x, 10.x or WordPress latest/6.4/6.3)
+- Version selection (Laravel 11.x, 10.x or WordPress latest/6.x)
 - Automatic GitHub repository creation
 - Complete environment configuration
 - Database setup and connection
 
 #### Cloning Existing Projects
 ```bash
-./scripts/clone_project.sh <repository> [project_name]
+podium clone <repository> [project_name]
 ```
 - **`<repository>`**: The URL of the repository to clone (required)
 - **`[project_name]`**: Optional custom name for the cloned project
@@ -86,7 +102,7 @@ Clones an existing project and automatically:
 
 #### Setting Up Downloaded Projects
 ```bash
-./scripts/setup_project.sh <project_name>
+podium setup <project_name>
 ```
 - **`<project_name>`**: The name of the project directory (required)
 
@@ -100,7 +116,7 @@ Configures an already downloaded project by:
 
 #### Removing Projects Safely
 ```bash
-./scripts/remove_project.sh <project_name>
+podium remove <project_name>
 ```
 - **`<project_name>`**: The name of the project to remove (required)
 
@@ -116,10 +132,10 @@ Safely removes a project by:
 #### Starting Projects
 ```bash
 # Start all projects
-./scripts/startup.sh
+podium up
 
 # Start specific project
-./scripts/startup.sh <project_name>
+podium up <project_name>
 ```
 - Starts Docker containers for projects
 - Configures networking and port mapping
@@ -128,10 +144,10 @@ Safely removes a project by:
 #### Stopping Projects
 ```bash
 # Stop all projects
-./scripts/shutdown.sh
+podium down
 
 # Stop specific project  
-./scripts/shutdown.sh <project_name>
+podium down <project_name>
 ```
 - Gracefully stops Docker containers
 - Cleans up networking configurations
@@ -140,16 +156,20 @@ Safely removes a project by:
 #### Checking Project Status
 ```bash
 # Check all projects
-./scripts/status.sh
+podium status
 
 # Check specific project
-./scripts/status.sh <project_name>
+podium status <project_name>
 ```
 - Displays project status and health
 - Shows access URLs (local and LAN)
 - Provides troubleshooting suggestions if issues detected
 
 ## 🔧 Essential Development Tools
+
+### The `podium` Command
+
+Podium provides a **single, unified command** that handles all development tasks. No more remembering dozens of aliases or complex Docker commands - just use `podium` followed by what you want to do.
 
 ### Why Containerized Tools Matter
 
@@ -176,57 +196,86 @@ Podium uses **containerized development tools** that run inside Docker container
 ### Core Development Commands
 ```bash
 # Composer (runs inside container with correct PHP environment)
-composer-docker install
-composer-docker require laravel/sanctum
-composer-docker update
+podium composer install
+podium composer require laravel/sanctum
+podium composer update
 
 # Laravel Artisan (runs inside container)
-art-docker migrate
-art-docker make:controller UserController
-art-docker tinker
-art-docker queue:work
+podium art migrate
+podium art make:controller UserController
+podium art tinker
+podium art queue:work
 
 # WordPress CLI (runs inside container)  
-wp-docker plugin list
-wp-docker user create john john@example.com --role=administrator
-wp-docker db export backup.sql
+podium wp plugin list
+podium wp user create john john@example.com --role=administrator
+podium wp db export backup.sql
 
 # PHP (runs inside container)
-php-docker -v
-php-docker script.php
+podium php -v
+podium php script.php
 ```
 
 ### Enhanced Laravel Workflows
 ```bash
 # Database refresh with seeding
-art-docker-db-refresh
+podium db-refresh
 
 # Clear all Laravel caches
-art-docker-refresh
+podium cache-refresh
 ```
 
 ### Service Management
 ```bash
 # Redis CLI access
-redis-docker
-redis-flushall
+podium redis KEYS "*"
+podium redis-flush
 
 # Direct container access
-dockerexec my-project bash
-dockerexec-root my-project bash
+podium exec bash
+podium exec-root bash
 ```
 
-### Container Execution Helpers
+### System Management
 ```bash
-# Execute commands in project container
-dockerexec my-project bash
+# Install development environment
+podium install
 
-# Execute as root (for system tasks)
-dockerexec-root my-project apt-get install something
-
-# Execute as developer (for application tasks)
-dockerexec-developer my-project composer install
+# Manage shared services
+podium start-services
+podium stop-services
 ```
+
+### Get Help Anytime
+```bash
+# See all available commands
+podium help
+```
+
+## 🖥️ GUI Management Interface
+
+### Features
+- **Visual Project Dashboard** - See all projects at a glance
+- **Real-time Status Updates** - Live monitoring of project health
+- **One-click Operations** - Start, stop, remove projects with buttons
+- **Service Health Monitoring** - Track MySQL, Redis, phpMyAdmin status
+- **Cross-platform Desktop App** - Native experience on all platforms
+
+### Installation
+```bash
+# Clone and run the GUI
+git clone https://github.com/CaneBayComputers/podium-gui.git
+cd podium-gui
+npm install
+npm start
+```
+
+### GUI Features
+- **Project Creation Wizard** - Visual project setup
+- **Status Dashboard** - Real-time system monitoring
+- **Service Controls** - Start/stop services with buttons
+- **Project Management** - Visual project operations
+- **System Health** - Monitor Docker and services
 
 ## 🌐 Multi-Project Development
 
@@ -234,9 +283,8 @@ Podium excels at **managing multiple projects simultaneously across different fr
 
 ```bash
 # Create multiple projects of different types
-./scripts/new_project.sh client-website    # WordPress
-./scripts/new_project.sh api-backend       # Laravel  
-./scripts/new_project.sh legacy-app        # PHP
+podium new                    # Interactive project creation
+# Choose: WordPress, Laravel, or Basic PHP for each
 
 # All running simultaneously:
 # http://client-website     (WordPress)
@@ -282,46 +330,67 @@ Each project gets its own optimized container:
 
 ## 🌍 Cross-Platform Support
 
-### Linux (Ubuntu/Debian)
+### Linux (Ubuntu/Pop!_OS)
 ```bash
-./scripts/install.sh  # Installs Docker, Git, Node.js, development tools
+podium install  # Installs Docker, Git, Node.js, development tools
 ```
+- Full native support with optimal performance
+- Automatic Docker installation and configuration
+- User permission management
 
 ### macOS
 ```bash
-./scripts/install.sh  # Installs via Homebrew: Docker Desktop, Git, development tools
+podium install  # Installs via Homebrew: Docker Desktop, Git, development tools
 ```
+- Homebrew-based package management
+- Docker Desktop integration
+- Apple Silicon (M1/M2) support
 
-### Windows
+### Windows (WSL2)
 ```bash
 # Via WSL2 Ubuntu
-./scripts/install.sh  # Same as Linux installation
+podium install  # Same as Linux installation
 ```
+- Full WSL2 compatibility
+- Docker Desktop integration
+- Windows file system support
 
 ## 📁 Project Structure
 
 ```
-podium-cli/
-├── docker-stack/           # Shared services (MySQL, Redis, etc.)
-│   ├── docker-compose.yaml
-│   └── .env
-├── projects/               # Your development projects
+cbc-development/
+├── src/
+│   ├── docker-stack/              # Infrastructure templates
+│   │   ├── docker-compose.services.yaml  # Shared services template
+│   │   ├── docker-compose.project.yaml   # Individual project template
+│   │   ├── docker-compose.yaml           # Generated services (gitignored)
+│   │   └── .env.example                  # Environment template
+│   ├── scripts/                   # Core Podium scripts
+│   │   ├── install.sh            # Environment installer
+│   │   ├── new_project.sh        # Project creator
+│   │   ├── setup_project.sh      # Project configurator
+│   │   ├── clone_project.sh      # Repository cloner
+│   │   ├── remove_project.sh     # Safe project removal
+│   │   ├── startup.sh            # Service starter
+│   │   ├── shutdown.sh           # Service stopper
+│   │   ├── status.sh             # Status checker
+│   │   ├── functions.sh          # Shared utilities
+│   │   ├── install-linux-packages.sh  # Linux package installer
+│   │   └── install-mac-packages.sh    # macOS package installer
+│   └── hosts.txt                  # Domain mappings
+├── projects/                      # Your development projects
 │   ├── my-laravel-app/
 │   ├── client-website/
 │   └── api-backend/
-├── scripts/                # Core Podium scripts
-│   ├── install.sh         # Environment installer
-│   ├── new_project.sh     # Project creator
-│   ├── setup_project.sh   # Project configurator
-│   └── functions.sh       # Internal functions
-└── extras/
-    └── .podium_aliases    # Optional development aliases
+├── packaging/                     # Distribution packages
+├── releases/                      # Release artifacts
+└── docs/                         # Documentation
 ```
 
 ## 🎯 Perfect For
 
 ### Laravel Developers
-- **Multiple Laravel versions** (12.x, 11.x LTS, 10.x)
+- **Multiple Laravel versions** (11.x LTS, 10.x)
 - **Instant setup** with database, Redis, email
 - **Proper containerized tools** (Composer, Artisan)
 - **Multi-project workflows**
@@ -365,6 +434,12 @@ podium-cli/
 - **Non-invasive installation** (minimal system changes)
 - **Isolated environments** (no conflicts between projects)
 
+### GUI Enhancements
+- **Real-time monitoring** of all services and projects
+- **Visual project management** with intuitive interface
+- **System health dashboard** showing resource usage
+- **Automated installation** through GUI installer
+
 ## 💡 Why Use Podium?
 
 ### The Problem with Traditional PHP Development
@@ -380,6 +455,22 @@ podium-cli/
 - **Automatic project configuration** with zero manual setup
 - **Clean containerized tools** that don't affect your host system
 - **Instant project access** for demos and collaboration
+- **Professional GUI interface** for visual management
+
+## 📦 Distribution
+
+### Debian Package
+```bash
+# Install via .deb package (coming soon)
+sudo dpkg -i podium-cli.deb
+```
+
+### Manual Installation
+```bash
+git clone https://github.com/CaneBayComputers/cbc-development.git
+cd cbc-development/src
+./scripts/install.sh
+```
 
 ---
 

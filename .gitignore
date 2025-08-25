@@ -1,3 +1,9 @@
 .env
 docker-compose.yaml
 is_installed
+
+# Build artifacts and releases
+releases/
+packaging/podium-cli_*.deb
+packaging/podium-cli_*_all/
+packaging/debian-package/usr/

@@ -1,6 +1,30 @@
 #!/bin/bash
-# Laravel Podium - Internal Functions
+# Podium - Internal Functions
 # This file provides functions needed by Podium scripts without polluting user's shell
+
+# Get the projects directory (configurable)
+get_projects_dir() {
+    # Check if user has configured a custom projects directory
+    if [ -f ~/.podium/config ]; then
+        PROJECTS_DIR=$(grep "^PROJECTS_DIR=" ~/.podium/config | cut -d'=' -f2)
+        if [ -n "$PROJECTS_DIR" ]; then
+            echo "$PROJECTS_DIR"
+            return
+        fi
+    fi
+    
+    # Default to ~/podium-projects
+    echo "$HOME/podium-projects"
+}
+
+# Initialize projects directory if it doesn't exist
+init_projects_dir() {
+    local projects_dir="$(get_projects_dir)"
+    if [ ! -d "$projects_dir" ]; then
+        echo-cyan "Creating projects directory: $projects_dir"
+        mkdir -p "$projects_dir"
+    fi
+}
 
 # Color output functions
 echo-red() { tput setaf 1 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
@@ -11,23 +35,12 @@ echo-magenta() { tput setaf 5 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
 echo-cyan() { tput setaf 6 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
 echo-white() { tput setaf 7 2>/dev/null; echo "$@"; tput sgr0 2>/dev/null; }
 
-# Docker helper functions
-podium-docker-up() { docker compose up -d "$@"; }
-podium-docker-down() { docker compose down "$@"; }
-podium-docker-exec() { docker container exec -it "$@"; }
-
-# Docker aliases used by scripts
+# Docker aliases used by scripts (keep these for internal script usage)
 dockerup() { docker compose up -d "$@"; }
 dockerdown() { docker compose down "$@"; }
 dockerexec() { docker container exec -it "$@"; }
 dockerls() { docker container ls "$@"; }
 dockerrm() { docker container rm "$@"; }
-
-# Essential containerized development tools
-podium-composer() { docker container exec -it --user $(id -u):$(id -g) $(basename $(pwd)) composer -d /usr/share/nginx/html "$@"; }
-podium-artisan() { docker container exec -it --user $(id -u):$(id -g) $(basename $(pwd)) php /usr/share/nginx/html/artisan "$@"; }
-podium-wp() { docker container exec -it --user $(id -u):$(id -g) $(basename $(pwd)) wp "$@"; }
-podium-php() { docker container exec -it --user $(id -u):$(id -g) $(basename $(pwd)) php "$@"; }
 
 # Check if services are running
 check-mariadb() { [ "$(docker ps -q -f name=mariadb)" ] && return 0 || return 1; }

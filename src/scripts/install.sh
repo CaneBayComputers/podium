@@ -21,6 +21,7 @@ AWS_ACCESS_KEY=""
 AWS_SECRET_KEY=""
 AWS_REGION="us-east-1"
 SKIP_AWS=false
+DATABASE_ENGINE=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -51,6 +52,10 @@ while [[ $# -gt 0 ]]; do
         --skip-aws)
             SKIP_AWS=true
             shift
+            ;;
+        --database)
+            DATABASE_ENGINE="$2"
+            shift 2
             ;;
         *)
             shift
@@ -94,13 +99,67 @@ else
 fi
 
 
+# Database engine selection
+if [ -z "$DATABASE_ENGINE" ] && [ "$GUI_MODE" != "true" ]; then
+	echo
+	echo-cyan "Choose your database engine:"
+	echo-white "1) MariaDB (default - MySQL compatible, recommended)"
+	echo-white "2) PostgreSQL (advanced features, JSON support)"  
+	echo-white "3) MongoDB (document database, NoSQL)"
+	echo
+	read -p "Enter your choice (1-3) [1]: " DB_CHOICE
+	
+	case $DB_CHOICE in
+		2) DATABASE_ENGINE="postgresql" ;;
+		3) DATABASE_ENGINE="mongodb" ;;
+		*) DATABASE_ENGINE="mariadb" ;;
+	esac
+elif [ -z "$DATABASE_ENGINE" ]; then
+	# Default for GUI mode (will be overridden by GUI)
+	DATABASE_ENGINE="mariadb"
+fi
+
+echo-cyan "Selected database engine: $DATABASE_ENGINE"
+echo-white
+
 # Check for and set up docker compose yaml
 if ! [ -f docker-stack/docker-compose.yaml ]; then
 
-	cp docker-stack/docker-compose.example.yaml docker-stack/docker-compose.yaml
+	 cp docker-stack/docker-compose.services.yaml docker-stack/docker-compose.yaml
 
 	# Cross-platform sed for docker-compose.yaml
 	podium-sed "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
+	
+	# Configure selected database engine by commenting out unused services
+	case $DATABASE_ENGINE in
+		"postgresql")
+			echo-cyan "Configuring PostgreSQL as primary database..."
+			# Comment out MySQL/MariaDB and MongoDB services
+			podium-sed '/^  mysql:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
+			podium-sed '/^  mongo:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
+			# Comment out unused volumes
+			podium-sed 's/^  STACK_ID_mysql_data:/#  STACK_ID_mysql_data:/' docker-stack/docker-compose.yaml
+			podium-sed 's/^  STACK_ID_mongo_data:/#  STACK_ID_mongo_data:/' docker-stack/docker-compose.yaml
+			;;
+		"mongodb")
+			echo-cyan "Configuring MongoDB as primary database..."
+			# Comment out MySQL/MariaDB and PostgreSQL services
+			podium-sed '/^  mysql:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
+			podium-sed '/^  postgres:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
+			# Comment out unused volumes
+			podium-sed 's/^  STACK_ID_mysql_data:/#  STACK_ID_mysql_data:/' docker-stack/docker-compose.yaml
+			podium-sed 's/^  STACK_ID_postgres_data:/#  STACK_ID_postgres_data:/' docker-stack/docker-compose.yaml
+			;;
+		*)
+			echo-cyan "Configuring MariaDB as primary database..."
+			# Comment out PostgreSQL and MongoDB services (keep MySQL/MariaDB)
+			podium-sed '/^  postgres:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
+			podium-sed '/^  mongo:/,/^  [^[:space:]]/{ /^  [^[:space:]]/!s/^/#/; }' docker-stack/docker-compose.yaml
+			# Comment out unused volumes
+			podium-sed 's/^  STACK_ID_postgres_data:/#  STACK_ID_postgres_data:/' docker-stack/docker-compose.yaml
+			podium-sed 's/^  STACK_ID_mongo_data:/#  STACK_ID_mongo_data:/' docker-stack/docker-compose.yaml
+			;;
+	esac
 
 fi
 
@@ -155,6 +214,13 @@ clear
 
 # Platform-specific checks
 if [[ "$PLATFORM" == "linux" ]]; then
+	# Check for WSL2
+	if grep -qEi "(Microsoft|WSL)" /proc/version 2>/dev/null; then
+		echo-cyan "Detected Windows WSL2 - Linux compatibility mode"
+		echo-white "Note: Make sure Docker Desktop is running on Windows with WSL2 integration enabled"
+		echo-white
+	fi
+	
 	# Check for Ubuntu distribution
 	if ! uname -a | grep Ubuntu > /dev/null; then
 		if ! uname -a | grep pop-os > /dev/null; then
@@ -168,60 +234,39 @@ elif [[ "$PLATFORM" == "mac" ]]; then
 fi
 
 
-# Set shell aliases (bash/zsh compatible)
-if [[ "$PLATFORM" == "mac" ]]; then
-	# Mac typically uses zsh
-	SHELL_RC="$HOME/.zshrc"
-	if [[ "$SHELL" == *"bash"* ]]; then
-		SHELL_RC="$HOME/.bash_profile"
-	fi
+# Install Podium command globally
+echo; echo-cyan "Installing Podium command globally..."
+echo-white "This creates a 'podium' command accessible from anywhere on your system."
+echo-white
+
+if [[ "$GUI_MODE" == "true" ]]; then
+	INSTALL_GLOBAL="y"
+	echo-cyan "Auto-installing podium command in GUI mode..."
 else
-	# Linux typically uses bash
-	SHELL_RC="$HOME/.bash_aliases"
+	read -p "Install podium command globally? (strongly recommended) (y/n): " INSTALL_GLOBAL
 fi
 
-# Essential development aliases for Docker-based workflow
-echo; echo-cyan "IMPORTANT: Podium uses Docker-based development tools"
-echo-white "This includes containerized versions of:"
-echo-white "  • composer-docker - Runs Composer inside container (proper PHP environment)"
-echo-white "  • art-docker      - Runs Laravel Artisan inside container"
-echo-white "  • wp-docker       - Runs WP-CLI inside container"
-echo-white "  • php-docker      - Runs PHP inside container"
-echo-white
-echo-cyan "These aliases are ESSENTIAL for Podium's workflow."
-echo-yellow "Without them, you'll need to type long docker exec commands manually."
-echo-white
-read -p "Install essential development aliases? (strongly recommended) (y/n): " INSTALL_ALIASES
-
-if [[ "$INSTALL_ALIASES" == "y" ]]; then
-	if [[ "$PLATFORM" == "mac" ]]; then
-		# For Mac, add to shell RC file
-		if ! grep -q "$DEV_DIR/extras/.podium_aliases" "$SHELL_RC" 2>/dev/null; then
-			echo "source $DEV_DIR/extras/.podium_aliases" >> "$SHELL_RC"
-			echo-green "Essential development aliases added to $SHELL_RC"
-		fi
-	else
-		# For Linux, use bash_aliases
-		if ! [ -f ~/.bash_aliases ]; then
-			echo "source $DEV_DIR/extras/.podium_aliases" > ~/.bash_aliases
-		else
-			if ! grep -q "$DEV_DIR/extras/.podium_aliases" ~/.bash_aliases 2>/dev/null; then
-				echo "source $DEV_DIR/extras/.podium_aliases" >> ~/.bash_aliases
-			fi
-		fi
-		echo-green "Essential development aliases added to ~/.bash_aliases"
-	fi
+if [[ "$INSTALL_GLOBAL" == "y" ]]; then
+	# Remove existing symlink if it exists
+	sudo rm -f /usr/local/bin/podium 2>/dev/null || true
+	
+	# Create symlink to podium script
+	sudo ln -sf "$DEV_DIR/podium" /usr/local/bin/podium
+	
+	echo-green "Podium command installed globally!"
 	echo-white
-	echo-cyan "IMPORTANT: Source your shell or open a new terminal session, then use these commands:"
-	echo-white "  • composer-docker install    (instead of: composer install)"
-	echo-white "  • art-docker migrate         (instead of: php artisan migrate)"
-	echo-white "  • wp-docker plugin list      (instead of: wp plugin list)"
-	echo-white "  • php-docker -v              (to check container PHP version)"
+	echo-cyan "You can now use these commands from anywhere:"
+	echo-white "  • podium composer install     (run Composer in container)"
+	echo-white "  • podium art migrate          (run Laravel Artisan)"
+	echo-white "  • podium wp plugin list       (run WP-CLI)"
+	echo-white "  • podium up myproject         (start project)"
+	echo-white "  • podium new                  (create new project)"
+	echo-white "  • podium help                 (see all commands)"
 	echo-white
 else
-	echo-yellow "Aliases skipped - you'll need to use full docker exec commands:"
-	echo-white "  docker exec -it \$(basename \$(pwd)) composer install"
-	echo-white "  docker exec -it \$(basename \$(pwd)) php artisan migrate"
+	echo-yellow "Global installation skipped - you'll need to use full paths:"
+	echo-white "  $DEV_DIR/podium composer install"
+	echo-white "  $DEV_DIR/podium art migrate"
 fi
 
 clear
@@ -473,15 +518,21 @@ echo-cyan 'Writing domain names to hosts file ...'
 
 echo-white
 
-while read HOST; do
+# Add service entries to /etc/hosts
+HOSTS_ENTRIES=(
+    ".2        mariadb"
+    ".3        phpmyadmin" 
+    ".4        mongo"
+    ".5        redis"
+    ".6        postgres"
+    ".7        memcached"
+)
 
-	if ! cat /etc/hosts | grep "$HOST" > /dev/null 2>&1; then
-
-		echo "$VPC_SUBNET$HOST" | sudo tee -a /etc/hosts > /dev/null
-
-	fi
-
-done < extras/hosts.txt 2>/dev/null || true
+for HOST in "${HOSTS_ENTRIES[@]}"; do
+    if ! cat /etc/hosts | grep "$HOST" > /dev/null 2>&1; then
+        echo "$VPC_SUBNET$HOST" | sudo tee -a /etc/hosts > /dev/null
+    fi
+done
 
 echo
 

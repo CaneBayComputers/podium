@@ -52,16 +52,19 @@ services:
       STACK_ID_vpc:
         ipv4_address: "${VPC_SUBNET}.5"
 
-  exim4:
-    image: imixs/exim4
-    container_name: exim4
+  postgres:
+    image: postgres:15
+    container_name: postgres
     restart: always
-    expose:
-      - "25"
     environment:
-      EXIM_SMARTHOST: "${EXIM_SMARTHOST}"
-      EXIM_PASSWORD: "${EXIM_PASSWORD}"
-      EXIM_ALLOWED_SENDERS: "0.0.0.0/0"
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    expose:
+      - "5432"
+    volumes:
+      - STACK_ID_postgres_data:/var/lib/postgresql/data
     networks:
       STACK_ID_vpc:
         ipv4_address: "${VPC_SUBNET}.6"
@@ -80,6 +83,7 @@ volumes:
   STACK_ID_mongo_data:
   STACK_ID_redis_data:
   STACK_ID_mysql_data:
+  STACK_ID_postgres_data:
 
 networks:
   STACK_ID_vpc:
