@@ -157,28 +157,77 @@ if ! check-mariadb; then
 fi
 
 
-# Iterate through projects folder
-cd projects
+# Show shared services status first
+echo-cyan "SHARED SERVICES STATUS:"
+echo
 
-if ! [ -z "$PROJECT_NAME" ]; then
-
-  if project_status $PROJECT_NAME; then true; fi
-
-  divider
-
+# Check MariaDB
+echo-white -n "MariaDB: "
+if docker ps --format "table {{.Names}}" | grep -q "mariadb"; then
+    echo-green "✅ RUNNING"
 else
-
-  for PROJECT_NAME in *; do
-
-    if project_status $PROJECT_NAME; then true; fi
-
-    divider
-
-  done
-
+    echo-red "❌ STOPPED"
 fi
 
-cd ..
+# Check phpMyAdmin
+echo-white -n "phpMyAdmin: "
+if docker ps --format "table {{.Names}}" | grep -q "phpmyadmin"; then
+    echo-green "✅ RUNNING"
+else
+    echo-red "❌ STOPPED"
+fi
+
+# Check Redis
+echo-white -n "Redis: "
+if docker ps --format "table {{.Names}}" | grep -q "redis"; then
+    echo-green "✅ RUNNING"
+else
+    echo-red "❌ STOPPED"
+fi
+
+# Check Memcached
+echo-white -n "Memcached: "
+if docker ps --format "table {{.Names}}" | grep -q "memcached"; then
+    echo-green "✅ RUNNING"
+else
+    echo-red "❌ STOPPED"
+fi
+
+divider
+
+# Iterate through projects folder using get_projects_dir function
+PROJECTS_DIR=$(get_projects_dir)
+cd "$PROJECTS_DIR"
+
+if ! [ -z "$PROJECT_NAME" ]; then
+    if project_status $PROJECT_NAME; then true; fi
+    divider
+else
+    # Check if there are any actual project directories (not just files)
+    PROJECT_COUNT=0
+    for item in *; do
+        if [ -d "$item" ] && [ "$item" != "." ] && [ "$item" != ".." ]; then
+            PROJECT_COUNT=$((PROJECT_COUNT + 1))
+        fi
+    done
+    
+    if [ $PROJECT_COUNT -eq 0 ]; then
+        echo-cyan "PROJECTS STATUS:"
+        echo
+        echo-yellow "No projects found in $(pwd)"
+        echo-white "Create your first project with: podium new"
+        divider
+    else
+        echo-cyan "PROJECTS STATUS:"
+        echo
+        for PROJECT_NAME in *; do
+            if [ -d "$PROJECT_NAME" ] && [ "$PROJECT_NAME" != "." ] && [ "$PROJECT_NAME" != ".." ]; then
+                if project_status $PROJECT_NAME; then true; fi
+                divider
+            fi
+        done
+    fi
+fi
 
 read -n 1 -r -s -p $'Press enter to continue...\n'
 
