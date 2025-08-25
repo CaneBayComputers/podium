@@ -3,7 +3,8 @@ Version: 1.0.0
 Section: devel
 Priority: optional
 Architecture: all
-Depends: docker.io, git, curl
+Depends: git, curl
+Recommends: docker.io | docker-ce
 Maintainer: Cane Bay Computers <info@canecomputers.com>
 Description: Universal PHP Development Environment
  Podium is a comprehensive Docker-based development platform that creates
