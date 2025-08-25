@@ -33,19 +33,37 @@ Podium is a comprehensive Docker-based development platform that creates profess
 
 ## 🎬 Quick Start
 
-### Option 1: Command Line Installation
+### Linux (Ubuntu/Debian) - Recommended
 ```bash
-git clone https://github.com/CaneBayComputers/podium-cli.git
-cd podium-cli/src
-./scripts/install.sh
+# Download and install .deb package
+curl -L -o podium-cli_latest.deb https://github.com/CaneBayComputers/podium-cli/releases/latest/download/podium-cli_latest.deb
+sudo dpkg -i podium-cli_latest.deb
 ```
 
-### Option 2: GUI Installation
+### macOS
 ```bash
-# Download the AppImage (coming soon)
+# Homebrew installation
+curl -O https://raw.githubusercontent.com/CaneBayComputers/podium-cli/main/releases/homebrew/podium-cli.rb
+brew install --formula ./podium-cli.rb
+```
+
+### Windows (WSL2)
+```bash
+# Install Ubuntu WSL2 first, then:
+curl -L -o podium-cli_latest.deb https://github.com/CaneBayComputers/podium-cli/releases/latest/download/podium-cli_latest.deb
+sudo dpkg -i podium-cli_latest.deb
+
+# Make sure Docker Desktop is running with WSL2 integration enabled
+```
+
+### GUI Management (Optional)
+```bash
+# Download the AppImage (Linux)
 wget https://github.com/CaneBayComputers/podium-gui/releases/latest/download/Podium.AppImage
 chmod +x Podium.AppImage
 ./Podium.AppImage
+
+# Windows/macOS: Download from releases page
 ```
 
 ### Create Your First Project
@@ -329,30 +347,33 @@ Each project gets its own optimized container:
 
 ## 🌍 Cross-Platform Support
 
-### Linux (Ubuntu/Pop!_OS)
+### Linux (Ubuntu/Debian)
 ```bash
-podium install  # Installs Docker, Git, Node.js, development tools
+# Install via .deb package
+sudo dpkg -i podium-cli_latest.deb
 ```
-- Full native support with optimal performance
-- Automatic Docker installation and configuration
-- User permission management
+- **Native .deb package** for optimal performance
+- **Automatic dependency installation** (Docker, Git, development tools)
+- **System integration** with proper permissions and paths
 
 ### macOS
 ```bash
-podium install  # Installs via Homebrew: Docker Desktop, Git, development tools
+# Homebrew installation
+curl -O https://raw.githubusercontent.com/CaneBayComputers/podium-cli/main/releases/homebrew/podium-cli.rb
+brew install --formula ./podium-cli.rb
 ```
-- Homebrew-based package management
-- Docker Desktop integration
-- Apple Silicon (M1/M2) support
+- **Professional Homebrew installation** with dependency management
+- **Docker Desktop integration** with automatic setup
+- **Apple Silicon (M1/M2) support** with native performance
 
 ### Windows (WSL2)
 ```bash
-# Via WSL2 Ubuntu
-podium install  # Same as Linux installation
+# Install Ubuntu WSL2, then install Podium
+sudo dpkg -i podium-cli_latest.deb
 ```
-- Full WSL2 compatibility
-- Docker Desktop integration
-- Windows file system support
+- **Full WSL2 compatibility** with Linux performance
+- **Docker Desktop integration** with WSL2 backend
+- **Windows file system access** for seamless development
 
 ## 📁 Project Structure
 
@@ -457,17 +478,18 @@ cbc-development/
 
 ## 📦 Distribution
 
-### Debian Package
+### Debian Package (Recommended)
 ```bash
-# Install via .deb package (coming soon)
-sudo dpkg -i podium-cli.deb
+# Download and install
+curl -L -o podium-cli_latest.deb https://github.com/CaneBayComputers/podium-cli/releases/latest/download/podium-cli_latest.deb
+sudo dpkg -i podium-cli_latest.deb
 ```
 
-### Manual Installation
+### macOS Homebrew Formula
 ```bash
-git clone https://github.com/CaneBayComputers/podium-cli.git
-cd podium-cli/src
-./scripts/install.sh
+# Download and install via Homebrew
+curl -O https://raw.githubusercontent.com/CaneBayComputers/podium-cli/main/releases/homebrew/podium-cli.rb
+brew install --formula ./podium-cli.rb
 ```
 
 ---
