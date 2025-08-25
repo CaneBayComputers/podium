@@ -1,0 +1,59 @@
+services:
+  mysql:
+    image: mariadb
+    container_name: mariadb
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+    volumes:
+      - STACK_ID_mysql_data:/var/lib/mysql
+    restart: always
+    expose:
+      - "3306"
+    networks:
+      STACK_ID_vpc:
+        ipv4_address: "${VPC_SUBNET}.2"
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: "${VPC_SUBNET}.2"
+      PMA_USER: root
+      UPLOAD_LIMIT: 256M
+    networks:
+      STACK_ID_vpc:
+        ipv4_address: "${VPC_SUBNET}.3"
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    expose:
+      - "6379"
+    volumes:
+      - STACK_ID_redis_data:/data
+    networks:
+      STACK_ID_vpc:
+        ipv4_address: "${VPC_SUBNET}.5"
+
+  memcached:
+    image: memcached
+    container_name: memcached
+    restart: always
+    expose:
+      - "11211"
+    networks:
+      STACK_ID_vpc:
+        ipv4_address: "${VPC_SUBNET}.7"
+
+volumes:
+  STACK_ID_redis_data:
+  STACK_ID_mysql_data:
+
+networks:
+  STACK_ID_vpc:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "${VPC_SUBNET}.0/24"

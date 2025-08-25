@@ -70,13 +70,13 @@ if [ ! -f docker-stack/.env ]; then
     sed -i "s/#STACK_ID=.*/STACK_ID=$STACK_ID/" docker-stack/.env
 fi
 
-# Set up Docker Compose services file
-if [ ! -f docker-stack/docker-compose.yaml ]; then
-    cp docker-stack/docker-compose.services.yaml docker-stack/docker-compose.yaml
-    # Replace STACK_ID placeholder
-    STACK_ID=$(grep "^STACK_ID=" docker-stack/.env | cut -d'=' -f2)
-    sed -i "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
-fi
+# Set up Docker Compose services file (always use clean MariaDB template)
+echo "Configuring MariaDB as default database..."
+# Use the clean MariaDB-only template (overwrite existing)
+cp docker-stack/docker-compose.mariadb.yaml docker-stack/docker-compose.yaml
+# Replace STACK_ID placeholder
+STACK_ID=$(grep "^STACK_ID=" docker-stack/.env | cut -d'=' -f2)
+sed -i "s/STACK_ID/${STACK_ID}/g" docker-stack/docker-compose.yaml
 
 # Set basic Git config only if not already set (non-interactive)
 if ! git config --global user.name > /dev/null 2>&1; then
@@ -113,6 +113,9 @@ if [ -n "$VPC_SUBNET" ]; then
 else
     echo "⚠️  Could not read VPC_SUBNET from .env file"
 fi
+
+# Create the is_installed marker file
+touch is_installed
 
 echo "✅ Basic configuration completed!"
 echo ""
