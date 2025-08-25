@@ -42,8 +42,13 @@ chown -R root:root /usr/local/share/podium-cli
 chmod -R 755 /usr/local/share/podium-cli
 chmod +x /usr/local/share/podium-cli/scripts/*.sh
 
+# Run the full installation automatically
+echo "Running Podium environment setup..."
+cd /usr/local/share/podium-cli
+./scripts/install.sh --gui-mode --skip-aws
+
 echo ""
-echo "🎉 Podium CLI has been installed successfully!"
+echo "🎉 Podium CLI has been installed and configured successfully!"
 echo ""
 echo "To get started:"
 echo "  1. Log out and back in (or run: newgrp docker)"

@@ -35,9 +35,12 @@ Podium is a comprehensive Docker-based development platform that creates profess
 
 ### Linux (Ubuntu/Debian) - Recommended
 ```bash
-# Download and install .deb package
+# Download and install .deb package (fully automated setup)
 curl -L -o podium-cli_latest.deb https://github.com/CaneBayComputers/podium-cli/releases/latest/download/podium-cli_latest.deb
 sudo dpkg -i podium-cli_latest.deb
+
+# That's it! Everything is configured automatically.
+# Log out and back in, then: podium new
 ```
 
 ### macOS
@@ -53,6 +56,7 @@ brew install --formula ./podium-cli.rb
 curl -L -o podium-cli_latest.deb https://github.com/CaneBayComputers/podium-cli/releases/latest/download/podium-cli_latest.deb
 sudo dpkg -i podium-cli_latest.deb
 
+# That's it! Everything is configured automatically.
 # Make sure Docker Desktop is running with WSL2 integration enabled
 ```
 
@@ -68,6 +72,7 @@ chmod +x Podium.AppImage
 
 ### Create Your First Project
 ```bash
+# Log out and back in first (for docker group), then:
 podium new
 ```
 
@@ -83,6 +88,7 @@ http://your-project-name
 - ✅ Redis caching ready
 - ✅ phpMyAdmin for database management
 - ✅ Professional development tools
+- ✅ **No manual configuration needed!**
 
 ## 🛠️ Core Commands
 
@@ -254,12 +260,12 @@ podium exec-root bash
 
 ### System Management
 ```bash
-# Install development environment
-podium install
-
 # Manage shared services
 podium start-services
 podium stop-services
+
+# Configure projects directory
+podium config projects /path/to/projects
 ```
 
 ### Get Help Anytime
