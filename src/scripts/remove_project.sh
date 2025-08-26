@@ -13,27 +13,80 @@ echo; echo
 
 # Usage function to explain the script
 usage() {
-    echo "Usage: $0 <project_name>"
+    echo "Usage: $0 <project_name> [options]"
+    echo "Removes a project and associated settings"
+    echo ""
+    echo "Options:"
+    echo "  --force-trash-project    Skip confirmation for project directory removal"
+    echo "  --force-db-delete        Skip confirmation for database deletion"
+    echo "  --force                  Skip all confirmations (combines both flags above)"
+    echo ""
+    echo "Examples:"
+    echo "  $0 my-project --force-trash-project"
+    echo "  $0 my-project --force-db-delete"
+    echo "  $0 my-project --force"
     exit 1
 }
 
+# Initialize variables
+PROJECT_NAME=""
+FORCE_TRASH_PROJECT=false
+FORCE_DB_DELETE=false
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --force-trash-project)
+            FORCE_TRASH_PROJECT=true
+            shift
+            ;;
+        --force-db-delete)
+            FORCE_DB_DELETE=true
+            shift
+            ;;
+        --force)
+            FORCE_TRASH_PROJECT=true
+            FORCE_DB_DELETE=true
+            shift
+            ;;
+        --help)
+            usage
+            ;;
+        -*)
+            echo-red "Unknown option: $1"
+            usage
+            ;;
+        *)
+            if [ -z "$PROJECT_NAME" ]; then
+                PROJECT_NAME="$1"
+            else
+                echo-red "Too many arguments"
+                usage
+            fi
+            shift
+            ;;
+    esac
+done
+
 # Check if project name is provided
-if [ -z "$1" ]; then
+if [ -z "$PROJECT_NAME" ]; then
     usage
 fi
-
-PROJECT_NAME=$1
 PROJECT_DIR="$(get_projects_dir)/$PROJECT_NAME"
 HOSTS_FILE="/etc/hosts"
 
 # Confirm with the user before proceeding
-echo-cyan "This will remove the project '$PROJECT_NAME' and associated settings."
-echo-cyan "Project files will be moved to trash (recoverable)."
-echo-white
-read -p "Are you sure? (y/n): " CONFIRM
-if [[ "$CONFIRM" != "y" ]]; then
-    echo "Operation cancelled."
-    exit 0
+if [ "$FORCE_TRASH_PROJECT" = false ] || [ "$FORCE_DB_DELETE" = false ]; then
+    echo-cyan "This will remove the project '$PROJECT_NAME' and associated settings."
+    echo-cyan "Project files will be moved to trash (recoverable)."
+    echo-white
+    read -p "Are you sure? (y/n): " CONFIRM
+    if [[ "$CONFIRM" != "y" ]]; then
+        echo "Operation cancelled."
+        exit 0
+    fi
+else
+    echo-cyan "Force mode: Removing project '$PROJECT_NAME' without confirmation..."
 fi
 
 # 1. Run shutdown.sh to stop the project and remove iptables rules
@@ -102,9 +155,17 @@ fi
 
 # 5. Ask if user wants to delete the associated database
 DB_NAME=$(echo "$PROJECT_NAME" | sed 's/-/_/g')
-echo-cyan "Would you like to delete the associated database '$DB_NAME'? This cannot be undone!"
-echo-white
-read -p "Delete database? (y/n): " DELETE_DB_CONFIRM
+DELETE_DB_CONFIRM="n"
+
+if [ "$FORCE_DB_DELETE" = true ]; then
+    echo-cyan "Force mode: Deleting database '$DB_NAME'..."
+    DELETE_DB_CONFIRM="y"
+else
+    echo-cyan "Would you like to delete the associated database '$DB_NAME'? This cannot be undone!"
+    echo-white
+    read -p "Delete database? (y/n): " DELETE_DB_CONFIRM
+fi
+
 if [[ "$DELETE_DB_CONFIRM" == "y" ]]; then
 
     # Start services including mariadb

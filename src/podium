@@ -71,9 +71,9 @@ show_help() {
     echo "  podium up [project]       - Start project containers"
     echo "  podium down [project]     - Stop project containers"
     echo "  podium status [project]   - Show project status"
-    echo "  podium new                - Create new project"
+    echo "  podium new [options]      - Create new project"
     echo "  podium clone <repo>       - Clone existing project"
-    echo "  podium remove <project>   - Remove project"
+    echo "  podium remove <project> [options] - Remove project"
     echo
     echo-white "SYSTEM MANAGEMENT:"
     echo "  podium config             - Configure Podium environment"
@@ -86,7 +86,8 @@ show_help() {
     echo "  podium art migrate"
     echo "  podium wp plugin list"
     echo "  podium up myproject"
-    echo "  podium new"
+    echo "  podium new --framework laravel --version 11.x --database postgres --github"
+    echo "  podium remove myproject --force"
 }
 
 # Get current project name (directory basename)
@@ -264,10 +265,11 @@ case "$1" in
         ;;
     "remove")
         if [ -z "$2" ]; then
-            echo-red "Usage: podium remove <project-name>"
+            echo-red "Usage: podium remove <project-name> [options]"
+            echo-white "Options: --force-trash-project, --force-db-delete, --force"
             exit 1
         fi
-        "$SCRIPT_DIR/scripts/remove_project.sh" "$2"
+        "$SCRIPT_DIR/scripts/remove_project.sh" "${@:2}"
         ;;
     
     # System management
