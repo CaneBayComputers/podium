@@ -59,13 +59,13 @@ function createWindow() {
   
   if (podiumStatus === 'not-installed') {
     debugLog('Loading installer.html - Podium not installed');
-    mainWindow.loadFile('src/installer.html');
+    mainWindow.loadFile('installer.html');
   } else if (podiumStatus === 'not-configured') {
     debugLog('Loading installer.html - Podium not configured');
-    mainWindow.loadFile('src/installer.html');
+    mainWindow.loadFile('installer.html');
   } else {
     debugLog('Loading index.html - Podium ready');
-    mainWindow.loadFile('src/index.html');
+    mainWindow.loadFile('index.html');
   }
 
   // Open DevTools in development

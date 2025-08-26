@@ -80,6 +80,7 @@ show_help() {
     echo "  podium start-services     - Start shared services"
     echo "  podium stop-services      - Stop shared services"
     echo "  podium config projects <path> - Set custom projects directory"
+    echo "  podium gui                - Launch desktop GUI interface"
     echo
     echo-white "EXAMPLES:"
     echo "  podium composer install"
@@ -281,6 +282,24 @@ case "$1" in
         ;;
     "stop-services")
         "$SCRIPT_DIR/scripts/stop_services.sh"
+        ;;
+    
+    # GUI Interface
+    "gui")
+        # Check if GUI is available (in .deb install it will be in /usr/local/share/podium-gui)
+        if [ -x "/usr/local/share/podium-gui/podium-gui" ]; then
+            # Production: Use installed GUI
+            exec /usr/local/share/podium-gui/podium-gui "$@"
+        elif [ -f "$SCRIPT_DIR/gui/package.json" ]; then
+            # Development: Use source GUI
+            echo-cyan "🚀 Starting Podium GUI (development mode)..."
+            cd "$SCRIPT_DIR/gui"
+            npm run dev
+        else
+            echo-red "Podium GUI is not available!"
+            echo-white "Install Podium via .deb package to get the GUI, or run from development environment."
+            exit 1
+        fi
         ;;
     
     # Configuration
