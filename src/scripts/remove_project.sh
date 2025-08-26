@@ -19,6 +19,7 @@ usage() {
     echo "Options:"
     echo "  --force-trash-project    Skip confirmation for project directory removal"
     echo "  --force-db-delete        Skip confirmation for database deletion"
+    echo "  --preserve-database      Skip database deletion entirely (preserve database)"
     echo "  --force                  Skip all confirmations (combines both flags above)"
     echo ""
     echo "Examples:"
@@ -32,6 +33,7 @@ usage() {
 PROJECT_NAME=""
 FORCE_TRASH_PROJECT=false
 FORCE_DB_DELETE=false
+PRESERVE_DATABASE=false
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -42,6 +44,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --force-db-delete)
             FORCE_DB_DELETE=true
+            shift
+            ;;
+        --preserve-database)
+            PRESERVE_DATABASE=true
             shift
             ;;
         --force)
@@ -157,7 +163,11 @@ fi
 DB_NAME=$(echo "$PROJECT_NAME" | sed 's/-/_/g')
 DELETE_DB_CONFIRM="n"
 
-if [ "$FORCE_DB_DELETE" = true ]; then
+if [ "$PRESERVE_DATABASE" = true ]; then
+    echo-cyan "Preserving database '$DB_NAME' (--preserve-database flag specified)"
+    echo-white
+    DELETE_DB_CONFIRM="n"
+elif [ "$FORCE_DB_DELETE" = true ]; then
     echo-cyan "Force mode: Deleting database '$DB_NAME'..."
     DELETE_DB_CONFIRM="y"
 else

@@ -65,20 +65,34 @@ function toggleVersionGroups() {
         laravelGroup.style.display = 'block';
     } else if (projectType === 'wordpress') {
         wordpressGroup.style.display = 'block';
-    } else if (projectType === 'basic') {
-        basicGroup.style.display = 'block';
     }
+    // Note: Basic PHP doesn't need version selection - no options to show
 }
 
 async function loadProjects() {
     try {
         // Use podium status command with JSON output for cleaner parsing
         const result = await ipcRenderer.invoke('execute-podium', 'status', ['--json-output']);
+        
+        // Check if command succeeded
+        if (result.code !== 0) {
+            console.log('Podium status command failed, likely no projects or services stopped');
+            projects = [];
+            sharedServices = {};
+            renderProjects();
+            return;
+        }
+        
         parseProjectStatusJSON(result.stdout);
         renderProjects();
     } catch (error) {
         console.error('Failed to load projects:', error);
-        showError('Failed to load projects');
+        // Only show error if it's a real failure, not just empty state
+        if (projects.length === 0) {
+            console.log('No projects found, not showing error notification');
+        } else {
+            showError('Failed to load projects');
+        }
     }
 }
 
@@ -87,6 +101,14 @@ function parseProjectStatusJSON(statusOutput) {
     sharedServices = {};
     
     if (!statusOutput || statusOutput.trim() === '') {
+        console.log('Empty status output, no projects to parse');
+        return;
+    }
+    
+    // Check if output looks like JSON
+    const trimmed = statusOutput.trim();
+    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+        console.log('Status output is not JSON format, likely no projects or services stopped:', trimmed);
         return;
     }
     
@@ -136,7 +158,14 @@ function parseProjectStatusJSON(statusOutput) {
         
     } catch (error) {
         console.error('Failed to parse JSON status output:', error);
-        showError('Failed to parse project status data');
+        console.log('Raw output that failed to parse:', statusOutput);
+        // Only show error if the directory exists but parsing failed
+        // This prevents errors when services are simply stopped or directory is empty
+        if (statusOutput.includes('Error:') || statusOutput.includes('Failed:')) {
+            showError('Failed to parse project status data');
+        } else {
+            console.log('Non-JSON output likely due to stopped services, not showing error');
+        }
     }
 }
 
@@ -487,8 +516,14 @@ async function stopAllProjects() {
 }
 
 function refreshProjects() {
+    showNotification('🔄 Refreshing projects and services...', 'info', 2000);
     loadProjects();
     loadServices();
+    
+    // Show completion notification after a brief delay
+    setTimeout(() => {
+        showNotification('✅ Projects refreshed', 'success', 2000);
+    }, 1000);
 }
 
 function openUrl(url) {

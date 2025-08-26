@@ -476,9 +476,7 @@ body {
     transition: background-color 0.2s;
 }
 
-.service-card:hover {
-    background: #e9ecef;
-}
+
 
 .service-card .service-status {
     font-size: 1.5rem;
