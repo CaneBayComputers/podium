@@ -7,4 +7,9 @@ packaging/debian-package/usr/
 releases/linux/
 !releases/homebrew/
 !releases/homebrew/*.rb
-!releases/*.mdsrc/gui/node_modules/
+!releases/*.md
+
+# GUI Dependencies
+src/gui/node_modules/
+src/gui/dist/
+

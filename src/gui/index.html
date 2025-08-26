@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podium - PHP Development Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>🎭 Podium</h1>
+                    <span class="tagline">Professional PHP Development Platform</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="createNewProject()">+ New Project</button>
+                    <button class="btn btn-primary" onclick="cloneProject()">📥 Clone</button>
+                    <button class="btn btn-primary" onclick="refreshProjects()">🔄 Refresh</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Project Dashboard -->
+            <section class="dashboard">
+                <div class="dashboard-header">
+                    <h2>Your Projects</h2>
+                    <div class="dashboard-controls">
+                        <button class="btn btn-success" onclick="startAllProjects()">▶ Start All</button>
+                        <button class="btn btn-warning" onclick="stopAllProjects()">⏹ Stop All</button>
+                    </div>
+                </div>
+
+                <!-- Projects Grid -->
+                <div id="projects-grid" class="projects-grid">
+                    <!-- Projects will be loaded here -->
+                    <div class="project-card placeholder">
+                        <div class="project-icon">🚀</div>
+                        <h3>Create Your First Project</h3>
+                        <p>Get started by creating a new Laravel or WordPress project</p>
+                        <button class="btn btn-primary" onclick="createNewProject()">+ New Project</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Status -->
+            <section class="services">
+                <div class="services-header">
+                    <h3>Shared Services</h3>
+                    <div class="services-controls">
+                        <button class="btn btn-success btn-small" onclick="startServices()">▶ Start Services</button>
+                        <button class="btn btn-warning btn-small" onclick="stopServices()">⏹ Stop Services</button>
+                        <button class="btn btn-primary btn-small" onclick="openUrl('http://phpmyadmin')">🗄️ phpMyAdmin</button>
+                    </div>
+                </div>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-status" id="mysql-status">🔴</div>
+                        <span>MariaDB</span>
+                        <div class="service-info">Database Server</div>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-status" id="redis-status">🔴</div>
+                        <span>Redis</span>
+                        <div class="service-info">Cache & Sessions</div>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-status" id="phpmyadmin-status">🔴</div>
+                        <span>phpMyAdmin</span>
+                        <div class="service-info">DB Management</div>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-status" id="memcached-status">🔴</div>
+                        <span>Memcached</span>
+                        <div class="service-info">Memory Cache</div>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-status" id="mongo-status">🔴</div>
+                        <span>MongoDB</span>
+                        <div class="service-info">Document DB</div>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-status" id="postgres-status">🔴</div>
+                        <span>PostgreSQL</span>
+                        <div class="service-info">Advanced DB</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals -->
+        <div id="new-project-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Create New Project</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="new-project-form">
+                        <div class="form-group">
+                            <label>Project Name</label>
+                            <input type="text" id="project-name" placeholder="my-awesome-project" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Project Type</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="project-type" value="laravel" checked> Laravel</label>
+                                <label><input type="radio" name="project-type" value="wordpress"> WordPress</label>
+                                <label><input type="radio" name="project-type" value="basic"> Basic PHP</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="laravel-version-group">
+                            <label>Laravel Version</label>
+                            <select id="laravel-version">
+                                <option value="12.x">Laravel 12.x (Latest)</option>
+                                <option value="11.x">Laravel 11.x (LTS)</option>
+                                <option value="10.x">Laravel 10.x</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="wordpress-version-group" style="display: none;">
+                            <label>WordPress Version</label>
+                            <select id="wordpress-version">
+                                <option value="latest">Latest WordPress</option>
+                                <option value="6.4">WordPress 6.4</option>
+                                <option value="6.3">WordPress 6.3</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="basic-version-group" style="display: none;">
+                            <label>PHP Version</label>
+                            <select id="basic-version">
+                                <option value="8.3">PHP 8.3 (Latest)</option>
+                                <option value="8.2">PHP 8.2</option>
+                                <option value="8.1">PHP 8.1</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="checkbox" id="create-github-repo" />
+                            <label for="create-github-repo">Create GitHub repository</label>
+                        </div>
+
+                        <div class="form-group" id="github-options" style="display: none;">
+                            <label>GitHub Organization (Optional)</label>
+                            <input type="text" id="organization" placeholder="mycompany">
+                            <small class="form-help">Leave blank to create in your personal account</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitNewProject()">Create Project</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="renderer.js"></script>
+
+</body>
+</html>
