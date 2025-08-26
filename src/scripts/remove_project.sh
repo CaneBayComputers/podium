@@ -174,13 +174,16 @@ if [[ "$DELETE_DB_CONFIRM" == "y" ]]; then
     # Check if db exists
     echo-cyan "Checking if database '$DB_NAME' exists..."
     echo-white
-    DB_EXISTS=$(mysql -h mariadb -u root -e "SHOW DATABASES LIKE '$DB_NAME';" | grep "$DB_NAME" || true)
+    
+    # Get MariaDB IP address
+    MARIADB_IP=$(docker inspect mariadb | grep '"IPAddress"' | tail -1 | cut -d'"' -f4)
+    DB_EXISTS=$(mysql -h $MARIADB_IP -u root -e "SHOW DATABASES LIKE '$DB_NAME';" 2>/dev/null | grep "$DB_NAME" || true)
 
     if [ -n "$DB_EXISTS" ]; then
         # If the database exists, proceed with deletion
         echo-cyan "Deleting database '$DB_NAME'..."
         echo-white
-        mysql -h mariadb -u root -e "DROP DATABASE \`$DB_NAME\`;" && echo-green "Database '$DB_NAME' deleted."
+        mysql -h $MARIADB_IP -u root -e "DROP DATABASE \`$DB_NAME\`;" && echo-green "Database '$DB_NAME' deleted." || echo-yellow "Database deletion failed."
         echo-white
     else
         # If the database does not exist, display a warning message

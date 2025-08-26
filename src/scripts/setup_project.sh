@@ -21,22 +21,8 @@ source "$DEV_DIR/scripts/pre_check.sh"
 # Env vars
 source docker-stack/.env
 
-# Detect active database engine from docker-compose services
-detect_database_engine() {
-    if [ -f "docker-stack/docker-compose.yaml" ]; then
-        if grep -q "^  postgres:" "docker-stack/docker-compose.yaml"; then
-            echo "postgresql"
-        elif grep -q "^  mongo:" "docker-stack/docker-compose.yaml"; then
-            echo "mongodb"  
-        else
-            echo "mariadb"
-        fi
-    else
-        echo "mariadb"  # default fallback
-    fi
-}
-
-DATABASE_ENGINE=$(detect_database_engine)
+# Database engine can be passed as second parameter, default to mariadb
+DATABASE_ENGINE="${2:-mariadb}"
 
 # Function to display usage
 usage() {

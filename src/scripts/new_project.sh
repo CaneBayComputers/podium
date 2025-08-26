@@ -398,6 +398,6 @@ cd ../..
 
 
 # Setup project
-source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME
+source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE
 
 cd $ORIG_DIR
