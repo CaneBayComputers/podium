@@ -32,16 +32,24 @@ cp -r ../src/* "${PACKAGE_NAME}/usr/local/share/podium-cli/"
 cp ../README.md "${PACKAGE_NAME}/usr/local/share/podium-cli/"
 cp ../LICENSE "${PACKAGE_NAME}/usr/local/share/podium-cli/"
 
-# Copy desktop entry and GUI files
-echo "Copying desktop entry and GUI files..."
-if [ -f "../src/debian-package/usr/share/applications/podium-gui.desktop" ]; then
-    cp "../src/debian-package/usr/share/applications/podium-gui.desktop" "${PACKAGE_NAME}/usr/share/applications/"
+# Build and copy GUI files
+echo "Building GUI application..."
+cd ../src/gui
+npm install
+npx electron-builder --linux --dir
+cd ../../packaging
+
+# Copy built GUI to package
+echo "Copying GUI files..."
+cp -r ../src/gui/dist "${PACKAGE_NAME}/usr/local/share/podium-cli/gui"
+
+# Copy desktop entry and icon files
+echo "Copying desktop entry and icon files..."
+if [ -f "debian-package/usr/share/applications/podium-gui.desktop" ]; then
+    cp "debian-package/usr/share/applications/podium-gui.desktop" "${PACKAGE_NAME}/usr/share/applications/"
 fi
-if [ -f "../src/debian-package/usr/local/share/podium-gui/start-gui.sh" ]; then
-    cp "../src/debian-package/usr/local/share/podium-gui/start-gui.sh" "${PACKAGE_NAME}/usr/local/share/podium-gui/"
-fi
-if [ -f "../src/debian-package/usr/share/pixmaps/podium-gui.png" ]; then
-    cp "../src/debian-package/usr/share/pixmaps/podium-gui.png" "${PACKAGE_NAME}/usr/share/pixmaps/"
+if [ -f "debian-package/usr/share/pixmaps/podium-gui.png" ]; then
+    cp "debian-package/usr/share/pixmaps/podium-gui.png" "${PACKAGE_NAME}/usr/share/pixmaps/"
 fi
 
 # Note: Projects directory is now user-configurable, not part of installation
@@ -58,11 +66,11 @@ chmod +x "${PACKAGE_NAME}/DEBIAN/prerm"
 if [ -f "${PACKAGE_NAME}/usr/share/applications/podium-gui.desktop" ]; then
     chmod 644 "${PACKAGE_NAME}/usr/share/applications/podium-gui.desktop"
 fi
-if [ -f "${PACKAGE_NAME}/usr/local/share/podium-gui/start-gui.sh" ]; then
-    chmod +x "${PACKAGE_NAME}/usr/local/share/podium-gui/start-gui.sh"
-fi
 if [ -f "${PACKAGE_NAME}/usr/share/pixmaps/podium-gui.png" ]; then
     chmod 644 "${PACKAGE_NAME}/usr/share/pixmaps/podium-gui.png"
+fi
+if [ -d "${PACKAGE_NAME}/usr/local/share/podium-cli/gui" ]; then
+    chmod -R 755 "${PACKAGE_NAME}/usr/local/share/podium-cli/gui"
 fi
 
 # Build the package
