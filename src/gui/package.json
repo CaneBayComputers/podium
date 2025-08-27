@@ -2,16 +2,20 @@
   "name": "podium-gui",
   "version": "1.0.0",
   "description": "Professional GUI for Podium PHP Development Platform",
-  "main": "main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron . --dev",
-    "build": "electron-builder",
-    "build-mac": "electron-builder --mac",
-    "build-win": "electron-builder --win",
-    "build-linux": "electron-builder --linux",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder --publish=never"
+    "build-ts": "tsc",
+    "watch-ts": "tsc --watch",
+    "start": "npm run build-ts && electron dist/main.js",
+    "dev": "npm run build-ts && electron dist/main.js --dev",
+    "build": "npm run build-ts && electron-builder",
+    "build-mac": "npm run build-ts && electron-builder --mac",
+    "build-win": "npm run build-ts && electron-builder --win",
+    "build-linux": "npm run build-ts && electron-builder --linux",
+    "pack": "npm run build-ts && electron-builder --dir",
+    "dist": "npm run build-ts && electron-builder --publish=never",
+    "clean": "rm -rf dist",
+    "rebuild": "npm run clean && npm run build-ts"
   },
   "keywords": [
     "php",
@@ -24,8 +28,10 @@
   "author": "Cane Bay Computers",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^20.19.11",
     "electron": "^28.0.0",
-    "electron-builder": "^24.0.0"
+    "electron-builder": "^24.0.0",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "ansi-to-html": "^0.7.2"
@@ -37,7 +43,7 @@
       "output": "dist"
     },
     "files": [
-      "*.js",
+      "dist/**/*",
       "*.html",
       "*.css",
       "assets/**/*",
