@@ -34,14 +34,14 @@ cp ../LICENSE "${PACKAGE_NAME}/usr/local/share/podium-cli/"
 
 # Build and copy GUI files
 echo "Building GUI application..."
-cd ../src/gui
+cd ../gui
 npm install
 npx electron-builder --linux --dir
-cd ../../packaging
+cd ../packaging
 
 # Copy built GUI to package
 echo "Copying GUI files..."
-cp -r ../src/gui/dist "${PACKAGE_NAME}/usr/local/share/podium-cli/gui"
+cp -rf ../gui/dist "${PACKAGE_NAME}/usr/local/share/podium-cli/gui"
 
 # Copy desktop entry and icon files
 echo "Copying desktop entry and icon files..."

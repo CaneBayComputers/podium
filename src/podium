@@ -290,10 +290,10 @@ case "$1" in
         if [ -x "/usr/local/share/podium-gui/podium-gui" ]; then
             # Production: Use installed GUI
             exec /usr/local/share/podium-gui/podium-gui "$@"
-        elif [ -f "$SCRIPT_DIR/gui/package.json" ]; then
+        elif [ -f "$SCRIPT_DIR/../gui/package.json" ]; then
             # Development: Use source GUI
             echo-cyan "🚀 Starting Podium GUI (development mode)..."
-            cd "$SCRIPT_DIR/gui"
+            cd "$SCRIPT_DIR/../gui"
             npm run dev
         else
             echo-red "Podium GUI is not available!"
