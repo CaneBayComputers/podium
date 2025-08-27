@@ -5,7 +5,7 @@ set -e
 
 ORIG_DIR=$(pwd)
 
-cd $(dirname "$(realpath "$0")")
+cd "$(dirname "$(realpath "$0")")"
 
 cd ..
 
@@ -295,9 +295,9 @@ if [ -d "$PROJECT_NAME" ]; then
 
 fi
 
-mkdir $PROJECT_NAME
+mkdir "$PROJECT_NAME"
 
-cd $PROJECT_NAME
+cd "$PROJECT_NAME"
 
 if [ "$PROJECT_TYPE" = "laravel" ]; then
     echo; echo-cyan "Creating Laravel project..."
@@ -400,4 +400,4 @@ cd ../..
 # Setup project
 source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE
 
-cd $ORIG_DIR
+cd "$ORIG_DIR"

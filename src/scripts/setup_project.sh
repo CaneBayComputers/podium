@@ -5,7 +5,7 @@ set -e
 
 ORIG_DIR=$(pwd)
 
-cd $(dirname "$(realpath "$0")")
+cd "$(dirname "$(realpath "$0")")"
 
 cd ..
 
@@ -370,4 +370,4 @@ source "$DEV_DIR/scripts/status.sh" $PROJECT_NAME
 
 
 # Return to original directory
-cd $ORIG_DIR
+cd "$ORIG_DIR"

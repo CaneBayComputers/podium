@@ -5,7 +5,7 @@ set -e
 
 ORIG_DIR=$(pwd)
 
-cd $(dirname "$(realpath "$0")")
+cd "$(dirname "$(realpath "$0")")"
 
 cd ..
 
