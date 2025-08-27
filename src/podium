@@ -44,27 +44,27 @@ init_projects_dir
 show_help() {
     echo-cyan "Podium - Universal PHP Development Environment"
     echo
-    echo-white "CONTAINERIZED DEVELOPMENT TOOLS:"
+    echo-white "CONTAINERIZED DEVELOPMENT TOOLS: (Run from project directory)"
     echo "  podium composer <args>    - Run Composer inside container"
     echo "  podium art <args>         - Run Laravel Artisan inside container"
     echo "  podium wp <args>          - Run WP-CLI inside container"
     echo "  podium php <args>         - Run PHP inside container"
     echo
-    echo-white "CONTAINER EXECUTION:"
+    echo-white "CONTAINER EXECUTION: (Run from project directory)"
     echo "  podium exec <cmd>         - Execute command as developer user"
     echo "  podium exec-root <cmd>    - Execute command as root user"
     echo
-    echo-white "ENHANCED LARAVEL COMMANDS:"
+    echo-white "ENHANCED LARAVEL COMMANDS: (Run from project directory)"
     echo "  podium db-refresh         - Fresh migration + seed"
     echo "  podium cache-refresh      - Clear all Laravel caches"
     echo
-    echo-white "SERVICE MANAGEMENT:"
+    echo-white "SERVICE MANAGEMENT: (Run from project directory)"
     echo "  podium redis <cmd>        - Run Redis CLI commands"
     echo "  podium redis-flush        - Flush all Redis data"
     echo "  podium memcache <cmd>     - Run Memcached commands via telnet"
     echo "  podium memcache-flush     - Flush all Memcached data"
     echo "  podium memcache-stats     - Show Memcached statistics"
-    echo "  podium supervisor <cmd>   - Run supervisorctl commands"
+    echo "  podium supervisor <cmd>   - Run supervisorctl commands (from project dir)"
     echo "  podium supervisor-status  - Show all supervised processes"
     echo
     echo-white "PROJECT MANAGEMENT:"
@@ -82,13 +82,41 @@ show_help() {
     echo "  podium config projects <path> - Set custom projects directory"
     echo "  podium gui                - Launch desktop GUI interface"
     echo
-    echo-white "EXAMPLES:"
-    echo "  podium composer install"
-    echo "  podium art migrate"
-    echo "  podium wp plugin list"
-    echo "  podium up myproject"
-    echo "  podium new --framework laravel --version 11.x --database postgres --github"
-    echo "  podium remove myproject --force"
+    echo-white "GLOBAL OPTIONS:"
+    echo "  --json-output             - Output status in JSON format"
+    echo "  --no-coloring             - Disable colored output"
+    echo
+    echo-white "NEW PROJECT OPTIONS:"
+    echo "  --framework <name>        - Framework: laravel, wordpress, php"
+    echo "  --version <ver>           - Version: 11.x, 10.x (Laravel) | latest (WP/PHP)"
+    echo "  --database <type>         - Database: mysql, postgres, mongodb"
+    echo "  --github                  - Create GitHub repository"
+    echo "  --no-github               - Skip GitHub repository creation"
+    echo "  --non-interactive         - Skip all prompts (use defaults)"
+    echo
+    echo-white "REMOVE PROJECT OPTIONS:"
+    echo "  --force                   - Skip confirmation prompts"
+    echo "  --force-db-delete         - Force database deletion without prompt"
+    echo "  --preserve-database       - Keep database (skip deletion)"
+    echo
+    echo-white "EXAMPLES WITH EXPLANATIONS:"
+    echo "  podium composer install                    # Install PHP dependencies in current project"
+    echo "  podium art migrate --seed                  # Run Laravel migrations with seeders"
+    echo "  podium wp plugin list --status=active     # List active WordPress plugins"
+    echo "  podium up myproject                        # Start containers for specific project"
+    echo "  podium status --json-output                # Get project status as JSON"
+    echo "  podium new --framework laravel --version 11.x --database postgres --github --non-interactive"
+    echo "                                             # Create Laravel 11.x project with PostgreSQL and GitHub repo"
+    echo "  podium remove myproject --force --preserve-database"
+    echo "                                             # Remove project but keep database"
+    echo "  podium exec 'ls -la'                       # Execute shell command in project container"
+    echo "  podium supervisor restart all              # Restart all supervised processes"
+    echo
+    echo-white "NOTES:"
+    echo "  • Development tools (composer, art, wp, php, exec, supervisor) require being in project directory"
+    echo "  • Use --json-output for programmatic integration"
+    echo "  • Use --no-coloring for scripts or terminals that don't support colors"
+    echo "  • Non-interactive mode uses sensible defaults for automated deployment"
 }
 
 # Get current project name (directory basename)
