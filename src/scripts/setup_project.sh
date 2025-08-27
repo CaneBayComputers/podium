@@ -160,7 +160,7 @@ fi
 
 # Stay in project directory for Docker operations
 # Start Docker instance
-echo-return; echo-return-cyan "Starting up $PROJECT_NAME ..."; echo-white
+echo-return; echo-cyan "Starting up $PROJECT_NAME ..."; echo-white
 
 if ! [ -f docker-compose.yaml ]; then
     echo-red 'No docker-compose.yaml file found!'
@@ -185,7 +185,7 @@ if [ -f "composer.json" ]; then
 
     echo-cyan "Installing vendor libs with composer ..."; echo-white
 
-    composer-docker install
+    json-composer install
 
     echo-green "Vendor libs installed!"; echo-white
 
@@ -332,7 +332,7 @@ fi
 # Create new database, run migration and seed
 echo-cyan "Creating database $PROJECT_NAME_SNAKE ..."; echo-white
 
-mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
+json-mysql -h"mariadb" -u"root" -e "CREATE DATABASE IF NOT EXISTS $PROJECT_NAME_SNAKE;"
 
 echo-green 'Database created!'; echo-white
 
@@ -340,13 +340,29 @@ if [ -f "artisan" ]; then
 
     echo-cyan 'Running migrations ...'; echo-white
 
-    if art-docker migrate:fresh; then
+    if [[ "$JSON_OUTPUT" == "1" ]]; then
+        art-docker migrate:fresh > /dev/null 2>&1
+        MIGRATE_SUCCESS=$?
+    else
+        art-docker migrate:fresh
+        MIGRATE_SUCCESS=$?
+    fi
+    
+    if [ $MIGRATE_SUCCESS -eq 0 ]; then
 
         echo-green 'Migrations successful'; echo-white
 
         echo-cyan 'Seeding database ...'; echo-white
 
-        if art-docker db:seed; then
+        if [[ "$JSON_OUTPUT" == "1" ]]; then
+            art-docker db:seed > /dev/null 2>&1
+            SEED_SUCCESS=$?
+        else
+            art-docker db:seed
+            SEED_SUCCESS=$?
+        fi
+        
+        if [ $SEED_SUCCESS -eq 0 ]; then
 
             echo-green 'Database seeded!'; echo-white
 

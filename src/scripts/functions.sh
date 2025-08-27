@@ -53,12 +53,49 @@ echo-white() { if [[ "$JSON_OUTPUT" == "1" ]]; then return; fi; if [[ "$NO_COLOR
 # JSON-aware echo function for regular output
 echo-return() { if [[ "$JSON_OUTPUT" != "1" ]]; then echo "$@"; fi; }
 
-# Docker aliases used by scripts (keep these for internal script usage)
-dockerup() { docker compose up -d "$@"; }
-dockerdown() { docker compose down "$@"; }
+# Docker aliases used by scripts (JSON-aware for clean output)
+dockerup() { 
+    if [[ "$JSON_OUTPUT" == "1" ]]; then
+        docker compose up -d --quiet-pull "$@" > /dev/null 2>&1
+    else
+        docker compose up -d "$@"
+    fi
+}
+dockerdown() { 
+    if [[ "$JSON_OUTPUT" == "1" ]]; then
+        docker compose down "$@" > /dev/null 2>&1
+    else
+        docker compose down "$@"
+    fi
+}
 dockerexec() { docker container exec -it "$@"; }
 dockerls() { docker container ls "$@"; }
 dockerrm() { docker container rm "$@"; }
+
+# JSON-aware command wrappers
+json-mysql() {
+    if [[ "$JSON_OUTPUT" == "1" ]]; then
+        mysql "$@" > /dev/null 2>&1
+    else
+        mysql "$@"
+    fi
+}
+
+json-composer() {
+    if [[ "$JSON_OUTPUT" == "1" ]]; then
+        composer-docker "$@" > /dev/null 2>&1
+    else
+        composer-docker "$@"
+    fi
+}
+
+json-artisan() {
+    if [[ "$JSON_OUTPUT" == "1" ]]; then
+        art "$@" > /dev/null 2>&1
+    else
+        art "$@"
+    fi
+}
 
 # Project-specific Docker commands (run inside project containers)
 composer-docker() { 

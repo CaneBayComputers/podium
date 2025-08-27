@@ -191,13 +191,17 @@ if [[ "$DELETE_DB_CONFIRM" == "y" ]]; then
     
     # Get MariaDB IP address
     MARIADB_IP=$(docker inspect mariadb | grep '"IPAddress"' | tail -1 | cut -d'"' -f4)
-    DB_EXISTS=$(mysql -h $MARIADB_IP -u root -e "SHOW DATABASES LIKE '$DB_NAME';" 2>/dev/null | grep "$DB_NAME" || true)
+    if [[ "$JSON_OUTPUT" == "1" ]]; then
+        DB_EXISTS=$(mysql -h $MARIADB_IP -u root -e "SHOW DATABASES LIKE '$DB_NAME';" 2>/dev/null | grep "$DB_NAME" || true)
+    else
+        DB_EXISTS=$(mysql -h $MARIADB_IP -u root -e "SHOW DATABASES LIKE '$DB_NAME';" 2>/dev/null | grep "$DB_NAME" || true)
+    fi
 
     if [ -n "$DB_EXISTS" ]; then
         # If the database exists, proceed with deletion
         echo-cyan "Deleting database '$DB_NAME'..."
         echo-white
-        mysql -h $MARIADB_IP -u root -e "DROP DATABASE \`$DB_NAME\`;" && echo-green "Database '$DB_NAME' deleted." || echo-yellow "Database deletion failed."
+        json-mysql -h $MARIADB_IP -u root -e "DROP DATABASE \`$DB_NAME\`;" && echo-green "Database '$DB_NAME' deleted." || echo-yellow "Database deletion failed."
         echo-white
     else
         # If the database does not exist, display a warning message

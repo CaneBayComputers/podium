@@ -17,16 +17,7 @@ SCRIPT_DIR="$(cd -P "$(dirname "$SCRIPT_PATH")" && pwd)"
 # Source functions
 source "$SCRIPT_DIR/scripts/functions.sh"
 
-# Check for --no-coloring flag and set NO_COLOR environment variable
-temp_args=()
-for arg in "$@"; do
-    if [[ "$arg" == "--no-coloring" ]]; then
-        export NO_COLOR=1
-    else
-        temp_args+=("$arg")
-    fi
-done
-set -- "${temp_args[@]}"
+# Note: --no-coloring option removed - use --json-output for clean output instead
 
 # Check for --json-output flag and set JSON_OUTPUT environment variable
 new_args=()
@@ -85,8 +76,7 @@ show_help() {
     echo "  podium gui                - Launch desktop GUI interface"
     echo
     echo-white "GLOBAL OPTIONS:"
-    echo "  --json-output             - Output status in JSON format"
-    echo "  --no-coloring             - Disable colored output"
+    echo "  --json-output             - Clean JSON output (suppresses all text/colors)"
     echo
     echo-white "NEW PROJECT OPTIONS:"
     echo "  --framework <name>        - Framework: laravel, wordpress, php"
@@ -116,8 +106,7 @@ show_help() {
     echo
     echo-white "NOTES:"
     echo "  • Development tools (composer, art, wp, php, exec, supervisor) require being in project directory"
-    echo "  • Use --json-output for programmatic integration"
-    echo "  • Use --no-coloring for scripts or terminals that don't support colors"
+    echo "  • Use --json-output for programmatic integration (GUI, scripts, automation)"
     echo "  • Non-interactive mode uses sensible defaults for automated deployment"
 }
 

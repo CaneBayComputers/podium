@@ -109,7 +109,7 @@ done
 
 # Interactive mode if no project name provided
 if [ -z "$PROJECT_NAME" ]; then
-    echo-return; echo-return-cyan "🚀 Create a New Podium Project"
+    echo-return; echo-cyan "🚀 Create a New Podium Project"
     echo
     echo-white -n "Enter project name: "
     read PROJECT_NAME
@@ -131,10 +131,10 @@ PROJECT_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | 
 # Project type selection
 # Framework selection
 if [ -z "$FRAMEWORK" ]; then
-    echo-return; echo-return-cyan "What type of project would you like to create?"
+    echo-return; echo-cyan "What type of project would you like to create?"
     echo-white "1) Laravel (PHP Framework)"
     echo-white "2) WordPress (CMS)"
-    echo-return; echo-return-yellow -n "Enter your choice (1-2): "
+    echo-return; echo-yellow -n "Enter your choice (1-2): "
     read PROJECT_TYPE_CHOICE
     
     case $PROJECT_TYPE_CHOICE in
@@ -155,16 +155,16 @@ fi
 
 case $PROJECT_TYPE in
     laravel)
-        echo-return; echo-return-cyan "Laravel project selected!"
+        echo-return; echo-cyan "Laravel project selected!"
         
         # Laravel version selection
         if [ -z "$VERSION" ]; then
-            echo-return; echo-return-cyan "Which Laravel version would you like to use?"
+            echo-return; echo-cyan "Which Laravel version would you like to use?"
             echo-white "1) Laravel 12.x (Latest - Recommended)"
             echo-white "2) Laravel 11.x (LTS)"
             echo-white "3) Laravel 10.x (Previous LTS)"
             echo-white "4) Custom version"
-            echo-return; echo-return-yellow -n "Enter your choice (1-4): "
+            echo-return; echo-yellow -n "Enter your choice (1-4): "
             read LARAVEL_VERSION_CHOICE
             
             case $LARAVEL_VERSION_CHOICE in
@@ -181,7 +181,7 @@ case $PROJECT_TYPE in
                     echo-green "Laravel 10.x selected!"
                     ;;
                 4)
-                    echo-return; echo-return-yellow -n "Enter Laravel version (e.g., 11.x, 10.x): "
+                    echo-return; echo-yellow -n "Enter Laravel version (e.g., 11.x, 10.x): "
                     read CUSTOM_LARAVEL_VERSION
                     CUR_LARAVEL_BRANCH="$CUSTOM_LARAVEL_VERSION"
                     echo-green "Laravel $CUSTOM_LARAVEL_VERSION selected!"
@@ -193,19 +193,19 @@ case $PROJECT_TYPE in
             esac
         else
             CUR_LARAVEL_BRANCH="$VERSION"
-            echo-return; echo-return-cyan "Laravel $VERSION selected!"
+            echo-return; echo-cyan "Laravel $VERSION selected!"
         fi
         ;;
     wordpress)
-        echo-return; echo-return-cyan "WordPress project selected!"
+        echo-return; echo-cyan "WordPress project selected!"
         
         # WordPress version selection
         if [ -z "$VERSION" ]; then
-            echo-return; echo-return-cyan "Which WordPress version would you like to use?"
+            echo-return; echo-cyan "Which WordPress version would you like to use?"
             echo-white "1) Latest WordPress (Recommended)"
             echo-white "2) WordPress 6.4 (Previous version)"
             echo-white "3) WordPress 6.3"
-            echo-return; echo-return-yellow -n "Enter your choice (1-3): "
+            echo-return; echo-yellow -n "Enter your choice (1-3): "
             read WP_VERSION_CHOICE
             
             case $WP_VERSION_CHOICE in
@@ -228,7 +228,7 @@ case $PROJECT_TYPE in
             esac
         else
             WP_VERSION="$VERSION"
-            echo-return; echo-return-cyan "WordPress $VERSION selected!"
+            echo-return; echo-cyan "WordPress $VERSION selected!"
         fi
         ;;
     *)
@@ -239,11 +239,11 @@ esac
 
 # Database selection
 if [ -z "$DATABASE" ]; then
-    echo-return; echo-return-cyan "Which database would you like to use?"
+    echo-return; echo-cyan "Which database would you like to use?"
     echo-white "1) MySQL/MariaDB (Default)"
     echo-white "2) PostgreSQL"
     echo-white "3) MongoDB"
-    echo-return; echo-return-yellow -n "Enter your choice (1-3): "
+    echo-return; echo-yellow -n "Enter your choice (1-3): "
     read DB_CHOICE
     
     case $DB_CHOICE in
@@ -268,15 +268,15 @@ else
     case "$DATABASE" in
         mysql|mariadb)
             DATABASE_TYPE="mysql"
-            echo-return; echo-return-cyan "MySQL/MariaDB selected!"
+            echo-return; echo-cyan "MySQL/MariaDB selected!"
             ;;
         postgres|postgresql)
             DATABASE_TYPE="postgres"
-            echo-return; echo-return-cyan "PostgreSQL selected!"
+            echo-return; echo-cyan "PostgreSQL selected!"
             ;;
         mongo|mongodb)
             DATABASE_TYPE="mongo"
-            echo-return; echo-return-cyan "MongoDB selected!"
+            echo-return; echo-cyan "MongoDB selected!"
             ;;
         *)
             echo-yellow "Unknown database '$DATABASE'. Defaulting to MySQL/MariaDB"
@@ -304,7 +304,7 @@ mkdir "$PROJECT_NAME"
 cd "$PROJECT_NAME"
 
 if [ "$PROJECT_TYPE" = "laravel" ]; then
-    echo-return; echo-return-cyan "Creating Laravel project..."
+    echo-return; echo-cyan "Creating Laravel project..."
     
     git init
     git remote add laravel https://github.com/laravel/laravel.git
@@ -314,7 +314,7 @@ if [ "$PROJECT_TYPE" = "laravel" ]; then
     echo-green "Laravel project structure created!"
 
 elif [ "$PROJECT_TYPE" = "wordpress" ]; then
-    echo-return; echo-return-cyan "Downloading WordPress..."
+    echo-return; echo-cyan "Downloading WordPress..."
     
     if [ "$WP_VERSION" = "latest" ]; then
         curl -O https://wordpress.org/latest.tar.gz
@@ -362,10 +362,10 @@ fi
 
 # GitHub repository creation
 if [ -z "$CREATE_GITHUB" ]; then
-    echo-return; echo-return-cyan "Would you like to create a GitHub repository?"
+    echo-return; echo-cyan "Would you like to create a GitHub repository?"
     echo-white "1) Yes, create GitHub repository"
     echo-white "2) No, skip GitHub repository"
-    echo-return; echo-return-yellow -n "Enter your choice (1-2): "
+    echo-return; echo-yellow -n "Enter your choice (1-2): "
     read GITHUB_CHOICE
     
     case $GITHUB_CHOICE in
@@ -388,26 +388,24 @@ if [ "$CREATE_GITHUB" = "yes" ]; then
         REPO_NAME="$ORGANIZATION/$PROJECT_NAME"
     fi
 
-    echo-return; echo-return-cyan "Creating GitHub repository..."
+    echo-return; echo-cyan "Creating GitHub repository..."
     if gh repo create $REPO_NAME --private --source=. --push; then
         echo-green "GitHub repository created successfully!"
     else
         echo-yellow "GitHub repository creation failed, but project setup will continue."
     fi
 else
-    echo-return; echo-return-yellow "Skipping GitHub repository creation."
+    echo-return; echo-yellow "Skipping GitHub repository creation."
 fi
 
 cd ../..
 
 
-# Setup project (temporarily disable JSON output to prevent status.sh from overriding our output)
-TEMP_JSON_OUTPUT="$JSON_OUTPUT"
-export JSON_OUTPUT=""
+# Setup project
 source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE
 
 # JSON output for project creation
-if [[ "$TEMP_JSON_OUTPUT" == "1" ]]; then
+if [[ "$JSON_OUTPUT" == "1" ]]; then
     echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"success\"}"
 fi
 

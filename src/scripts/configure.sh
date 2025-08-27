@@ -129,9 +129,9 @@ if [[ "$GUI_MODE" != "true" ]]; then
 
 			ORIG_USER=$SUDO_USER
 
-				echo-return; echo-return-red "Do NOT run with sudo or as root!";
+				echo-return; echo-red "Do NOT run with sudo or as root!";
 
-		echo-return; echo-return-white "Please run as regular user (you may be prompted for sudo password when needed)."; echo
+		echo-return; echo-white "Please run as regular user (you may be prompted for sudo password when needed)."; echo
 
 		exit 1
 
@@ -141,7 +141,7 @@ if [[ "$GUI_MODE" != "true" ]]; then
 
 		echo-cyan 'IMPORTANT: This script must NOT be run with sudo!'
 
-		echo-return; echo-return-white 'Running with sudo would configure Git and AWS for the root user instead of your user account.'
+		echo-return; echo-white 'Running with sudo would configure Git and AWS for the root user instead of your user account.'
 
 		echo-white 'The script will prompt for sudo password only when needed for system-level operations.'
 
@@ -149,7 +149,7 @@ if [[ "$GUI_MODE" != "true" ]]; then
 
 		if ! sudo -v; then
 
-			echo-return; echo-return-red "No sudo privileges. Root access required!"; echo
+			echo-return; echo-red "No sudo privileges. Root access required!"; echo
 
 			exit 1;
 
@@ -157,7 +157,7 @@ if [[ "$GUI_MODE" != "true" ]]; then
 	elif [[ "$PLATFORM" == "mac" ]]; then
 		# Mac users typically have sudo access, just verify
 		if ! sudo -v; then
-			echo-return; echo-return-red "Administrator privileges required for installation!"; echo
+			echo-return; echo-red "Administrator privileges required for installation!"; echo
 			exit 1;
 		fi
 	fi
@@ -192,7 +192,7 @@ fi
 
 
 # Install Podium command globally
-echo-return; echo-return-cyan "Installing Podium command globally..."
+echo-return; echo-cyan "Installing Podium command globally..."
 echo-white "This creates a 'podium' command accessible from anywhere on your system."
 echo-white
 
@@ -265,7 +265,7 @@ fi
 ###############################
 # Set up git committer info
 ###############################
-echo-return; echo-return-cyan 'Setting up Git ...'; echo-white
+echo-return; echo-cyan 'Setting up Git ...'; echo-white
 
 if ! git config --global mergetool.keepBackup > /dev/null 2>&1; then
 
@@ -342,7 +342,7 @@ echo-green "Git configured!"; echo-white; echo
 ###############################
 # Set up Github authentication
 ###############################
-echo-return; echo-return-cyan 'Setting up Github authentication ...'; echo-white
+echo-return; echo-cyan 'Setting up Github authentication ...'; echo-white
 
 if ! gh auth status > /dev/null 2>&1; then
 
@@ -352,7 +352,7 @@ if ! gh auth status > /dev/null 2>&1; then
 
 fi
 
-echo-return; echo-return-green "Github authentication complete!"; echo-white; echo
+echo-return; echo-green "Github authentication complete!"; echo-white; echo
 
 
 

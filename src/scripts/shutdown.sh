@@ -39,7 +39,7 @@ shutdown_container() {
 
   	if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
 
-	  	echo-return; echo-return-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
+	  	echo-return; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
 
 	  	cd "$REPO_DIR"
 
@@ -51,7 +51,7 @@ shutdown_container() {
 
 	  else
 
-	  	echo-return; echo-return-yellow "Container $CONTAINER_NAME is not running!"; echo-white; echo
+	  	echo-return; echo-yellow "Container $CONTAINER_NAME is not running!"; echo-white; echo
 
 	  fi
 
@@ -91,7 +91,7 @@ if [ -z "$PROJECT_NAME" ]; then
 
 	        if check-mariadb; then
 
-                echo-return; echo-return-cyan "Shutting down services ..."; echo-white; echo
+                echo-return; echo-cyan "Shutting down services ..."; echo-white; echo
 
                 cd "$DEV_DIR/docker-stack"
 
@@ -118,6 +118,6 @@ if [[ "$JSON_OUTPUT" == "1" ]]; then
         echo "{\"action\": \"shutdown\", \"target\": \"all_projects\", \"status\": \"success\"}"
     fi
 else
-    echo-return; echo-return-green "Docker containers shut down successfully!"; echo-white; echo
+    echo-return; echo-green "Docker containers shut down successfully!"; echo-white; echo
 fi
 
