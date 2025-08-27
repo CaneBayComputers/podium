@@ -9,7 +9,7 @@ cd ..
 DEV_DIR=$(pwd)
 source scripts/functions.sh
 
-echo; echo
+echo-return; echo-return
 
 # Usage function to explain the script
 usage() {
@@ -53,6 +53,10 @@ while [[ $# -gt 0 ]]; do
         --force)
             FORCE_TRASH_PROJECT=true
             FORCE_DB_DELETE=true
+            shift
+            ;;
+        --json-output)
+            JSON_OUTPUT=1
             shift
             ;;
         --help)

@@ -13,7 +13,7 @@ DEV_DIR=$(pwd)
 
 source scripts/functions.sh
 
-echo; echo
+echo-return; echo-return
 
 
 # Main

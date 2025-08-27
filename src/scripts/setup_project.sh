@@ -160,7 +160,7 @@ fi
 
 # Stay in project directory for Docker operations
 # Start Docker instance
-echo; echo-cyan "Starting up $PROJECT_NAME ..."; echo-white
+echo-return; echo-return-cyan "Starting up $PROJECT_NAME ..."; echo-white
 
 if ! [ -f docker-compose.yaml ]; then
     echo-red 'No docker-compose.yaml file found!'
@@ -313,7 +313,7 @@ EOF
 
 fi
 
-echo; echo
+echo-return; echo-return
 
 
 # Make storage writable for all
@@ -362,7 +362,7 @@ elif [ -f "create_tables.sql" ]; then
 
 fi
 
-echo; echo
+echo-return; echo-return
 
 
 # Show status of running Docker project

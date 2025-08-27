@@ -80,11 +80,13 @@ echo
 cd ..
 
 
-# Setup project
+# Setup project (temporarily disable JSON output to prevent status.sh from overriding our output)
+TEMP_JSON_OUTPUT="$JSON_OUTPUT"
+export JSON_OUTPUT=""
 source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME
 
 # JSON output for project clone
-if [[ "$JSON_OUTPUT" == "1" ]]; then
+if [[ "$TEMP_JSON_OUTPUT" == "1" ]]; then
     echo "{\"action\": \"clone_project\", \"project_name\": \"$PROJECT_NAME\", \"repository\": \"$REPO_URL\", \"status\": \"success\"}"
 fi
 

@@ -156,7 +156,7 @@ fi
 # Check if this environment is installed
 if ! [ -f docker-stack/.env ]; then
 
-  echo; echo-red 'Development environment has not been configured!'; echo-white
+  echo-return; echo-return-red 'Development environment has not been configured!'; echo-white
 
   echo 'Run: podium config'
 
@@ -168,7 +168,7 @@ fi
 # Start CBC stack
 if ! check-mariadb; then
 
-  echo; echo-red 'Development environment is not started!'; echo-white
+  echo-return; echo-return-red 'Development environment is not started!'; echo-white
 
   echo 'Run startup.sh'
 
@@ -317,5 +317,5 @@ else
     fi
 fi
 
-echo; echo
+echo-return; echo-return
 
