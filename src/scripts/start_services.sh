@@ -36,9 +36,9 @@ if ! check-mariadb; then
 fi
 
 # JSON output for service start
-if [[ "$JSON_OUTPUT" == "1" ]]; then
+if [[ "$JSON_OUTPUT" == "1" && "$SUPPRESS_INTERMEDIATE_JSON" != "1" ]]; then
     echo "{\"action\": \"start_services\", \"status\": \"success\"}"
-else
+elif [[ "$JSON_OUTPUT" != "1" ]]; then
     echo-green "Services are running!"; echo-white
 fi
 

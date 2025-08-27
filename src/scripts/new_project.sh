@@ -306,10 +306,17 @@ cd "$PROJECT_NAME"
 if [ "$PROJECT_TYPE" = "laravel" ]; then
     echo-return; echo-cyan "Creating Laravel project..."
     
-    git init
-    git remote add laravel https://github.com/laravel/laravel.git
-    git fetch laravel $CUR_LARAVEL_BRANCH
-    git merge laravel/$CUR_LARAVEL_BRANCH
+    if [[ "$JSON_OUTPUT" == "1" ]]; then
+        git init > /dev/null 2>&1
+        git remote add laravel https://github.com/laravel/laravel.git > /dev/null 2>&1
+        git fetch laravel $CUR_LARAVEL_BRANCH > /dev/null 2>&1
+        git merge laravel/$CUR_LARAVEL_BRANCH > /dev/null 2>&1
+    else
+        git init
+        git remote add laravel https://github.com/laravel/laravel.git
+        git fetch laravel $CUR_LARAVEL_BRANCH
+        git merge laravel/$CUR_LARAVEL_BRANCH
+    fi
     
     echo-green "Laravel project structure created!"
 
@@ -401,11 +408,17 @@ fi
 cd ../..
 
 
-# Setup project
+# Setup project (suppress intermediate JSON outputs)
+if [[ "$JSON_OUTPUT" == "1" ]]; then
+    # Temporarily disable JSON output for called scripts
+    export SUPPRESS_INTERMEDIATE_JSON=1
+fi
 source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE
 
 # JSON output for project creation
 if [[ "$JSON_OUTPUT" == "1" ]]; then
+    # Re-enable JSON output for our final output
+    unset SUPPRESS_INTERMEDIATE_JSON
     echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"success\"}"
 fi
 

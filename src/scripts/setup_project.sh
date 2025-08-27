@@ -71,7 +71,7 @@ source "$DEV_DIR/scripts/shutdown.sh" $PROJECT_NAME
 # Enter into project and get PHP version
 cd "$PROJECT_DIR"
 
-pwd; echo
+echo-return "$(pwd)"; echo-return
 
 if grep -q '"php":\s*"^7' composer.json; then
 
@@ -95,7 +95,7 @@ PROJECT_NAME_SNAKE=$(echo "$PROJECT_NAME" | sed 's/-/_/g')
 
 
 # Get a random D class number and make sure it doesn' already exist in hosts file
-echo -n "Docker IP Address: "
+echo-return -n "Docker IP Address: "
 
 while true; do
 
@@ -126,7 +126,11 @@ done
 
 
 # Enter new Docker IP address
-echo "$IP_ADDRESS      $PROJECT_NAME" | sudo tee -a /etc/hosts
+if [[ "$JSON_OUTPUT" == "1" ]]; then
+        echo "$IP_ADDRESS      $PROJECT_NAME" | sudo tee -a /etc/hosts > /dev/null
+    else
+        echo "$IP_ADDRESS      $PROJECT_NAME" | sudo tee -a /etc/hosts
+    fi
 
 echo
 
@@ -179,7 +183,7 @@ echo-green "Project $PROJECT_NAME started successfully!"
 # Install Composer libraries
 cd "$PROJECT_DIR"
 
-echo-cyan "Current directory: $(pwd)"; echo-white
+echo-cyan "Current directory: $(pwd)"
 
 if [ -f "composer.json" ]; then
 

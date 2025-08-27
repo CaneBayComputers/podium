@@ -208,8 +208,10 @@ if [[ "$JSON_OUTPUT" == "1" ]]; then
         done
     fi
     
-    # Output JSON
-    echo "$JSON_DATA"
+    # Output JSON (unless suppressed for intermediate calls)
+    if [[ "$SUPPRESS_INTERMEDIATE_JSON" != "1" ]]; then
+        echo "$JSON_DATA"
+    fi
     exit 0
 fi
 
