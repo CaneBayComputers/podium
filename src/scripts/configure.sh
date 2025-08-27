@@ -529,4 +529,11 @@ fi
 # Yay all done
 ###############################
 
+# JSON output for configuration
+if [[ "$JSON_OUTPUT" == "1" ]]; then
+    echo "{\"action\": \"configure\", \"status\": \"success\"}"
+else
+    echo-green "Configuration completed successfully!"; echo-white
+fi
+
 cd "$ORIG_DIR"

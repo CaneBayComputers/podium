@@ -400,4 +400,9 @@ cd ../..
 # Setup project
 source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE
 
+# JSON output for project creation
+if [[ "$JSON_OUTPUT" == "1" ]]; then
+    echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"success\"}"
+fi
+
 cd "$ORIG_DIR"

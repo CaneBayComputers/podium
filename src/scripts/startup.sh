@@ -109,4 +109,7 @@ if ! $NO_STATUS; then
 
   source "$DEV_DIR/scripts/status.sh" $PROJECT_NAME
 
+elif [[ "$JSON_OUTPUT" == "1" ]]; then
+  # For JSON output, we still need to call status.sh to get the data
+  source "$DEV_DIR/scripts/status.sh" $PROJECT_NAME
 fi

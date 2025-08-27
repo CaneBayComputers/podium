@@ -109,5 +109,15 @@ else
 
 fi
 
-echo; echo-green "Docker containers shut down successfully!"; echo-white; echo
+# Final output
+if [[ "$JSON_OUTPUT" == "1" ]]; then
+    # JSON output for shutdown
+    if [ -n "$PROJECT_NAME" ]; then
+        echo "{\"action\": \"shutdown\", \"target\": \"project\", \"project_name\": \"$PROJECT_NAME\", \"status\": \"success\"}"
+    else
+        echo "{\"action\": \"shutdown\", \"target\": \"all_projects\", \"status\": \"success\"}"
+    fi
+else
+    echo; echo-green "Docker containers shut down successfully!"; echo-white; echo
+fi
 

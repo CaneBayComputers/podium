@@ -209,5 +209,10 @@ fi
 # Return to original directory
 cd "$ORIG_DIR"
 
-echo-green "Project '$PROJECT_NAME' and associated settings have been removed."
-echo-white
+# JSON output for project removal
+if [[ "$JSON_OUTPUT" == "1" ]]; then
+    echo "{\"action\": \"remove_project\", \"project_name\": \"$PROJECT_NAME\", \"database_deleted\": $([ "$DELETE_DB_CONFIRM" = "y" ] && echo "true" || echo "false"), \"status\": \"success\"}"
+else
+    echo-green "Project '$PROJECT_NAME' and associated settings have been removed."
+    echo-white
+fi

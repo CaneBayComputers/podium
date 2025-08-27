@@ -83,4 +83,9 @@ cd ..
 # Setup project
 source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME
 
+# JSON output for project clone
+if [[ "$JSON_OUTPUT" == "1" ]]; then
+    echo "{\"action\": \"clone_project\", \"project_name\": \"$PROJECT_NAME\", \"repository\": \"$REPO_URL\", \"status\": \"success\"}"
+fi
+
 cd "$ORIG_DIR"
