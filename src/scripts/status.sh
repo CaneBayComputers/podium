@@ -212,7 +212,12 @@ if [[ "$JSON_OUTPUT" == "1" ]]; then
     if [[ "$SUPPRESS_INTERMEDIATE_JSON" != "1" ]]; then
         echo "$JSON_DATA"
     fi
-    exit 0
+    # Use return if sourced, exit if called directly
+    if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+        return 0
+    else
+        exit 0
+    fi
 fi
 
 # Traditional text output

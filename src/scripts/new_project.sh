@@ -408,18 +408,18 @@ fi
 cd ../..
 
 
-# Setup project (suppress intermediate JSON outputs)
+# Setup project
 if [[ "$JSON_OUTPUT" == "1" ]]; then
-    # Temporarily disable JSON output for called scripts
-    export SUPPRESS_INTERMEDIATE_JSON=1
-fi
-source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE
-
-# JSON output for project creation
-if [[ "$JSON_OUTPUT" == "1" ]]; then
-    # Re-enable JSON output for our final output
-    unset SUPPRESS_INTERMEDIATE_JSON
-    echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"success\"}"
+    # In JSON mode, run setup silently and provide our own complete response
+    source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE > /dev/null
+    if [ $? -eq 0 ]; then
+        echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"success\"}"
+    else
+        echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"error\"}"
+    fi
+else
+    # In normal mode, run setup with full output
+    source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE
 fi
 
 cd "$ORIG_DIR"
