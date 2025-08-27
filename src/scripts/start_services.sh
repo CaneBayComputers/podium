@@ -37,4 +37,4 @@ fi
 
 echo-green "Services are running!"; echo-white
 
-cd $ORIG_DIR
+cd "$ORIG_DIR"

@@ -529,4 +529,4 @@ fi
 # Yay all done
 ###############################
 
-cd $ORIG_DIR
+cd "$ORIG_DIR"

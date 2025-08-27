@@ -83,4 +83,4 @@ cd ..
 # Setup project
 source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME
 
-cd $ORIG_DIR
+cd "$ORIG_DIR"

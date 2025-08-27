@@ -41,7 +41,7 @@ shutdown_container() {
 
 	  	echo; echo-cyan "Shutting down $CONTAINER_NAME ..."; echo-white; echo
 
-	  	cd $REPO_DIR
+	  	cd "$REPO_DIR"
 
 	  	dockerdown
 

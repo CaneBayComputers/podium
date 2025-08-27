@@ -34,4 +34,4 @@ if ! [ -f docker-stack/.env ]; then
 
 fi
 
-cd $ORIG_DIR
+cd "$ORIG_DIR"
