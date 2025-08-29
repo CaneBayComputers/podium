@@ -35,80 +35,13 @@ HOSTS=$(cat /etc/hosts)
 
 
 # Functions
-# Parse docker-compose.yaml to get all services dynamically
-parse_docker_compose_services() {
-    local compose_file="$1"
-    local vpc_subnet="$2"
-    local services_json="{}"
-    
-    # Get list of running containers once for performance
-    local running_containers=$(docker ps --format "{{.Names}}")
-    
-    if [ ! -f "$compose_file" ]; then
-        echo "$services_json"
-        return
+get_service_status() {
+    local service_name="$1"
+    if docker ps --format "table {{.Names}}" | grep -q "$service_name"; then
+        echo "running"
+    else
+        echo "stopped"
     fi
-    
-    # Extract all service definitions using simple grep/awk
-    # Look for lines that define services (2+ spaces, name, colon) but only in the services section
-    local service_names=$(awk '
-        /^services:/ { in_services=1; next }
-        /^[a-zA-Z]/ && !/^services:/ { in_services=0 }
-        in_services && /^  [a-zA-Z0-9_-]+:/ { 
-            gsub(/^  /, ""); 
-            gsub(/:.*/, ""); 
-            print 
-        }
-    ' "$compose_file")
-    
-    # Process each service
-    while IFS= read -r service_name; do
-        [ -z "$service_name" ] && continue
-        
-        # Extract details for this service using simple grep with line numbers
-        local service_start=$(grep -n "^  $service_name:" "$compose_file" | cut -d: -f1)
-        local next_service=$(grep -n "^  [a-zA-Z0-9_-]*:" "$compose_file" | awk -F: -v start="$service_start" '$1 > start {print $1; exit}')
-        
-        # If no next service found, use end of file
-        if [ -z "$next_service" ]; then
-            next_service=$(wc -l < "$compose_file")
-        fi
-        
-        # Extract the service section
-        local service_section=$(sed -n "${service_start},${next_service}p" "$compose_file")
-        
-        local container_name=$(echo "$service_section" | grep -E "^\s+container_name:" | head -1 | sed 's/.*container_name: *\(.*\)/\1/')
-        local image_name=$(echo "$service_section" | grep -E "^\s+image:" | head -1 | sed 's/.*image: *\(.*\)/\1/')
-        local ip_suffix=$(echo "$service_section" | grep -E "^\s+ipv4_address:" | head -1 | sed 's/.*\${VPC_SUBNET}\.\([0-9]*\).*/\1/')
-        local port=$(echo "$service_section" | grep -A 5 "expose:" | grep -E "^\s+- " | head -1 | sed 's/.*- *"\?\([0-9]*\)"\?.*/\1/')
-        
-        # Use container_name if available, otherwise use service name
-        local final_container_name="${container_name:-$service_name}"
-        local display_name="${image_name:-$service_name}"
-        local ip_address=""
-        
-        # Build IP address if we have both VPC_SUBNET and suffix
-        if [ -n "$vpc_subnet" ] && [ -n "$ip_suffix" ]; then
-            ip_address="${vpc_subnet}.${ip_suffix}"
-        fi
-        
-        # Check if container is running
-        local status="stopped"
-        if echo "$running_containers" | grep -q "^${final_container_name}$"; then
-            status="running"
-        fi
-        
-        # Add to JSON
-        services_json=$(echo "$services_json" | jq --arg key "$final_container_name" \
-            --arg name "$display_name" \
-            --arg status "$status" \
-            --arg ip "$ip_address" \
-            --arg port "$port" \
-            '.[$key] = {name: $name, status: $status, ip_address: $ip, port: $port}')
-            
-    done <<< "$service_names"
-    
-    echo "$services_json"
 }
 
 get_project_status() {
@@ -118,23 +51,8 @@ get_project_status() {
     # Project folder check
     if [ -d "$proj_name" ]; then
         project_data=$(echo "$project_data" | jq --arg name "$proj_name" '. + {name: $name, folder_exists: true}')
-        
-        # Parse metadata from docker-compose.yaml if it exists
-        local compose_file="$proj_name/docker-compose.yaml"
-        if [ -f "$compose_file" ]; then
-            # Extract metadata using grep and sed
-            local emoji=$(grep -A 4 "x-metadata:" "$compose_file" | grep "emoji:" | sed 's/.*emoji: *"\(.*\)".*/\1/' 2>/dev/null || echo "🚀")
-            local display_name=$(grep -A 4 "x-metadata:" "$compose_file" | grep "name:" | sed 's/.*name: *"\(.*\)".*/\1/' 2>/dev/null || echo "$proj_name")
-            local description=$(grep -A 4 "x-metadata:" "$compose_file" | grep "description:" | sed 's/.*description: *"\(.*\)".*/\1/' 2>/dev/null || echo "")
-            
-            # Add metadata to project data
-            project_data=$(echo "$project_data" | jq --arg emoji "$emoji" --arg display_name "$display_name" --arg description "$description" '. + {emoji: $emoji, display_name: $display_name, description: $description}')
-        else
-            # No compose file, use project name as display name
-            project_data=$(echo "$project_data" | jq --arg emoji "🚀" --arg display_name "$proj_name" '. + {emoji: $emoji, display_name: $display_name, description: ""}')
-        fi
     else
-        project_data=$(echo "$project_data" | jq --arg name "$proj_name" --arg emoji "🚀" '. + {name: $name, folder_exists: false, emoji: $emoji, display_name: $name, description: ""}')
+        project_data=$(echo "$project_data" | jq --arg name "$proj_name" '. + {name: $name, folder_exists: false}')
     fi
     
     # Host entry check
@@ -235,71 +153,67 @@ if [[ "$(whoami)" == "root" ]]; then
 fi
 
 
-# Check if this environment is installed (only for non-JSON output)
-if [[ "$JSON_OUTPUT" != "1" ]]; then
-    if ! [ -f docker-stack/.env ]; then
-        echo-return; echo-red 'Development environment has not been configured!'; echo-white
-        echo 'Run: podium config'
-        exit 1
-    fi
+# Check if this environment is installed
+if ! [ -f docker-stack/.env ]; then
 
-    # Start CBC stack (only for non-JSON output)
-    if ! check-mariadb; then
-        echo-return; echo-red 'Development environment is not started!'; echo-white
-        echo 'Run startup.sh'
-        exit 1
-    fi
+  echo-return; echo-red 'Development environment has not been configured!'; echo-white
+
+  echo 'Run: podium config'
+
+  exit 1
+
 fi
 
 
-# Handle JSON output - ALWAYS return JSON when requested, regardless of service state
+# Start CBC stack
+if ! check-mariadb; then
+
+  echo-return; echo-red 'Development environment is not started!'; echo-white
+
+  echo 'Run startup.sh'
+
+  exit 1
+
+fi
+
+
+# Handle JSON output
 if [[ "$JSON_OUTPUT" == "1" ]]; then
-    # Get VPC subnet from .env file
-    VPC_SUBNET=""
-    if [ -f "docker-stack/.env" ]; then
-        VPC_SUBNET=$(grep "^VPC_SUBNET=" docker-stack/.env | cut -d'=' -f2)
-    fi
-    
-    # Initialize JSON structure
+    # Collect all data first
     JSON_DATA='{"shared_services": {}, "projects": []}'
     
-    # Parse docker-compose.yaml to get all services dynamically
-    COMPOSE_FILE="docker-stack/docker-compose.yaml"
-    if [ -f "$COMPOSE_FILE" ]; then
-        SERVICES_JSON=$(parse_docker_compose_services "$COMPOSE_FILE" "$VPC_SUBNET")
-        JSON_DATA=$(echo "$JSON_DATA" | jq --argjson services "$SERVICES_JSON" '.shared_services = $services')
-    else
-        # Fallback if compose file not found
-        echo "Warning: docker-compose.yaml not found" >&2
-    fi
+    # Get shared services status
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'mariadb')" '.shared_services.mariadb = {name: "MariaDB", status: $status}')
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'phpmyadmin')" '.shared_services.phpmyadmin = {name: "phpMyAdmin", status: $status}')
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'redis')" '.shared_services.redis = {name: "Redis", status: $status}')
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'memcached')" '.shared_services.memcached = {name: "Memcached", status: $status}')
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'postgres')" '.shared_services.postgres = {name: "PostgreSQL", status: $status}')
+    JSON_DATA=$(echo "$JSON_DATA" | jq --arg status "$(get_service_status 'mongo')" '.shared_services.mongo = {name: "MongoDB", status: $status}')
     
     # Get projects directory and iterate through projects
     PROJECTS_DIR=$(get_projects_dir)
-    if [ -d "$PROJECTS_DIR" ]; then
-        cd "$PROJECTS_DIR"
-        
-        if ! [ -z "$PROJECT_NAME" ]; then
-            # Single project requested
-            if [ -d "$PROJECT_NAME" ]; then
-                PROJECT_JSON=$(get_project_status "$PROJECT_NAME")
+    cd "$PROJECTS_DIR"
+    
+    if ! [ -z "$PROJECT_NAME" ]; then
+        # Single project requested
+        if [ -d "$PROJECT_NAME" ]; then
+            PROJECT_JSON=$(get_project_status "$PROJECT_NAME")
+            JSON_DATA=$(echo "$JSON_DATA" | jq --argjson project "$PROJECT_JSON" '.projects += [$project]')
+        fi
+    else
+        # All projects
+        for item in *; do
+            if [ -d "$item" ] && [ "$item" != "." ] && [ "$item" != ".." ]; then
+                PROJECT_JSON=$(get_project_status "$item")
                 JSON_DATA=$(echo "$JSON_DATA" | jq --argjson project "$PROJECT_JSON" '.projects += [$project]')
             fi
-        else
-            # All projects
-            for item in *; do
-                if [ -d "$item" ] && [ "$item" != "." ] && [ "$item" != ".." ]; then
-                    PROJECT_JSON=$(get_project_status "$item")
-                    JSON_DATA=$(echo "$JSON_DATA" | jq --argjson project "$PROJECT_JSON" '.projects += [$project]')
-                fi
-            done
-        fi
+        done
     fi
     
-    # ALWAYS output JSON (unless suppressed for intermediate calls)
+    # Output JSON (unless suppressed for intermediate calls)
     if [[ "$SUPPRESS_INTERMEDIATE_JSON" != "1" ]]; then
         echo "$JSON_DATA"
     fi
-    
     # Use return if sourced, exit if called directly
     if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
         return 0

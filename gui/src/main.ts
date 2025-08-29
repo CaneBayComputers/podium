@@ -49,7 +49,7 @@ function createWindow(): void {
       nodeIntegration: true,
       contextIsolation: false
     },
-    icon: path.join(__dirname, '../../assets/icon.png'),
+    icon: path.join(__dirname, '../assets/icon.png'),
     title: 'Podium - PHP Development Platform'
   });
 
@@ -377,4 +377,205 @@ ipcMain.handle('select-directory', async (event: IpcMainInvokeEvent, options: Se
   }
   
   return null;
+});
+
+// Handler for updating project metadata directly in docker-compose.yaml
+ipcMain.handle("update-project-metadata", async (event: IpcMainInvokeEvent, projectName: string, metadata: { display_name: string; description: string; emoji: string }): Promise<{ success: boolean; error?: string }> => {
+  try {
+    // Find projects directory - look in common locations
+    const possibleProjectsPaths: string[] = [
+      path.join(os.homedir(), 'cbc-projects'),
+      path.join(os.homedir(), 'podium-projects'), 
+      path.join(os.homedir(), 'projects'),
+      '/usr/local/share/podium-projects',
+      '/var/www/html'
+    ];
+    
+    let projectsDir: string | null = null;
+    
+    // Try to find the project in each possible location
+    for (const possiblePath of possibleProjectsPaths) {
+      const testPath = path.join(possiblePath, projectName);
+      if (fs.existsSync(testPath)) {
+        projectsDir = possiblePath;
+        break;
+      }
+    }
+    
+    if (!projectsDir) {
+      return { success: false, error: "Could not find projects directory" };
+    }
+    
+    const dockerComposePath = path.join(projectsDir, projectName, "docker-compose.yaml");
+    
+    if (!fs.existsSync(dockerComposePath)) {
+      return { success: false, error: "Project docker-compose.yaml not found" };
+    }
+    
+    // Read the current file
+    let content = fs.readFileSync(dockerComposePath, "utf8");
+    
+    // Update the metadata fields in the x-metadata section using more specific regex
+    content = content.replace(/(x-metadata:\s*\n\s*emoji:\s*)".*"/, `$1"${metadata.emoji}"`);
+    content = content.replace(/(x-metadata:[\s\S]*?name:\s*)".*"/, `$1"${metadata.display_name}"`);
+    content = content.replace(/(x-metadata:[\s\S]*?description:\s*)".*"/, `$1"${metadata.description}"`);
+    
+    // Write the updated content back
+    fs.writeFileSync(dockerComposePath, content, "utf8");
+    
+    debugLog("Updated project metadata", { projectName, metadata, dockerComposePath });
+    return { success: true };
+  } catch (error) {
+    debugLog("Error updating project metadata", { error: (error as Error).message, stack: (error as Error).stack });
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Handler for getting service statistics
+ipcMain.handle("get-service-stats", async (event: IpcMainInvokeEvent, serviceName: string): Promise<{ success: boolean; stats?: any; error?: string }> => {
+  try {
+    let command: string;
+    let args: string[];
+    
+    if (serviceName === "redis") {
+      command = "docker";
+      args = ["exec", "redis", "redis-cli", "INFO"];
+    } else if (serviceName === "memcached") {
+      command = "docker";
+      args = ["exec", "memcached", "echo", "stats", "|", "nc", "localhost", "11211"];
+    } else {
+      return { success: false, error: "Unsupported service" };
+    }
+    
+    const result = await new Promise<CommandResult>((resolve) => {
+      const process = spawn(command, args, {
+        stdio: ["pipe", "pipe", "pipe"]
+      });
+      
+      let stdout = "";
+      let stderr = "";
+      
+      process.stdout?.on("data", (data: Buffer) => {
+        stdout += data.toString();
+      });
+      
+      process.stderr?.on("data", (data: Buffer) => {
+        stderr += data.toString();
+      });
+      
+      process.on("close", (code: number | null) => {
+        resolve({ code: code || 0, stdout: stdout.trim(), stderr: stderr.trim() });
+      });
+    });
+    
+    if (result.code !== 0) {
+      return { success: false, error: result.stderr || "Failed to get stats" };
+    }
+    
+    let stats: any = {};
+    
+    if (serviceName === "redis") {
+      // Parse Redis INFO output
+      const lines = result.stdout.split("\\n");
+      for (const line of lines) {
+        if (line.includes(":")) {
+          const parts = line.split(":");
+          const key = parts[0];
+          const value = parts[1];
+          if (key && value) {
+            stats[key.trim()] = value.trim();
+          }
+        }
+      }
+      
+      // Calculate total keys from keyspace info
+      let totalKeys = 0;
+      for (const [key, value] of Object.entries(stats)) {
+        if (key.startsWith("db") && typeof value === "string") {
+          const match = value.match(/keys=([0-9]+)/);
+          if (match && match[1]) totalKeys += parseInt(match[1]);
+        }
+      }
+      stats.total_keys = totalKeys.toString();
+      
+    } else if (serviceName === "memcached") {
+      // Parse Memcached stats output
+      const lines = result.stdout.split("\\n");
+      for (const line of lines) {
+        if (line.startsWith("STAT ")) {
+          const parts = line.split(" ");
+          if (parts.length >= 3 && parts[1] && parts[2]) {
+            stats[parts[1]] = parts[2];
+          }
+        }
+      }
+      
+      // Format bytes as human readable
+      if (stats.bytes) {
+        const bytes = parseInt(stats.bytes);
+        if (bytes > 1024 * 1024) {
+          stats.bytes = `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+        } else if (bytes > 1024) {
+          stats.bytes = `${(bytes / 1024).toFixed(2)} KB`;
+        } else {
+          stats.bytes = `${bytes} B`;
+        }
+      }
+    }
+    
+    debugLog("Service stats retrieved", { serviceName, stats });
+    return { success: true, stats };
+  } catch (error) {
+    debugLog("Error getting service stats", { error: (error as Error).message });
+    return { success: false, error: (error as Error).message };
+  }
+});
+
+// Handler for flushing service data
+ipcMain.handle("flush-service-data", async (event: IpcMainInvokeEvent, serviceName: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    let command: string;
+    let args: string[];
+    
+    if (serviceName === "redis") {
+      command = "docker";
+      args = ["exec", "redis", "redis-cli", "FLUSHALL"];
+    } else if (serviceName === "memcached") {
+      command = "docker";
+      args = ["exec", "memcached", "echo", "flush_all", "|", "nc", "localhost", "11211"];
+    } else {
+      return { success: false, error: "Unsupported service" };
+    }
+    
+    const result = await new Promise<CommandResult>((resolve) => {
+      const process = spawn(command, args, {
+        stdio: ["pipe", "pipe", "pipe"]
+      });
+      
+      let stdout = "";
+      let stderr = "";
+      
+      process.stdout?.on("data", (data: Buffer) => {
+        stdout += data.toString();
+      });
+      
+      process.stderr?.on("data", (data: Buffer) => {
+        stderr += data.toString();
+      });
+      
+      process.on("close", (code: number | null) => {
+        resolve({ code: code || 0, stdout: stdout.trim(), stderr: stderr.trim() });
+      });
+    });
+    
+    if (result.code !== 0) {
+      return { success: false, error: result.stderr || "Failed to flush data" };
+    }
+    
+    debugLog("Service data flushed", { serviceName });
+    return { success: true };
+  } catch (error) {
+    debugLog("Error flushing service data", { error: (error as Error).message });
+    return { success: false, error: (error as Error).message };
+  }
 });

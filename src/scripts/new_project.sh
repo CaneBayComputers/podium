@@ -45,6 +45,9 @@ usage() {
 
 # Initialize variables
 PROJECT_NAME=""
+DISPLAY_NAME=""
+PROJECT_DESCRIPTION=""
+PROJECT_EMOJI="🚀"
 ORGANIZATION=""
 VERSION=""
 FRAMEWORK=""
@@ -67,6 +70,21 @@ while [[ $# -gt 0 ]]; do
             ;;
         --database)
             DATABASE="$2"
+            INTERACTIVE_MODE=false
+            shift 2
+            ;;
+        --display-name)
+            DISPLAY_NAME="$2"
+            INTERACTIVE_MODE=false
+            shift 2
+            ;;
+        --description)
+            PROJECT_DESCRIPTION="$2"
+            INTERACTIVE_MODE=false
+            shift 2
+            ;;
+        --emoji)
+            PROJECT_EMOJI="$2"
             INTERACTIVE_MODE=false
             shift 2
             ;;
@@ -159,13 +177,18 @@ case $PROJECT_TYPE in
         
         # Laravel version selection
         if [ -z "$VERSION" ]; then
-            echo-return; echo-cyan "Which Laravel version would you like to use?"
-            echo-white "1) Laravel 12.x (Latest - Recommended)"
-            echo-white "2) Laravel 11.x (LTS)"
-            echo-white "3) Laravel 10.x (Previous LTS)"
-            echo-white "4) Custom version"
-            echo-return; echo-yellow -n "Enter your choice (1-4): "
-            read LARAVEL_VERSION_CHOICE
+            if [ "$INTERACTIVE_MODE" = "true" ]; then
+                echo-return; echo-cyan "Which Laravel version would you like to use?"
+                echo-white "1) Laravel 12.x (Latest - Recommended)"
+                echo-white "2) Laravel 11.x (LTS)"
+                echo-white "3) Laravel 10.x (Previous LTS)"
+                echo-white "4) Custom version"
+                echo-return; echo-yellow -n "Enter your choice (1-4): "
+                read LARAVEL_VERSION_CHOICE
+            else
+                # Default to Laravel 12.x in non-interactive mode
+                LARAVEL_VERSION_CHOICE=1
+            fi
             
             case $LARAVEL_VERSION_CHOICE in
                 1)
@@ -201,12 +224,17 @@ case $PROJECT_TYPE in
         
         # WordPress version selection
         if [ -z "$VERSION" ]; then
-            echo-return; echo-cyan "Which WordPress version would you like to use?"
-            echo-white "1) Latest WordPress (Recommended)"
-            echo-white "2) WordPress 6.4 (Previous version)"
-            echo-white "3) WordPress 6.3"
-            echo-return; echo-yellow -n "Enter your choice (1-3): "
-            read WP_VERSION_CHOICE
+            if [ "$INTERACTIVE_MODE" = "true" ]; then
+                echo-return; echo-cyan "Which WordPress version would you like to use?"
+                echo-white "1) Latest WordPress (Recommended)"
+                echo-white "2) WordPress 6.4 (Previous version)"
+                echo-white "3) WordPress 6.3"
+                echo-return; echo-yellow -n "Enter your choice (1-3): "
+                read WP_VERSION_CHOICE
+            else
+                # Default to latest WordPress in non-interactive mode
+                WP_VERSION_CHOICE=1
+            fi
             
             case $WP_VERSION_CHOICE in
                 1)
@@ -411,7 +439,7 @@ cd ../..
 # Setup project
 if [[ "$JSON_OUTPUT" == "1" ]]; then
     # In JSON mode, run setup silently and provide our own complete response
-    source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE > /dev/null
+    source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE "$DISPLAY_NAME" "$PROJECT_DESCRIPTION" "$PROJECT_EMOJI" > /dev/null
     if [ $? -eq 0 ]; then
         echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"success\"}"
     else
@@ -419,7 +447,7 @@ if [[ "$JSON_OUTPUT" == "1" ]]; then
     fi
 else
     # In normal mode, run setup with full output
-    source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE
+    source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE "$DISPLAY_NAME" "$PROJECT_DESCRIPTION" "$PROJECT_EMOJI"
 fi
 
 cd "$ORIG_DIR"

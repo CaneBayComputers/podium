@@ -69,6 +69,10 @@ fi
 if [ -f "${PACKAGE_NAME}/usr/share/pixmaps/podium-gui.png" ]; then
     chmod 644 "${PACKAGE_NAME}/usr/share/pixmaps/podium-gui.png"
 fi
+if [ -d "${PACKAGE_NAME}/usr/share/icons" ]; then
+    chmod -R 644 "${PACKAGE_NAME}/usr/share/icons/hicolor/*/apps/podium-gui.png"
+    find "${PACKAGE_NAME}/usr/share/icons" -type d -exec chmod 755 {} \;
+fi
 if [ -d "${PACKAGE_NAME}/usr/local/share/podium-cli/gui" ]; then
     chmod -R 755 "${PACKAGE_NAME}/usr/local/share/podium-cli/gui"
 fi

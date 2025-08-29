@@ -24,10 +24,15 @@ source docker-stack/.env
 # Database engine can be passed as second parameter, default to mariadb
 DATABASE_ENGINE="${2:-mariadb}"
 
+# Metadata parameters (3rd, 4th, 5th parameters)
+DISPLAY_NAME="${3:-$1}"  # Default to project name if not provided
+PROJECT_DESCRIPTION="${4:-}"
+PROJECT_EMOJI="${5:-🚀}"  # Default emoji
+
 # Function to display usage
 usage() {
 
-    echo "Usage: $0 <project_name>"
+    echo "Usage: $0 <project_name> [database_engine] [display_name] [description] [emoji]"
     
     exit 1
 }
@@ -151,6 +156,13 @@ podium-sed "s/STACK_ID/$STACK_ID/g" docker-compose.yaml
 podium-sed "s/PHP_VERSION/$PHP_VERSION/g" docker-compose.yaml
 
 podium-sed "s/PROJECT_PORT/$D_CLASS/g" docker-compose.yaml
+
+# Replace metadata fields
+podium-sed "s/PROJECT_EMOJI/$PROJECT_EMOJI/g" docker-compose.yaml
+
+podium-sed "s/PROJECT_NAME/$DISPLAY_NAME/g" docker-compose.yaml
+
+podium-sed "s/PROJECT_DESCRIPTION/$PROJECT_DESCRIPTION/g" docker-compose.yaml
 
 if [ -d "public" ]; then
 

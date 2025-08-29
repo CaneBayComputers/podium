@@ -12,13 +12,14 @@
         <header class="header">
             <div class="header-content">
                 <div class="logo">
-                    <h1>🎭 Podium</h1>
+                    <h1>Podium</h1>
                     <span class="tagline">Professional PHP Development Platform</span>
                 </div>
                 <div class="header-actions">
+                    <button class="btn btn-success" onclick="startAllProjects()">Start All</button>
+                    <button class="btn btn-warning" onclick="stopAllProjects()">Stop All</button>
                     <button class="btn btn-primary" onclick="createNewProject()">+ New Project</button>
                     <button class="btn btn-primary" onclick="cloneProject()">📥 Clone</button>
-                    <button class="btn btn-primary" onclick="refreshProjects()">🔄 Refresh</button>
                 </div>
             </div>
         </header>
@@ -27,13 +28,6 @@
         <main class="main-content">
             <!-- Project Dashboard -->
             <section class="dashboard">
-                <div class="dashboard-header">
-                    <h2>Your Projects</h2>
-                    <div class="dashboard-controls">
-                        <button class="btn btn-success" onclick="startAllProjects()">▶ Start All</button>
-                        <button class="btn btn-warning" onclick="stopAllProjects()">⏹ Stop All</button>
-                    </div>
-                </div>
 
                 <!-- Projects Grid -->
                 <div id="projects-grid" class="projects-grid">
@@ -57,37 +51,8 @@
                         <button class="btn btn-primary btn-small" onclick="openUrl('http://phpmyadmin')">🗄️ phpMyAdmin</button>
                     </div>
                 </div>
-                <div class="services-grid">
-                    <div class="service-card">
-                        <div class="service-status" id="mysql-status">🔴</div>
-                        <span>MariaDB</span>
-                        <div class="service-info">Database Server</div>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-status" id="redis-status">🔴</div>
-                        <span>Redis</span>
-                        <div class="service-info">Cache & Sessions</div>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-status" id="phpmyadmin-status">🔴</div>
-                        <span>phpMyAdmin</span>
-                        <div class="service-info">DB Management</div>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-status" id="memcached-status">🔴</div>
-                        <span>Memcached</span>
-                        <div class="service-info">Memory Cache</div>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-status" id="mongo-status">🔴</div>
-                        <span>MongoDB</span>
-                        <div class="service-info">Document DB</div>
-                    </div>
-                    <div class="service-card">
-                        <div class="service-status" id="postgres-status">🔴</div>
-                        <span>PostgreSQL</span>
-                        <div class="service-info">Advanced DB</div>
-                    </div>
+                <div id="services-grid" class="services-grid">
+                    <!-- Services will be loaded dynamically -->
                 </div>
             </section>
         </main>
@@ -103,7 +68,35 @@
                     <form id="new-project-form">
                         <div class="form-group">
                             <label>Project Name</label>
-                            <input type="text" id="project-name" placeholder="my-awesome-project" required>
+                            <input type="text" id="project-name" placeholder="My Awesome Project" required>
+                            <small class="form-help">Will be sanitized for container name (spaces→dashes, lowercase)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="project-description" placeholder="A brief description of your project">
+                            <small class="form-help">Optional description shown on the project tile</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Project Emoji</label>
+                            <select id="project-emoji">
+                                <option value="🚀">🚀 Rocket</option>
+                                <option value="💻">💻 Computer</option>
+                                <option value="🌟">🌟 Star</option>
+                                <option value="🔥">🔥 Fire</option>
+                                <option value="⚡">⚡ Lightning</option>
+                                <option value="🎯">🎯 Target</option>
+                                <option value="🏆">🏆 Trophy</option>
+                                <option value="💎">💎 Diamond</option>
+                                <option value="🎨">🎨 Art</option>
+                                <option value="🔧">🔧 Wrench</option>
+                                <option value="📱">📱 Mobile</option>
+                                <option value="🌐">🌐 Globe</option>
+                                <option value="🎮">🎮 Game</option>
+                                <option value="📊">📊 Chart</option>
+                                <option value="🛡️">🛡️ Shield</option>
+                            </select>
                         </div>
                         
                         <div class="form-group">
@@ -111,7 +104,7 @@
                             <div class="radio-group">
                                 <label><input type="radio" name="project-type" value="laravel" checked> Laravel</label>
                                 <label><input type="radio" name="project-type" value="wordpress"> WordPress</label>
-                                <label><input type="radio" name="project-type" value="basic"> Basic PHP</label>
+                                <label><input type="radio" name="project-type" value="basic"> PHP</label>
                             </div>
                         </div>
 
@@ -133,15 +126,6 @@
                             </select>
                         </div>
 
-                        <div class="form-group" id="basic-version-group" style="display: none;">
-                            <label>PHP Version</label>
-                            <select id="basic-version">
-                                <option value="8.3">PHP 8.3 (Latest)</option>
-                                <option value="8.2">PHP 8.2</option>
-                                <option value="8.1">PHP 8.1</option>
-                            </select>
-                        </div>
-
                         <div class="form-group">
                             <input type="checkbox" id="create-github-repo" />
                             <label for="create-github-repo">Create GitHub repository</label>
@@ -158,6 +142,145 @@
                     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button class="btn btn-primary" onclick="submitNewProject()">Create Project</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Remove Project Modal -->
+        <div id="remove-project-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Remove Project</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to remove the project <strong id="remove-project-name"></strong>?</p>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="preserve-database" />
+                            Preserve database (keep project data)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-danger" onclick="confirmRemoveProject()">Remove Project</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Project Modal -->
+        <div id="edit-project-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Edit Project</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-project-form">
+                        <div class="form-group">
+                            <label>Display Name</label>
+                            <input type="text" id="edit-display-name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="edit-description" placeholder="Optional description">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Project Emoji</label>
+                            <select id="edit-emoji">
+                                <option value="🚀">🚀 Rocket</option>
+                                <option value="💻">💻 Computer</option>
+                                <option value="🌟">🌟 Star</option>
+                                <option value="🔥">🔥 Fire</option>
+                                <option value="⚡">⚡ Lightning</option>
+                                <option value="🎯">🎯 Target</option>
+                                <option value="🏆">🏆 Trophy</option>
+                                <option value="💎">💎 Diamond</option>
+                                <option value="🎨">🎨 Art</option>
+                                <option value="🔧">🔧 Wrench</option>
+                                <option value="📱">📱 Mobile</option>
+                                <option value="🌐">🌐 Globe</option>
+                                <option value="🎮">🎮 Game</option>
+                                <option value="📊">📊 Chart</option>
+                                <option value="🛡️">🛡️ Shield</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitEditProject()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Service Modal -->
+        <div id="manage-service-modal" class="modal manage-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="manage-service-title">Manage Service</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="stats-grid" id="service-stats">
+                        <!-- Stats will be populated dynamically -->
+                    </div>
+                    
+                    <div class="flush-section">
+                        <h4>⚠️ Danger Zone</h4>
+                        <p>Flushing will permanently delete all data in this service.</p>
+                        <button class="btn btn-danger" onclick="flushServiceData()" id="flush-button">
+                            🗑️ Flush All Data
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                    <button class="btn btn-primary" onclick="refreshServiceStats()" id="refresh-stats-button">
+                        🔄 Refresh Stats
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clone Project Modal -->
+        <div id="clone-project-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📥 Clone Project</h3>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="clone-project-form">
+                        <div class="form-group">
+                            <label for="clone-repo-url">Git Repository URL:</label>
+                            <input type="url" id="clone-repo-url" name="repoUrl" required placeholder="https://github.com/user/repo.git">
+                            <span class="form-help">Enter the full Git repository URL to clone</span>
+                            <div class="field-error" id="clone-repo-url-error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="clone-project-name">Local Project Name (optional):</label>
+                            <input type="text" id="clone-project-name" name="projectName" maxlength="50" placeholder="Leave empty to use repository name">
+                            <span class="form-help">If empty, will use the repository name</span>
+                            <div class="field-error" id="clone-project-name-error"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" onclick="closeModal()">Cancel</button>
+                            <button type="submit">📥 Clone Project</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <h3 id="loading-message">Please wait...</h3>
+                <p id="loading-details">Processing your request</p>
             </div>
         </div>
     </div>
