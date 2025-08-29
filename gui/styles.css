@@ -579,15 +579,15 @@ body::before {
 
 /* Remove any background from span status indicators */
 span.status-indicator {
-    background: transparent !important;
+    background: rgba(139, 92, 246, 0.1) !important;
     box-shadow: none !important;
     width: auto !important;
     height: auto !important;
-    border-radius: 0 !important;
+    border-radius: 4px !important;
     padding: 0.5rem 0.75rem !important;
-    border: none !important;
+    border: 1px solid rgba(139, 92, 246, 0.3) !important;
     margin-bottom: 1rem !important;
-    display: block !important;
+    display: inline-block !important;
     font-weight: bold !important;
 }
 
