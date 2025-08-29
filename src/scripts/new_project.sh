@@ -439,11 +439,14 @@ cd ../..
 # Setup project
 if [[ "$JSON_OUTPUT" == "1" ]]; then
     # In JSON mode, run setup silently and provide our own complete response
-    source "$DEV_DIR/scripts/setup_project.sh" $PROJECT_NAME $DATABASE_TYPE "$DISPLAY_NAME" "$PROJECT_DESCRIPTION" "$PROJECT_EMOJI" > /dev/null
-    if [ $? -eq 0 ]; then
+    timeout 1800 bash -c "source '$DEV_DIR/scripts/setup_project.sh' $PROJECT_NAME $DATABASE_TYPE '$DISPLAY_NAME' '$PROJECT_DESCRIPTION' '$PROJECT_EMOJI'" > /dev/null 2>&1
+    SETUP_EXIT_CODE=$?
+    if [ $SETUP_EXIT_CODE -eq 0 ]; then
         echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"success\"}"
+    elif [ $SETUP_EXIT_CODE -eq 124 ]; then
+        echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"error\", \"error\": \"timeout\"}"
     else
-        echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"error\"}"
+        echo "{\"action\": \"new_project\", \"project_name\": \"$PROJECT_NAME\", \"framework\": \"$PROJECT_TYPE\", \"database\": \"$DATABASE_TYPE\", \"status\": \"error\", \"error\": \"setup_failed\"}"
     fi
 else
     # In normal mode, run setup with full output

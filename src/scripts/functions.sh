@@ -56,7 +56,8 @@ echo-return() { if [[ "$JSON_OUTPUT" != "1" ]]; then echo "$@"; fi; }
 # Docker aliases used by scripts (JSON-aware for clean output)
 dockerup() { 
     if [[ "$JSON_OUTPUT" == "1" ]]; then
-        docker compose up -d --quiet-pull "$@" > /dev/null 2>&1
+        # Remove --quiet-pull as it can cause hanging, and add timeout
+        timeout 300 docker compose up -d "$@" > /dev/null 2>&1
     else
         docker compose up -d "$@"
     fi
@@ -83,7 +84,7 @@ json-mysql() {
 
 json-composer() {
     if [[ "$JSON_OUTPUT" == "1" ]]; then
-        composer-docker "$@" > /dev/null 2>&1
+        timeout 600 composer-docker "$@" > /dev/null 2>&1
     else
         composer-docker "$@"
     fi
@@ -91,7 +92,7 @@ json-composer() {
 
 json-artisan() {
     if [[ "$JSON_OUTPUT" == "1" ]]; then
-        art "$@" > /dev/null 2>&1
+        timeout 300 art "$@" > /dev/null 2>&1
     else
         art "$@"
     fi
